@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30717.126
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Keyfactor.AnyAgent.AwsCertificateManager", "Keyfactor.AnyAgent.AwsCertificateManager\Keyfactor.AnyAgent.AwsCertificateManager.csproj", "{19AC6C0A-B88A-49FB-BFB9-CE81FEF46D3D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aws-orchestrator-core", "aws-orchestrator-core\aws-orchestrator-core.csproj", "{9BEDC094-06DC-40C6-B5DF-88B4960D4DCF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Keyfactor.AnyAgent.AwsCertificateManager.Tests", "Keyfactor.AnyAgent.AwsCertificateManager.Tests\Keyfactor.AnyAgent.AwsCertificateManager.Tests.csproj", "{D5BD2BFC-C585-4237-B38F-67418B4CCF09}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AWSOktaTester", "AWSOktaTester\AWSOktaTester.csproj", "{7923DF0E-BA53-492F-94A1-F8C581D3990B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,19 +13,19 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{19AC6C0A-B88A-49FB-BFB9-CE81FEF46D3D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{19AC6C0A-B88A-49FB-BFB9-CE81FEF46D3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{19AC6C0A-B88A-49FB-BFB9-CE81FEF46D3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{19AC6C0A-B88A-49FB-BFB9-CE81FEF46D3D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D5BD2BFC-C585-4237-B38F-67418B4CCF09}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D5BD2BFC-C585-4237-B38F-67418B4CCF09}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D5BD2BFC-C585-4237-B38F-67418B4CCF09}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D5BD2BFC-C585-4237-B38F-67418B4CCF09}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BEDC094-06DC-40C6-B5DF-88B4960D4DCF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BEDC094-06DC-40C6-B5DF-88B4960D4DCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BEDC094-06DC-40C6-B5DF-88B4960D4DCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BEDC094-06DC-40C6-B5DF-88B4960D4DCF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7923DF0E-BA53-492F-94A1-F8C581D3990B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7923DF0E-BA53-492F-94A1-F8C581D3990B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7923DF0E-BA53-492F-94A1-F8C581D3990B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7923DF0E-BA53-492F-94A1-F8C581D3990B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {9D11C13C-1B9D-4189-AE9A-B3C5A6AEE215}
+		SolutionGuid = {BB69DDA3-CEFA-427A-AA0A-D600D129B80B}
 	EndGlobalSection
 EndGlobal
