@@ -3,8 +3,7 @@
 name: Keyfactor Extension - Release
 
 env:
-  project_folder: Keyfactor.AnyAgent.AwsCertificateManager
-
+  project_folder: aws-orchestrator-core
 # Controls when the action will run. 
 on:
   # Triggers the workflow on pull requests closing
