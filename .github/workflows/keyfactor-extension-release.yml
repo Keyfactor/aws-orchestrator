@@ -3,6 +3,7 @@
 name: Keyfactor Extension - Release
 
 env:
+  SOLUTION_FOLDER: '.'
   project_folder: aws-orchestrator-core
 # Controls when the action will run. 
 on:
@@ -102,7 +103,9 @@ jobs:
         if: ${{ success() }}
         run: |
            md ${{ github.workspace }}\zip\Keyfactor
-           Compress-Archive -Path ${{ github.workspace }}\${{env.project_folder}}\bin\Release\*.dll,${{ github.workspace }}\${{env.project_folder}}\bin\Release\*.json -DestinationPath ${{ github.workspace }}\zip\Keyfactor\$Env:REPO_NAME.zip -Force      
+           Compress-Archive -Path `
+           ${{ env.SOLUTION_FOLDER }}\${{ env.PROJECT_FOLDER }}\bin\Release\netcoreapp3.1\* `
+           -DestinationPath ${{ github.workspace }}\zip\Keyfactor\$Env:REPO_NAME.zip -Force      
       
       - name: Upload Release Asset (x64)
         if: ${{ success() }}
