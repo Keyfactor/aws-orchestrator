@@ -3,5 +3,6 @@
     "integration_type": "orchestrator",
     "name": "AWS",
     "status": "Prototype",
+    "link_github": false,
     "description": "AWS Certificate Manager with Okta OAuth Support."
 }
