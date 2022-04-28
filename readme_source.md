@@ -1,11 +1,3 @@
-# {{ name }}
-## {{ integration_type | capitalize }}
-
-{{ description }}
-
-## {{ status | capitalize }} Ready
-
-<!-- add integration specific information below -->
 *** 
 ## **Configuration**
 
