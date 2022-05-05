@@ -2,11 +2,11 @@
   "extensions": {
     "Keyfactor.Orchestrators.Extensions.IOrchestratorJobExtension": {
       "CertStores.AwsCerManO.Inventory": {
-        "assemblypath": "C:\\Program Files\\Keyfactor\\KeyfactorUniversalOrchestrator\\extensions\\AwsOkta\\Keyfactor.AnyAgent.AwsCertificateManager.dll",
+        "assemblypath": "Keyfactor.AnyAgent.AwsCertificateManager.dll",
         "TypeFullName": "Keyfactor.AnyAgent.AwsCertificateManager.Jobs.Inventory"
       },
       "CertStores.AwsCerManO.Management": {
-        "assemblypath": "C:\\Program Files\\Keyfactor\\KeyfactorUniversalOrchestrator\\extensions\\AwsOkta\\Keyfactor.AnyAgent.AwsCertificateManager.dll",
+        "assemblypath": "Keyfactor.AnyAgent.AwsCertificateManager.dll",
         "TypeFullName": "Keyfactor.AnyAgent.AwsCertificateManager.Jobs.Management"
       }
     }
