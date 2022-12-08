@@ -3,7 +3,7 @@
 
 **Overview**
 
-AWS Certificate Manager is a service that lets you easily provision, manage, and deploy public and private Secure Sockets Layer/Transport Layer Security (SSL/TLS) certificates for use with AWS services and your internal connected resources. SSL/TLS certificates are used to secure network communications and establish the identity of websites over the Internet as well as resources on private networks. AWS Certificate Manager removes the time-consuming manual process of purchasing, uploading, and renewing SSL/TLS certificates.  The Okta Support allows authentication against a 3rd party identity provider in AWS.  From there you can get temporary credentials for a role that you setup in each AWS Account.  This way you don't have to use AWS API keys all over the place for each account.
+AWS Certificate Manager is a service that lets you easily provision, manage, and deploy public and private Secure Sockets Layer/Transport Layer Security (SSL/TLS) certificates for use with AWS services and your internal connected resources. SSL/TLS certificates are used to secure network communications and establish the identity of websites over the Internet as well as resources on private networks. AWS Certificate Manager removes the time-consuming manual process of purchasing, uploading, and renewing SSL/TLS certificates.  The orchestrator supports Okta OAth authentication, as well as AWS IAM accounts. The Okta Support allows authentication against a 3rd party identity provider in AWS.  From there you can get temporary credentials for a role that you setup in each AWS Account. 
 
 ### Documentation
 
@@ -49,12 +49,13 @@ Cert Store Types Settings - Advanced
 
 Cert Store Types Settings - Custom Fields
 ---------------
-| Name | Display Name | Required | Description |
-| ----------- | ----------- | ----------- | ----------- |
-| scope | Okta OAuth Scope | True | This is the OAuth Scope needed for Okta OAuth
-| grant_type | Okta OAuth Grant Type | True | In OAuth 2.0, the term “grant type” refers to the way an application gets an access token
-| awsrole | AWS Assume Identity Role | True | This role has to be created in AWS IAM so you can assume an identity and get temp credentials
-| awsregions | AWS Regions | True | This will be the list of regions for the account the store iterates through when doing inventory.
+| Name | Display Name | Required | Type | Value | Description |
+| ----------- | ----------- | ----------- | ----------- | ----------- | ----------- |
+| auth_type | Authentication Type | True | Multiple Choice | Okta OAuth,AWS IAM | This specifies whether to use Okta auth or IAM auth
+| scope | Okta OAuth Scope | True (Okta only) | string | | This is the OAuth Scope needed for Okta OAuth
+| grant_type | Okta OAuth Grant Type | True (Okta only) | string | | In OAuth 2.0, the term “grant type” refers to the way an application gets an access token
+| awsrole | AWS Assume Identity Role | True | string | | This role has to be created in AWS IAM so you can assume an identity and get temp credentials
+| awsregions | AWS Regions | True | string | | This will be the list of regions for the account the store iterates through when doing inventory.
 
 ![image.png](/Images/CertStoreType-CustomFields.gif)
 
@@ -66,7 +67,7 @@ Cert Store Types Settings - Entry Params
 
 ![image.png](/Images/CertStoreType-EntryParams.gif)
 
-Cert Store Settings
+Cert Store Settings (Okta Auth)
 ===============
 | Number | Name | Value | Description |
 | ----------- | ----------- | ----------- | ----------- |
@@ -74,11 +75,27 @@ Cert Store Settings
 | 0 | User Name | Okta Key | Obtained from the Okta application |
 | 0 | Password | Okta Secret | Obtained from the Okta application |
 | 1 | Store Path | AWS Account Number | Unique account number obtained from AWS |
-| 2 | Okta OAuth Scope | Look in Okta Setup for Scope | OAuth scope setup in the Okta Application |
-| 3 | Okta OAuth Grant Type | client_credentials | This may vary depending on Okta setup but will most likely be this value. |
-| 4 | AWS Assume Identity Role | Whatever Role is setup in AWS | Role must allow a third identity provider in AWS with AWS Cert Manager full access. |
-| 5 | AWS Regions | us-east1,us-east2... | List of AWS Regions you want to inventory for the account above. |
-| 6 | Store Password | No Password Needed for this | Set to no password needed. |
+| 2 | Authentication Type | Auth type to use | Select Okta OAth |
+| 3 | Okta OAuth Scope | Look in Okta Setup for Scope | OAuth scope setup in the Okta Application |
+| 4 | Okta OAuth Grant Type | client_credentials | This may vary depending on Okta setup but will most likely be this value. |
+| 5 | AWS Assume Identity Role | Whatever Role is setup in AWS | Role must allow a third identity provider in AWS with AWS Cert Manager full access. |
+| 6 | AWS Regions | us-east1,us-east2... | List of AWS Regions you want to inventory for the account above. |
+| 7 | Store Password | No Password Needed for this | Set to no password needed. |
+
+![image.png](/Images/CertStore2.gif)
+
+Cert Store Settings (IAM Auth)
+===============
+| Number | Name | Value | Description |
+| ----------- | ----------- | ----------- | ----------- |
+| 0 | Client Machine | None | IAM auth does not use |
+| 0 | User Name | IAM Account Key | Obtained from AWS |
+| 0 | Password | IAM Account Secret | Obtained from the AWS |
+| 1 | Store Path | AWS Account Number | Unique account number obtained from AWS |
+| 2 | Authentication Type | Auth type to use | Select AWS IAM |
+| 3 | AWS Assume Identity Role | Whatever Role is setup in AWS | Role must allow a third identity provider in AWS with AWS Cert Manager full access. |
+| 4 | AWS Regions | us-east1,us-east2... | List of AWS Regions you want to inventory for the account above. |
+| 5 | Store Password | No Password Needed for this | Set to no password needed. |
 
 ![image.png](/Images/CertStore2.gif)
 

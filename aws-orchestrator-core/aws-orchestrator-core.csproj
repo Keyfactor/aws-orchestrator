@@ -1,15 +1,21 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+	<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <RootNamespace>Keyfactor.AnyAgent.AwsCertificateManager</RootNamespace>
     <AssemblyName>Keyfactor.AnyAgent.AwsCertificateManager</AssemblyName>
   </PropertyGroup>
+  
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="echo F | xcopy &quot;$(SolutionDir)sample-manifest.json&quot; &quot;$(TargetDir)\manifest.json&quot; /Y" />
+  </Target>
 
   <ItemGroup>
-    <PackageReference Include="AWSSDK.CertificateManager" Version="3.7.1.63" />
-    <PackageReference Include="AWSSDK.Core" Version="3.7.5.4" />
-    <PackageReference Include="AWSSDK.SecurityToken" Version="3.7.1.96" />
+    <PackageReference Include="AWSSDK.CertificateManager" Version="3.7.101.21" />
+    <PackageReference Include="AWSSDK.Core" Version="3.7.102" />
+    <PackageReference Include="AWSSDK.IdentityManagement" Version="3.7.100.33" />
+    <PackageReference Include="AWSSDK.SecurityToken" Version="3.7.100.32" />
     <PackageReference Include="Keyfactor.Logging" Version="1.1.1" />
     <PackageReference Include="Keyfactor.Orchestrators.IOrchestratorJobExtensions" Version="0.6.0" />
     <PackageReference Include="Keyfactor.Orchestrators.IOrchestratorRegistrationUpdater" Version="1.0.3" />
