@@ -32,6 +32,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Images", "Images", "{7F05A2
 		Images\OktaApp2.gif = Images\OktaApp2.gif
 		Images\OktaSampleAuthorizationServer-scopes.gif = Images\OktaSampleAuthorizationServer-scopes.gif
 		Images\OktaSampleAuthorizationServer.gif = Images\OktaSampleAuthorizationServer.gif
+		Images\UserAccount.gif = Images\UserAccount.gif
 	EndProjectSection
 EndProject
 Global

@@ -125,6 +125,12 @@ Setup an Okta App with similar settings to the screens below:
 
 
 #AWS Certificate Manager with IAM Auth Configuration
+NOTE FOR IAM AUTH:
+
+AWS does not support programmatic access for AWS SSO accounts. The account used here must be a standard AWS IAM User with an Access Key credential type.
+![image.png](/Images/UserAccount.gif)
+
+
 Cert Store Type Settings
 ===============
 
