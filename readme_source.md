@@ -24,10 +24,10 @@ AWS Certificate Manager is a service that lets you easily provision, manage, and
 
 ## **Installation**
 Depending on your choice of authentication providers, choose the appropriate configuration section
-- [Okta Auth Configuration](#aws-certificate-manager-with-okta-auth-configuration)
-- [AWS IAM Auth Configuration](#aws-certificate-manager-with-iam-auth-configuration)
+- [Okta Auth Configuration](#-aws-certificate-manager-with-okta-auth-configuration)
+- [AWS IAM Auth Configuration](#-aws-certificate-manager-with-iam-auth-configuration)
 
-#AWS Certificate Manager with Okta Auth Configuration
+# AWS Certificate Manager with Okta Auth Configuration
 Cert Store Type Settings
 ===============
 
@@ -124,7 +124,7 @@ Setup an Okta App with similar settings to the screens below:
 ![image.png](/Images/OktaApp2.gif)
 
 
-#AWS Certificate Manager with IAM Auth Configuration
+# AWS Certificate Manager with IAM Auth Configuration
 NOTE FOR IAM AUTH:
 
 AWS does not support programmatic access for AWS SSO accounts. The account used here must be a standard AWS IAM User with an Access Key credential type.
