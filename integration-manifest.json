@@ -1,8 +1,8 @@
 {
-    "$schema": "https://keyfactor.github.io/integration-manifest-schema.json",
-    "integration_type": "orchestrator",
-    "name": "AWS",
-    "status": "prototype",
-    "link_github": false,
-    "description": "AWS Certificate Manager with Okta OAuth Support."
+  "$schema": "https://keyfactor.github.io/integration-manifest-schema.json",
+  "integration_type": "orchestrator",
+  "name": "AWS",
+  "status": "prototype",
+  "link_github": false,
+  "description": "AWS Certificate Manager."
 }
