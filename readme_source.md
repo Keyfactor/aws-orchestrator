@@ -54,7 +54,7 @@ Cert Store Types Settings - Advanced
 Cert Store Types Settings - Custom Fields
 ---------------
 | Name | Display Name | Required | Type | Description |
-| ----------- | ----------- | ----------- | ----------- | ----------- | ----------- |
+| ----------- | ----------- | ----------- | ----------- | ----------- |
 | scope | Okta OAuth Scope | True| string | This is the OAuth Scope needed for Okta OAuth
 | grant_type | Okta OAuth Grant Type | True | string | In OAuth 2.0, the term “grant type” refers to the way an application gets an access token
 | awsrole | AWS Assume Identity Role | True | string | This role has to be created in AWS IAM so you can assume an identity and get temp credentials
@@ -157,7 +157,7 @@ Cert Store Types Settings - Advanced
 Cert Store Types Settings - Custom Fields
 ---------------
 | Name | Display Name | Required | Type | Description |
-| ----------- | ----------- | ----------- | ----------- | ----------- | ----------- |
+| ----------- | ----------- | ----------- | ----------- | ----------- |
 | awsrole | AWS Assume Identity Role | True | string | This role has to be created in AWS IAM so you can assume an identity and get temp credentials
 | awsregions | AWS Regions | True | string | This will be the list of regions for the account the store iterates through when doing inventory.
 
