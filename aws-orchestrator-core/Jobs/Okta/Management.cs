@@ -25,11 +25,12 @@ using Org.BouncyCastle.Pkcs;
 
 using RestSharp;
 
-namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
+namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.Okta
 {
-	// ReSharper disable once UnusedMember.Global
 	public class Management : IManagementJobExtension
 	{
+		public string ExtensionName => "AWSCerManO";
+
 		private static String certStart = "-----BEGIN CERTIFICATE-----\n";
 		private static String certEnd = "\n-----END CERTIFICATE-----";
 
@@ -41,52 +42,49 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
 		protected internal virtual ImportCertificateResponse IcrResponse { get; set; }
 		protected internal virtual DeleteCertificateResponse DeleteResponse { get; set; }
 		protected internal virtual AsymmetricKeyEntry KeyEntry { get; set; }
-		protected internal virtual CustomFields CustomFields { get; set; }
+		protected internal virtual OktaCustomFields CustomFields { get; set; }
 
 		private readonly ILogger<Management> _logger;
 
 		public Management(ILogger<Management> logger) =>
 			_logger = logger;
 
-		private AuthResponse OktaAuthenticate(ManagementJobConfiguration config)
+		public JobResult ProcessJob(ManagementJobConfiguration jobConfiguration)
+		{
+			CustomFields = JsonConvert.DeserializeObject<OktaCustomFields>(jobConfiguration.CertificateStoreDetails.Properties,
+	new JsonSerializerSettings { DefaultValueHandling = DefaultValueHandling.Populate });
+			return PerformManagement(jobConfiguration);
+		}
+
+		private JobResult PerformManagement(ManagementJobConfiguration config)
 		{
 			try
 			{
 				_logger.MethodEntry();
-
-				var oktaAuthUrl = $"https://{config.CertificateStoreDetails.ClientMachine}/oauth2/default/v1/token";
-				_logger.LogTrace($"Custom Field List: {CustomFields}");
-				_logger.LogTrace($"Okta Auth URL: {oktaAuthUrl}");
-
-				var client =
-					new RestClient(oktaAuthUrl)
-					{
-						Timeout = -1
-					};
-				var request = new RestRequest(Method.POST);
-				request.AddHeader("Accept", "application/json");
-				var clientId = config.ServerUsername;
-				var clientSecret = config.ServerPassword;
-				var plainTextBytes = Encoding.UTF8.GetBytes($"{clientId}:{clientSecret}");
-				_logger.LogTrace($"Okta Auth Credentials: {plainTextBytes}");
-				var authHeader = Convert.ToBase64String(plainTextBytes);
-				request.AddHeader("Authorization", $"Basic {authHeader}");
-				request.AddHeader("Content-Type", "application/x-www-form-urlencoded");
-				if (CustomFields != null)
+				var complete = new JobResult
 				{
-					request.AddParameter("grant_type", CustomFields.GrantType);
-					request.AddParameter("scope", CustomFields.Scope);
-				}
-				var response = client.Execute(request);
-				_logger.LogTrace($"Okta Auth Raw Response: {response}");
-				var authResponse = JsonConvert.DeserializeObject<AuthResponse>(response.Content);
-				_logger.LogTrace($"Okta Serialized Auth Response: {JsonConvert.SerializeObject(authResponse)}");
+					Result = OrchestratorJobStatusJobResult.Failure,
+					JobHistoryId = config.JobHistoryId,
+					FailureMessage =
+						"Invalid Management Operation"
+				};
 
-				return authResponse;
+				if (config.OperationType.ToString() == "Add")
+				{
+					_logger.LogTrace($"Adding...");
+					complete = PerformAddition(config);
+				}
+				else if (config.OperationType.ToString() == "Remove")
+				{
+					_logger.LogTrace($"Removing...");
+					complete = PerformRemoval(config);
+				}
+
+				return complete;
 			}
 			catch (Exception e)
 			{
-				_logger.LogError($"Error Occurred in Inventory.OktaAuthenticate: {e.Message}");
+				_logger.LogError($"Error Occurred in Management.PerformManagement: {e.Message}");
 				throw;
 			}
 		}
@@ -97,26 +95,13 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
 			try
 			{
 				_logger.MethodEntry();
-				AuthResponse authResponse = null;
-
-				if (CustomFields.AuthType == AuthType.Okta)
-				{
-					authResponse = OktaAuthenticate(config);
-					_logger.LogTrace($"Got authResponse: {JsonConvert.SerializeObject(authResponse)}");
-				}
+				AuthResponse authResponse = OktaAuthenticate(config);
+				_logger.LogTrace($"Got authResponse: {JsonConvert.SerializeObject(authResponse)}");
 
 				var endPoint = RegionEndpoint.GetBySystemName(config.JobProperties["AWS Region"].ToString());
 				_logger.LogTrace($"Got Endpoint From Job Properties JSON: {JsonConvert.SerializeObject(endPoint)}");
 
-				Credentials credentials = null;
-				if (CustomFields.AuthType == AuthType.Okta)
-				{
-					credentials = Utilities.AwsAuthenticateWithWebIdentity(authResponse, endPoint, config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
-				}
-				else
-				{
-					credentials = Utilities.AwsAuthenticate(config.ServerUsername, config.ServerPassword, CustomFields.SessionToken, endPoint, config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
-				}
+				Credentials credentials = Utilities.AwsAuthenticateWithWebIdentity(authResponse, endPoint, config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
 
 				_logger.LogTrace($"Credentials JSON: {JsonConvert.SerializeObject(credentials)}");
 
@@ -266,26 +251,13 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
 			{
 				_logger.MethodEntry();
 
-				AuthResponse authResponse = null;
-
-				if (CustomFields.AuthType == AuthType.Okta)
-				{
-					authResponse = OktaAuthenticate(config);
-					_logger.LogTrace($"Got authResponse: {JsonConvert.SerializeObject(authResponse)}");
-				}
+				AuthResponse authResponse = OktaAuthenticate(config);
+				_logger.LogTrace($"Got authResponse: {JsonConvert.SerializeObject(authResponse)}");
 
 				var endPoint = RegionEndpoint.GetBySystemName(config.JobCertificate.Alias.Split(":")[3]); //Get from ARN so user does not have to enter
 				_logger.LogTrace($"Got Endpoint From Job Properties JSON: {JsonConvert.SerializeObject(endPoint)}");
 
-				Credentials credentials = null;
-				if (CustomFields.AuthType == AuthType.Okta)
-				{
-					credentials = Utilities.AwsAuthenticateWithWebIdentity(authResponse, endPoint, config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
-				}
-				else
-				{
-					credentials = Utilities.AwsAuthenticate(config.ServerUsername, config.ServerPassword, CustomFields.SessionToken, endPoint, config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
-				}
+				Credentials credentials = Utilities.AwsAuthenticateWithWebIdentity(authResponse, endPoint, config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
 
 				_logger.LogTrace($"Credentials JSON: {JsonConvert.SerializeObject(credentials)}");
 
@@ -333,35 +305,45 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
 			}
 		}
 
-		private JobResult PerformManagement(ManagementJobConfiguration config)
+		private AuthResponse OktaAuthenticate(ManagementJobConfiguration config)
 		{
 			try
 			{
 				_logger.MethodEntry();
-				var complete = new JobResult
-				{
-					Result = OrchestratorJobStatusJobResult.Failure,
-					JobHistoryId = config.JobHistoryId,
-					FailureMessage =
-						"Invalid Management Operation"
-				};
 
-				if (config.OperationType.ToString() == "Add")
-				{
-					_logger.LogTrace($"Adding...");
-					complete = PerformAddition(config);
-				}
-				else if (config.OperationType.ToString() == "Remove")
-				{
-					_logger.LogTrace($"Removing...");
-					complete = PerformRemoval(config);
-				}
+				var oktaAuthUrl = $"https://{config.CertificateStoreDetails.ClientMachine}/oauth2/default/v1/token";
+				_logger.LogTrace($"Custom Field List: {CustomFields}");
+				_logger.LogTrace($"Okta Auth URL: {oktaAuthUrl}");
 
-				return complete;
+				var client =
+					new RestClient(oktaAuthUrl)
+					{
+						Timeout = -1
+					};
+				var request = new RestRequest(Method.POST);
+				request.AddHeader("Accept", "application/json");
+				var clientId = config.ServerUsername;
+				var clientSecret = config.ServerPassword;
+				var plainTextBytes = Encoding.UTF8.GetBytes($"{clientId}:{clientSecret}");
+				_logger.LogTrace($"Okta Auth Credentials: {plainTextBytes}");
+				var authHeader = Convert.ToBase64String(plainTextBytes);
+				request.AddHeader("Authorization", $"Basic {authHeader}");
+				request.AddHeader("Content-Type", "application/x-www-form-urlencoded");
+				if (CustomFields != null)
+				{
+					request.AddParameter("grant_type", CustomFields.GrantType);
+					request.AddParameter("scope", CustomFields.Scope);
+				}
+				var response = client.Execute(request);
+				_logger.LogTrace($"Okta Auth Raw Response: {response}");
+				var authResponse = JsonConvert.DeserializeObject<AuthResponse>(response.Content);
+				_logger.LogTrace($"Okta Serialized Auth Response: {JsonConvert.SerializeObject(authResponse)}");
+
+				return authResponse;
 			}
 			catch (Exception e)
 			{
-				_logger.LogError($"Error Occurred in Management.PerformManagement: {e.Message}");
+				_logger.LogError($"Error Occurred in Inventory.OktaAuthenticate: {e.Message}");
 				throw;
 			}
 		}
@@ -387,15 +369,6 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
 			// Builds a MemoryStream from the Base64 Encoded String Representation of a cert
 			byte[] certBytes = Encoding.ASCII.GetBytes(certString);
 			return new MemoryStream(certBytes);
-		}
-
-		public string ExtensionName => "AWSCerManO";
-
-		public JobResult ProcessJob(ManagementJobConfiguration jobConfiguration)
-		{
-			CustomFields = JsonConvert.DeserializeObject<CustomFields>(jobConfiguration.CertificateStoreDetails.Properties,
-				new JsonSerializerSettings { DefaultValueHandling = DefaultValueHandling.Populate });
-			return PerformManagement(jobConfiguration);
 		}
 	}
 }

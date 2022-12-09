@@ -3,11 +3,19 @@
     "Keyfactor.Orchestrators.Extensions.IOrchestratorJobExtension": {
       "CertStores.AwsCerManO.Inventory": {
         "assemblypath": "Keyfactor.AnyAgent.AwsCertificateManager.dll",
-        "TypeFullName": "Keyfactor.AnyAgent.AwsCertificateManager.Jobs.Inventory"
+        "TypeFullName": "Keyfactor.AnyAgent.AwsCertificateManager.Jobs.Okta.Inventory"
       },
       "CertStores.AwsCerManO.Management": {
         "assemblypath": "Keyfactor.AnyAgent.AwsCertificateManager.dll",
-        "TypeFullName": "Keyfactor.AnyAgent.AwsCertificateManager.Jobs.Management"
+        "TypeFullName": "Keyfactor.AnyAgent.AwsCertificateManager.Jobs.Okta.Management"
+      },
+      "CertStores.AwsCerManA.Inventory": {
+        "assemblypath": "Keyfactor.AnyAgent.AwsCertificateManager.dll",
+        "TypeFullName": "Keyfactor.AnyAgent.AwsCertificateManager.Jobs.IAM.Inventory"
+      },
+      "CertStores.AwsCerManA.Management": {
+        "assemblypath": "Keyfactor.AnyAgent.AwsCertificateManager.dll",
+        "TypeFullName": "Keyfactor.AnyAgent.AwsCertificateManager.Jobs.IAM.Management"
       }
     }
   }

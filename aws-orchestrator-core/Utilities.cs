@@ -32,19 +32,19 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine(e);
+				throw;
 			}
 
 			return credentials;
 		}
 
-		public static Credentials AwsAuthenticate(string accessKey, string accessSecret, string sessionToken, RegionEndpoint endpoint, string awsAccount, string awsRole)
+		public static Credentials AwsAuthenticate(string accessKey, string accessSecret, string awsAccount, string awsRole)
 		{
 			Credentials credentials = null;
 			try
 			{
 				var account = awsAccount;
-				var stsClient = new AmazonSecurityTokenServiceClient(accessKey, accessSecret, sessionToken);
+				var stsClient = new AmazonSecurityTokenServiceClient(accessKey, accessSecret);
 				var assumeRequest = new AssumeRoleRequest
 				{
 					RoleArn = $"arn:aws:iam::{account}:role/{awsRole}",
@@ -56,7 +56,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine(e);
+				throw;
 			}
 
 			return credentials;

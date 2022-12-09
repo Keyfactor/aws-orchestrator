@@ -23,7 +23,11 @@ AWS Certificate Manager is a service that lets you easily provision, manage, and
 - Reenrollment, Management, Discovery
 
 ## **Installation**
+Depending on your choice of authentication providers, choose the appropriate configuration section
+- [Okta Auth Configuration](#aws-certificate-manager-with-okta-auth-configuration)
+- [AWS IAM Auth Configuration](#aws-certificate-manager-with-iam-auth-configuration)
 
+#AWS Certificate Manager with Okta Auth Configuration
 Cert Store Type Settings
 ===============
 
@@ -36,7 +40,7 @@ Cert Store Types Settings - Basic
 | General Settings | Needs Server, Blueprint Allowed |
 | Password Settings | Supports Entry Password |
 
-![image.png](/Images/CertStoreType-Basic.gif)
+![image.png](/Images/CertStoreType-Basic-Okta.gif)
 
 Cert Store Types Settings - Advanced
 ---------------
@@ -49,15 +53,14 @@ Cert Store Types Settings - Advanced
 
 Cert Store Types Settings - Custom Fields
 ---------------
-| Name | Display Name | Required | Type | Value | Description |
+| Name | Display Name | Required | Type | Description |
 | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- |
-| auth_type | Authentication Type | True | Multiple Choice | Okta OAuth,AWS IAM | This specifies whether to use Okta auth or IAM auth
-| scope | Okta OAuth Scope | True (Okta only) | string | | This is the OAuth Scope needed for Okta OAuth
-| grant_type | Okta OAuth Grant Type | True (Okta only) | string | | In OAuth 2.0, the term “grant type” refers to the way an application gets an access token
-| awsrole | AWS Assume Identity Role | True | string | | This role has to be created in AWS IAM so you can assume an identity and get temp credentials
-| awsregions | AWS Regions | True | string | | This will be the list of regions for the account the store iterates through when doing inventory.
+| scope | Okta OAuth Scope | True| string | This is the OAuth Scope needed for Okta OAuth
+| grant_type | Okta OAuth Grant Type | True | string | In OAuth 2.0, the term “grant type” refers to the way an application gets an access token
+| awsrole | AWS Assume Identity Role | True | string | This role has to be created in AWS IAM so you can assume an identity and get temp credentials
+| awsregions | AWS Regions | True | string | This will be the list of regions for the account the store iterates through when doing inventory.
 
-![image.png](/Images/CertStoreType-CustomFields.gif)
+![image.png](/Images/CertStoreType-CustomFieldsOkta.gif)
 
 Cert Store Types Settings - Entry Params
 ---------------
@@ -67,7 +70,7 @@ Cert Store Types Settings - Entry Params
 
 ![image.png](/Images/CertStoreType-EntryParams.gif)
 
-Cert Store Settings (Okta Auth)
+Cert Store Settings
 ===============
 | Number | Name | Value | Description |
 | ----------- | ----------- | ----------- | ----------- |
@@ -75,29 +78,15 @@ Cert Store Settings (Okta Auth)
 | 0 | User Name | Okta Key | Obtained from the Okta application |
 | 0 | Password | Okta Secret | Obtained from the Okta application |
 | 1 | Store Path | AWS Account Number | Unique account number obtained from AWS |
-| 2 | Authentication Type | Auth type to use | Select Okta OAth |
-| 3 | Okta OAuth Scope | Look in Okta Setup for Scope | OAuth scope setup in the Okta Application |
-| 4 | Okta OAuth Grant Type | client_credentials | This may vary depending on Okta setup but will most likely be this value. |
-| 5 | AWS Assume Identity Role | Whatever Role is setup in AWS | Role must allow a third identity provider in AWS with AWS Cert Manager full access. |
-| 6 | AWS Regions | us-east1,us-east2... | List of AWS Regions you want to inventory for the account above. |
-| 7 | Store Password | No Password Needed for this | Set to no password needed. |
+| 2 | Okta OAuth Scope | Look in Okta Setup for Scope | OAuth scope setup in the Okta Application |
+| 3 | Okta OAuth Grant Type | client_credentials | This may vary depending on Okta setup but will most likely be this value. |
+| 4 | AWS Assume Identity Role | Whatever Role is setup in AWS | Role must allow a third identity provider in AWS with AWS Cert Manager full access. |
+| 5 | AWS Regions | us-east1,us-east2... | List of AWS Regions you want to inventory for the account above. |
+| 6 | Store Password | No Password Needed for this | Set to no password needed. |
 
 ![image.png](/Images/CertStore2.gif)
 
-Cert Store Settings (IAM Auth)
-===============
-| Number | Name | Value | Description |
-| ----------- | ----------- | ----------- | ----------- |
-| 0 | Client Machine | None | IAM auth does not use |
-| 0 | User Name | IAM Account Key | Obtained from AWS |
-| 0 | Password | IAM Account Secret | Obtained from the AWS |
-| 1 | Store Path | AWS Account Number | Unique account number obtained from AWS |
-| 2 | Authentication Type | Auth type to use | Select AWS IAM |
-| 3 | AWS Assume Identity Role | Whatever Role is setup in AWS | Role must allow a third identity provider in AWS with AWS Cert Manager full access. |
-| 4 | AWS Regions | us-east1,us-east2... | List of AWS Regions you want to inventory for the account above. |
-| 5 | Store Password | No Password Needed for this | Set to no password needed. |
 
-![image.png](/Images/CertStore2.gif)
 
 AWS Setup
 ===============
@@ -135,5 +124,69 @@ Setup an Okta App with similar settings to the screens below:
 ![image.png](/Images/OktaApp2.gif)
 
 
+#AWS Certificate Manager with IAM Auth Configuration
+Cert Store Type Settings
+===============
 
+Cert Store Types Settings - Basic
+---------------
+| Section | Settings |
+| ----------- | ----------- |
+| Details | Name="Custom Name", Short Name="AWSCerManA" |
+| Supported Job Types | Inventory, Add, Remove |
+| General Settings | Needs Server, Blueprint Allowed |
+| Password Settings | Supports Entry Password |
 
+![image.png](/Images/CertStoreType-Basic-IAM.gif)
+
+Cert Store Types Settings - Advanced
+---------------
+| Section | Settings |
+| ----------- | ----------- |
+| Store Path Type | Freeform |
+| Other Settings | Supports Custom Alias=Optional, Private Key Handling=Optional, PFX Password Style=Default|
+
+![image.png](/Images/CertStoreType-Advanced.gif)
+
+Cert Store Types Settings - Custom Fields
+---------------
+| Name | Display Name | Required | Type | Description |
+| ----------- | ----------- | ----------- | ----------- | ----------- | ----------- |
+| awsrole | AWS Assume Identity Role | True | string | This role has to be created in AWS IAM so you can assume an identity and get temp credentials
+| awsregions | AWS Regions | True | string | This will be the list of regions for the account the store iterates through when doing inventory.
+
+![image.png](/Images/CertStoreType-CustomFields-IAM.gif)
+
+Cert Store Types Settings - Entry Params
+---------------
+| Name | Display Name | Type | Default Value | Multiple Choice Questions | Required When |
+| ----------- | ----------- | ----------- | ----------- | ----------- | ----------- |
+| AWS Region | AWS Region | Multiple Choice | us-east1 | us-east1,us-east2... | Adding an Entry, Reenrolling Entry |
+
+![image.png](/Images/CertStoreType-EntryParams.gif)
+
+Cert Store Settings
+===============
+| Number | Name | Value | Description |
+| ----------- | ----------- | ----------- | ----------- |
+| 0 | Client Machine | Custom | Value is not used, choose any identifier |
+| 1 | Store Path | AWS Account Number | Unique account number obtained from AWS |
+| 2 | AWS Assume Identity Role | Whatever Role is setup in AWS | Role must allow a third identity provider in AWS with AWS Cert Manager full access. |
+| 3 | AWS Regions | us-east1,us-east2... | List of AWS Regions you want to inventory for the account above. |
+| 4 | User Name | IAM Access Key | Obtained from AWS |
+| 5 | Password | IAM Access Secret | Obtained from the AWS |
+
+![image.png](/Images/CertStoreIAM.gif)
+
+AWS Setup
+===============
+
+AWS Role Setup
+---------------
+An Aws [Role](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-user.html) Needs Added for the permissions you want to grant.
+![image.png](/Images/AWSRole1.gif)
+
+Trust Relationship
+---------------
+Ensure the [trust relationship](https://docs.aws.amazon.com/directoryservice/latest/admin-guide/edit_trust.html) is setup for that role.  Should  look like below, where AssumeRoleTest is the account whose access key/secret you are using:
+![image.png](/Images/AssmeRoleTrust.gif)
