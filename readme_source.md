@@ -182,7 +182,7 @@ Cert Store Settings
 | 4 | User Name | IAM Access Key | Obtained from AWS |
 | 5 | Password | IAM Access Secret | Obtained from the AWS |
 
-![image.png](/Images/CertStoreIAM.gif)
+![image.png](/Images/CertStore-IAM.gif)
 
 AWS Setup
 ===============
