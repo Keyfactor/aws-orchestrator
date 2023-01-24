@@ -1,6 +1,6 @@
 # AWS
 
-AWS Certificate Manager with Okta OAuth Support.
+AWS Certificate Manager.
 
 #### Integration status: Prototype - Demonstration quality. Not for use in customer environments.
 
@@ -12,14 +12,23 @@ The Universal Orchestrator is part of the Keyfactor software distribution and is
 
 The Universal Orchestrator is the successor to the Windows Orchestrator. This Capability plugin only works with the Universal Orchestrator and does not work with the Windows Orchestrator.
 
+
+
+
 ---
+
+
+
+
+---
+
 
 *** 
 ## **Configuration**
 
 **Overview**
 
-AWS Certificate Manager is a service that lets you easily provision, manage, and deploy public and private Secure Sockets Layer/Transport Layer Security (SSL/TLS) certificates for use with AWS services and your internal connected resources. SSL/TLS certificates are used to secure network communications and establish the identity of websites over the Internet as well as resources on private networks. AWS Certificate Manager removes the time-consuming manual process of purchasing, uploading, and renewing SSL/TLS certificates.  The Okta Support allows authentication against a 3rd party identity provider in AWS.  From there you can get temporary credentials for a role that you setup in each AWS Account.  This way you don't have to use AWS API keys all over the place for each account.
+AWS Certificate Manager is a service that lets you easily provision, manage, and deploy public and private Secure Sockets Layer/Transport Layer Security (SSL/TLS) certificates for use with AWS services and your internal connected resources. SSL/TLS certificates are used to secure network communications and establish the identity of websites over the Internet as well as resources on private networks. AWS Certificate Manager removes the time-consuming manual process of purchasing, uploading, and renewing SSL/TLS certificates.  The orchestrator supports Okta OAth authentication, as well as AWS IAM accounts. The Okta Support allows authentication against a 3rd party identity provider in AWS.  From there you can get temporary credentials for a role that you setup in each AWS Account. 
 
 ### Documentation
 
@@ -39,7 +48,11 @@ AWS Certificate Manager is a service that lets you easily provision, manage, and
 - Reenrollment, Management, Discovery
 
 ## **Installation**
+Depending on your choice of authentication providers, choose the appropriate configuration section
+- [Okta Auth Configuration](#aws-certificate-manager-with-okta-auth-configuration)
+- [AWS IAM Auth Configuration](#aws-certificate-manager-with-iam-auth-configuration)
 
+# AWS Certificate Manager with Okta Auth Configuration
 Cert Store Type Settings
 ===============
 
@@ -52,7 +65,7 @@ Cert Store Types Settings - Basic
 | General Settings | Needs Server, Blueprint Allowed |
 | Password Settings | Supports Entry Password |
 
-![image.png](/Images/CertStoreType-Basic.gif)
+![image.png](/Images/CertStoreType-Basic-Okta.gif)
 
 Cert Store Types Settings - Advanced
 ---------------
@@ -65,14 +78,14 @@ Cert Store Types Settings - Advanced
 
 Cert Store Types Settings - Custom Fields
 ---------------
-| Name | Display Name | Required | Description |
-| ----------- | ----------- | ----------- | ----------- |
-| scope | Okta OAuth Scope | True | This is the OAuth Scope needed for Okta OAuth
-| grant_type | Okta OAuth Grant Type | True | In OAuth 2.0, the term “grant type” refers to the way an application gets an access token
-| awsrole | AWS Assume Identity Role | True | This role has to be created in AWS IAM so you can assume an identity and get temp credentials
-| awsregions | AWS Regions | True | This will be the list of regions for the account the store iterates through when doing inventory.
+| Name | Display Name | Required | Type | Description |
+| ----------- | ----------- | ----------- | ----------- | ----------- |
+| scope | Okta OAuth Scope | True| string | This is the OAuth Scope needed for Okta OAuth
+| grant_type | Okta OAuth Grant Type | True | string | In OAuth 2.0, the term “grant type” refers to the way an application gets an access token
+| awsrole | AWS Assume Identity Role | True | string | This role has to be created in AWS IAM so you can assume an identity and get temp credentials
+| awsregions | AWS Regions | True | string | This will be the list of regions for the account the store iterates through when doing inventory.
 
-![image.png](/Images/CertStoreType-CustomFields.gif)
+![image.png](/Images/CertStoreType-CustomFieldsOkta.gif)
 
 Cert Store Types Settings - Entry Params
 ---------------
@@ -97,6 +110,8 @@ Cert Store Settings
 | 6 | Store Password | No Password Needed for this | Set to no password needed. |
 
 ![image.png](/Images/CertStore2.gif)
+
+
 
 AWS Setup
 ===============
@@ -134,6 +149,76 @@ Setup an Okta App with similar settings to the screens below:
 ![image.png](/Images/OktaApp2.gif)
 
 
+# AWS Certificate Manager with IAM Auth Configuration
+NOTE FOR IAM AUTH:
+
+AWS does not support programmatic access for AWS SSO accounts. The account used here must be a standard AWS IAM User with an Access Key credential type.
+![image.png](/Images/UserAccount.gif)
 
 
+Cert Store Type Settings
+===============
+
+Cert Store Types Settings - Basic
+---------------
+| Section | Settings |
+| ----------- | ----------- |
+| Details | Name="Custom Name", Short Name="AWSCerManA" |
+| Supported Job Types | Inventory, Add, Remove |
+| General Settings | Needs Server, Blueprint Allowed |
+| Password Settings | Supports Entry Password |
+
+![image.png](/Images/CertStoreType-Basic-IAM.gif)
+
+Cert Store Types Settings - Advanced
+---------------
+| Section | Settings |
+| ----------- | ----------- |
+| Store Path Type | Freeform |
+| Other Settings | Supports Custom Alias=Optional, Private Key Handling=Optional, PFX Password Style=Default|
+
+![image.png](/Images/CertStoreType-Advanced.gif)
+
+Cert Store Types Settings - Custom Fields
+---------------
+| Name | Display Name | Required | Type | Description |
+| ----------- | ----------- | ----------- | ----------- | ----------- |
+| awsrole | AWS Assume Identity Role | True | string | This role has to be created in AWS IAM so you can assume an identity and get temp credentials
+| awsregions | AWS Regions | True | string | This will be the list of regions for the account the store iterates through when doing inventory.
+
+![image.png](/Images/CertStoreType-CustomFields-IAM.gif)
+
+Cert Store Types Settings - Entry Params
+---------------
+| Name | Display Name | Type | Default Value | Multiple Choice Questions | Required When |
+| ----------- | ----------- | ----------- | ----------- | ----------- | ----------- |
+| AWS Region | AWS Region | Multiple Choice | us-east1 | us-east1,us-east2... | Adding an Entry, Reenrolling Entry |
+
+![image.png](/Images/CertStoreType-EntryParams.gif)
+
+Cert Store Settings
+===============
+| Number | Name | Value | Description |
+| ----------- | ----------- | ----------- | ----------- |
+| 0 | Client Machine | Custom | Value is not used, choose any identifier |
+| 1 | Store Path | AWS Account Number | Unique account number obtained from AWS |
+| 2 | AWS Assume Identity Role | Whatever Role is setup in AWS | Role must allow a third identity provider in AWS with AWS Cert Manager full access. |
+| 3 | AWS Regions | us-east1,us-east2... | List of AWS Regions you want to inventory for the account above. |
+| 4 | User Name | IAM Access Key | Obtained from AWS |
+| 5 | Password | IAM Access Secret | Obtained from the AWS |
+
+![image.png](/Images/CertStore-IAM.gif)
+
+AWS Setup
+===============
+
+AWS Role Setup
+---------------
+An Aws [Role](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-user.html) Needs Added for the permissions you want to grant.
+![image.png](/Images/AWSRole1.gif)
+
+Trust Relationship
+---------------
+Ensure the [trust relationship](https://docs.aws.amazon.com/directoryservice/latest/admin-guide/edit_trust.html) is setup for that role.  Should  look like below, where AssumeRoleTest is the account whose access key/secret you are using:
+![image.png](/Images/AssumeRoleTrust.gif)
 

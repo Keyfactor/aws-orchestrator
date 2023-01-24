@@ -27,7 +27,7 @@ Depending on your choice of authentication providers, choose the appropriate con
 - [Okta Auth Configuration](#aws-certificate-manager-with-okta-auth-configuration)
 - [AWS IAM Auth Configuration](#aws-certificate-manager-with-iam-auth-configuration)
 
-#AWS Certificate Manager with Okta Auth Configuration
+# AWS Certificate Manager with Okta Auth Configuration
 Cert Store Type Settings
 ===============
 
@@ -54,7 +54,7 @@ Cert Store Types Settings - Advanced
 Cert Store Types Settings - Custom Fields
 ---------------
 | Name | Display Name | Required | Type | Description |
-| ----------- | ----------- | ----------- | ----------- | ----------- | ----------- |
+| ----------- | ----------- | ----------- | ----------- | ----------- |
 | scope | Okta OAuth Scope | True| string | This is the OAuth Scope needed for Okta OAuth
 | grant_type | Okta OAuth Grant Type | True | string | In OAuth 2.0, the term “grant type” refers to the way an application gets an access token
 | awsrole | AWS Assume Identity Role | True | string | This role has to be created in AWS IAM so you can assume an identity and get temp credentials
@@ -124,7 +124,7 @@ Setup an Okta App with similar settings to the screens below:
 ![image.png](/Images/OktaApp2.gif)
 
 
-#AWS Certificate Manager with IAM Auth Configuration
+# AWS Certificate Manager with IAM Auth Configuration
 NOTE FOR IAM AUTH:
 
 AWS does not support programmatic access for AWS SSO accounts. The account used here must be a standard AWS IAM User with an Access Key credential type.
@@ -157,7 +157,7 @@ Cert Store Types Settings - Advanced
 Cert Store Types Settings - Custom Fields
 ---------------
 | Name | Display Name | Required | Type | Description |
-| ----------- | ----------- | ----------- | ----------- | ----------- | ----------- |
+| ----------- | ----------- | ----------- | ----------- | ----------- |
 | awsrole | AWS Assume Identity Role | True | string | This role has to be created in AWS IAM so you can assume an identity and get temp credentials
 | awsregions | AWS Regions | True | string | This will be the list of regions for the account the store iterates through when doing inventory.
 
@@ -182,7 +182,7 @@ Cert Store Settings
 | 4 | User Name | IAM Access Key | Obtained from AWS |
 | 5 | Password | IAM Access Secret | Obtained from the AWS |
 
-![image.png](/Images/CertStoreIAM.gif)
+![image.png](/Images/CertStore-IAM.gif)
 
 AWS Setup
 ===============
@@ -195,4 +195,4 @@ An Aws [Role](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_f
 Trust Relationship
 ---------------
 Ensure the [trust relationship](https://docs.aws.amazon.com/directoryservice/latest/admin-guide/edit_trust.html) is setup for that role.  Should  look like below, where AssumeRoleTest is the account whose access key/secret you are using:
-![image.png](/Images/AssmeRoleTrust.gif)
+![image.png](/Images/AssumeRoleTrust.gif)
