@@ -220,5 +220,5 @@ An Aws [Role](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_f
 Trust Relationship
 ---------------
 Ensure the [trust relationship](https://docs.aws.amazon.com/directoryservice/latest/admin-guide/edit_trust.html) is setup for that role.  Should  look like below, where AssumeRoleTest is the account whose access key/secret you are using:
-![image.png](/Images/AssmeRoleTrust.gif)
+![image.png](/Images/AssumeRoleTrust.gif)
 
