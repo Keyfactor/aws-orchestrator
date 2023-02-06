@@ -2,7 +2,7 @@
 
 AWS Certificate Manager.
 
-#### Integration status: Prototype - Demonstration quality. Not for use in customer environments.
+#### Integration status: Pilot - Ready for use in test environments. Not for use in production.
 
 ## About the Keyfactor Universal Orchestrator Capability
 
