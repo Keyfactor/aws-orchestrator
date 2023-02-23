@@ -2,7 +2,8 @@
   "$schema": "https://keyfactor.github.io/integration-manifest-schema.json",
   "integration_type": "orchestrator",
   "name": "AWS",
-  "status": "prototype",
-  "link_github": false,
+  "status": "production",
+  "support_level": "kf-supported",
+  "link_github": true,
   "description": "AWS Certificate Manager."
 }
