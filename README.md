@@ -2,7 +2,10 @@
 
 AWS Certificate Manager.
 
+
 #### Integration status: Production - Ready for use in production environments.
+=======
+
 
 ## About the Keyfactor Universal Orchestrator Capability
 
@@ -14,22 +17,14 @@ The Universal Orchestrator is the successor to the Windows Orchestrator. This Ca
 
 
 
+
 ## Support for AWS
 
 AWS is supported by Keyfactor for Keyfactor customers. If you have a support issue, please open a support ticket with your Keyfactor representative.
 
 ###### To report a problem or suggest a new feature, use the **[Issues](../../issues)** tab. If you want to contribute actual bug fixes or proposed enhancements, use the **[Pull requests](../../pulls)** tab.
 ___
-
-
-
----
-
-
-
-
----
-
+=======
 
 *** 
 ## **Configuration**
@@ -201,6 +196,8 @@ Cert Store Types Settings - Entry Params
 | Name | Display Name | Type | Default Value | Multiple Choice Questions | Required When |
 | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- |
 | AWS Region | AWS Region | Multiple Choice | us-east1 | us-east1,us-east2... | Adding an Entry, Reenrolling Entry |
+
+=======
 
 ![image.png](/Images/CertStoreType-EntryParams.gif)
 
