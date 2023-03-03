@@ -2,7 +2,7 @@
 
 AWS Certificate Manager.
 
-#### Integration status: Prototype - Demonstration quality. Not for use in customer environments.
+#### Integration status: Production - Ready for use in production environments.
 
 ## About the Keyfactor Universal Orchestrator Capability
 
@@ -12,6 +12,14 @@ The Universal Orchestrator is part of the Keyfactor software distribution and is
 
 The Universal Orchestrator is the successor to the Windows Orchestrator. This Capability plugin only works with the Universal Orchestrator and does not work with the Windows Orchestrator.
 
+
+
+## Support for AWS
+
+AWS is supported by Keyfactor for Keyfactor customers. If you have a support issue, please open a support ticket with your Keyfactor representative.
+
+###### To report a problem or suggest a new feature, use the **[Issues](../../issues)** tab. If you want to contribute actual bug fixes or proposed enhancements, use the **[Pull requests](../../pulls)** tab.
+___
 
 
 
@@ -207,7 +215,7 @@ Cert Store Settings
 | 4 | User Name | IAM Access Key | Obtained from AWS |
 | 5 | Password | IAM Access Secret | Obtained from the AWS |
 
-![image.png](/Images/CertStoreIAM.gif)
+![image.png](/Images/CertStore-IAM.gif)
 
 AWS Setup
 ===============
