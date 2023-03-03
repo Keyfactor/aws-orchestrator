@@ -93,13 +93,13 @@ Cert Store Types Settings - Custom Fields
 | awsrole | AWS Assume Identity Role | True | string | This role has to be created in AWS IAM so you can assume an identity and get temp credentials
 | awsregions | AWS Regions | True | string | This will be the list of regions for the account the store iterates through when doing inventory.
 
-![image.png](/Images/CertStoreType-CustomFieldsOkta.gif)
+![image.png](/Images/CertStoreType-CustomFields-Okta.gif)
 
 Cert Store Types Settings - Entry Params
 ---------------
 | Name | Display Name | Type | Default Value | Multiple Choice Questions | Required When |
 | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- |
-| AWS Region | AWS Region | Multiple Choice | us-east1 | us-east1,us-east2... | Adding an Entry, Reenrolling Entry |
+| AWS Region | AWS Region | Multiple Choice | us-east-1 | us-east-1,us-east-2... | Adding an Entry, Reenrolling Entry |
 
 ![image.png](/Images/CertStoreType-EntryParams.gif)
 
@@ -114,7 +114,7 @@ Cert Store Settings
 | 2 | Okta OAuth Scope | Look in Okta Setup for Scope | OAuth scope setup in the Okta Application |
 | 3 | Okta OAuth Grant Type | client_credentials | This may vary depending on Okta setup but will most likely be this value. |
 | 4 | AWS Assume Identity Role | Whatever Role is setup in AWS | Role must allow a third identity provider in AWS with AWS Cert Manager full access. |
-| 5 | AWS Regions | us-east1,us-east2... | List of AWS Regions you want to inventory for the account above. |
+| 5 | AWS Regions | us-east-1,us-east-2... | List of AWS Regions you want to inventory for the account above. |
 | 6 | Store Password | No Password Needed for this | Set to no password needed. |
 
 ![image.png](/Images/CertStore2.gif)
@@ -200,7 +200,7 @@ Cert Store Types Settings - Entry Params
 ---------------
 | Name | Display Name | Type | Default Value | Multiple Choice Questions | Required When |
 | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- |
-| AWS Region | AWS Region | Multiple Choice | us-east1 | us-east1,us-east2... | Adding an Entry, Reenrolling Entry |
+| AWS Region | AWS Region | Multiple Choice | us-east-1 | us-east-1,us-east-2... | Adding an Entry, Reenrolling Entry |
 
 ![image.png](/Images/CertStoreType-EntryParams.gif)
 
@@ -211,7 +211,7 @@ Cert Store Settings
 | 0 | Client Machine | Custom | Value is not used, choose any identifier |
 | 1 | Store Path | AWS Account Number | Unique account number obtained from AWS |
 | 2 | AWS Assume Identity Role | Whatever Role is setup in AWS | Role must allow a third identity provider in AWS with AWS Cert Manager full access. |
-| 3 | AWS Regions | us-east1,us-east2... | List of AWS Regions you want to inventory for the account above. |
+| 3 | AWS Regions | us-east-1,us-east-2... | List of AWS Regions you want to inventory for the account above. |
 | 4 | User Name | IAM Access Key | Obtained from AWS |
 | 5 | Password | IAM Access Secret | Obtained from the AWS |
 
