@@ -4,6 +4,7 @@
   "name": "AWS",
   "status": "production",
   "support_level": "kf-supported",
+  "update_catalog": true,
   "link_github": true,
   "description": "AWS Certificate Manager."
 }
