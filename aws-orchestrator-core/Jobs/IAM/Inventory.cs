@@ -20,9 +20,7 @@ using Amazon.SecurityToken.Model;
 using Keyfactor.Logging;
 using Keyfactor.Orchestrators.Common.Enums;
 using Keyfactor.Orchestrators.Extensions;
-
 using Microsoft.Extensions.Logging;
-
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;

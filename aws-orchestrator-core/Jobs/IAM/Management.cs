@@ -17,7 +17,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
-
 using Amazon;
 using Amazon.CertificateManager;
 using Amazon.CertificateManager.Model;
@@ -26,11 +25,8 @@ using Amazon.SecurityToken.Model;
 using Keyfactor.Logging;
 using Keyfactor.Orchestrators.Common.Enums;
 using Keyfactor.Orchestrators.Extensions;
-
 using Microsoft.Extensions.Logging;
-
 using Newtonsoft.Json;
-
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.OpenSsl;
 using Org.BouncyCastle.Pkcs;

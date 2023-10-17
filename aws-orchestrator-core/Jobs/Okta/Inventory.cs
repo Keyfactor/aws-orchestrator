@@ -1,19 +1,4 @@
-﻿using Amazon;
-using Amazon.CertificateManager;
-using Amazon.CertificateManager.Model;
-using Amazon.Runtime.Internal.Util;
-using Amazon.SecurityToken.Model;
-
-using Keyfactor.AnyAgent.AwsCertificateManager.Models;
-using Keyfactor.Logging;
-using Keyfactor.Orchestrators.Common.Enums;
-using Keyfactor.Orchestrators.Extensions;
-
-using Microsoft.Extensions.Logging;
-
-using Newtonsoft.Json;
-
-// Copyright 2023 Keyfactor
+﻿// Copyright 2023 Keyfactor
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,8 +12,18 @@ using Newtonsoft.Json;
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using Amazon;
+using Amazon.CertificateManager;
+using Amazon.CertificateManager.Model;
+using Amazon.Runtime.Internal.Util;
+using Amazon.SecurityToken.Model;
+using Keyfactor.AnyAgent.AwsCertificateManager.Models;
+using Keyfactor.Logging;
+using Keyfactor.Orchestrators.Common.Enums;
+using Keyfactor.Orchestrators.Extensions;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using RestSharp;
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
