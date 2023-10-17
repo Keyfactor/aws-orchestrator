@@ -1,6 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
-
+using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
 
 namespace Keyfactor.AnyAgent.AwsCertificateManager
@@ -25,6 +25,10 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager
 		[JsonProperty("scope")]
 		[DefaultValue(false)]
 		public string Scope { get; set; }
+
+        [JsonProperty("oauthpath")]
+        [DefaultValue("/oauth2/default/v1/token")]
+        public string OAuthPath { get; set; }
 	}
 
 	public class IAMCustomFields : CustomFields

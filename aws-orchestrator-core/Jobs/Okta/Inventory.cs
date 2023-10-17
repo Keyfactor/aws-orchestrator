@@ -165,7 +165,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.Okta
 			try
 			{
 				_logger.MethodEntry();
-				var oktaAuthUrl = $"https://{config.CertificateStoreDetails.ClientMachine}/oauth2/default/v1/token";
+				var oktaAuthUrl = $"https://{config.CertificateStoreDetails.ClientMachine}{CustomFields.OAuthPath}";
 				_logger.LogTrace($"Custom Field List: {CustomFields}");
 				_logger.LogTrace($"Okta Auth URL: {oktaAuthUrl}");
 
