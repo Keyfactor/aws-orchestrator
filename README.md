@@ -59,7 +59,9 @@ Depending on your choice of authentication providers, choose the appropriate con
 - [Okta Auth Configuration](#aws-certificate-manager-with-okta-auth-configuration)
 - [AWS IAM Auth Configuration](#aws-certificate-manager-with-iam-auth-configuration)
 
-# AWS Certificate Manager with Okta Auth Configuration
+<details>
+	<summary>AWS Certificate Manager with Okta Auth Configuration</summary>
+
 Cert Store Type Settings
 ===============
 
@@ -118,9 +120,11 @@ Cert Store Settings
 
 ![image.png](/Images/CertStore2.gif)
 
+</details>
 
 
-AWS Setup
+<details>
+	<summary>AWS Setup</summary>
 ===============
 Identity Provider Setup
 ---------------
@@ -155,8 +159,10 @@ Setup an Okta App with similar settings to the screens below:
 ![image.png](/Images/OktaApp1.gif)
 ![image.png](/Images/OktaApp2.gif)
 
+</details>
 
-# AWS Certificate Manager with IAM Auth Configuration
+<details>
+	<summary>AWS Certificate Manager with IAM Auth Configuration</summary>
 NOTE FOR IAM AUTH:
 
 AWS does not support programmatic access for AWS SSO accounts. The account used here must be a standard AWS IAM User with an Access Key credential type.
@@ -216,6 +222,7 @@ Cert Store Settings
 
 ![image.png](/Images/CertStore-IAM.gif)
 
+</details>
 AWS Setup
 ===============
 
