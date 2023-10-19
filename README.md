@@ -59,7 +59,7 @@ Depending on your choice of authentication providers, choose the appropriate con
 <details>
 	<summary>AWS Certificate Manager with Okta Auth Configuration</summary>
 
-	*	<details>
+		<details>
 			<summary>AWS Setup</summary>
 
 		### Identity Provider Setup
