@@ -64,19 +64,19 @@ Depending on your choice of authentication providers, choose the appropriate con
 
 >### Identity Provider Setup
 
->A 3rd party [identity provider](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_oidc.html) similar to the one below needs to be setup in AWS for each account.
->![image.png](/Images/AWSIdentityProvider.gif)
+A 3rd party [identity provider](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_oidc.html) similar to the one below needs to be setup in AWS for each account.
+![image.png](/Images/AWSIdentityProvider.gif)
 
->### AWS Role Setup
+### AWS Role Setup
 
->An Aws [Role](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-user.html) Needs Added for each AWS account.
+An Aws [Role](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-user.html) Needs Added for each AWS account.
 ![image.png](/Images/AWSRole1.gif)
 
->### Trust Relationship
+### Trust Relationship
 
->Ensure the [trust relationship](https://docs.aws.amazon.com/directoryservice/latest/admin-guide/edit_trust.html) is setup for that role.  Should  look like below:
->![image.png](/Images/AWSRole2.gif)
-
+Ensure the [trust relationship](https://docs.aws.amazon.com/directoryservice/latest/admin-guide/edit_trust.html) is setup for that role.  Should  look like below:
+![image.png](/Images/AWSRole2.gif)
+>
 ## OKTA Setup
 
 >### Okta API - Settings
