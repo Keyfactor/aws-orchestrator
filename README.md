@@ -62,41 +62,42 @@ Depending on your choice of authentication providers, choose the appropriate con
 <details>
 <summary>AWS Setup</summary>
 
-### Identity Provider Setup
+>### Identity Provider Setup
 
-A 3rd party [identity provider](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_oidc.html) similar to the one below needs to be setup in AWS for each account.
-![image.png](/Images/AWSIdentityProvider.gif)
+>A 3rd party [identity provider](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_oidc.html) similar to the one below needs to be setup in AWS for each account.
+>![image.png](/Images/AWSIdentityProvider.gif)
 
-### AWS Role Setup
+>### AWS Role Setup
 
-An Aws [Role](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-user.html) Needs Added for each AWS account.
+>An Aws [Role](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-user.html) Needs Added for each AWS account.
 ![image.png](/Images/AWSRole1.gif)
 
-### Trust Relationship
+>### Trust Relationship
 
-Ensure the [trust relationship](https://docs.aws.amazon.com/directoryservice/latest/admin-guide/edit_trust.html) is setup for that role.  Should  look like below:
-![image.png](/Images/AWSRole2.gif)
+>Ensure the [trust relationship](https://docs.aws.amazon.com/directoryservice/latest/admin-guide/edit_trust.html) is setup for that role.  Should  look like below:
+>![image.png](/Images/AWSRole2.gif)
 
 ## OKTA Setup
 
-### Okta API - Settings
+>### Okta API - Settings
 
-Ensure your Authorization Server Is Setup in OKTA.  Here is a sample below:
-![image.png](/Images/OktaSampleAuthorizationServer.gif)
+>Ensure your Authorization Server Is Setup in OKTA.  Here is a sample below:
+>![image.png](/Images/OktaSampleAuthorizationServer.gif)
 
-### Okta API - Scopes
+>### Okta API - Scopes
 
-Ensure the appropriate scopes are setup in Okta.  Here is a sample below:
-![image.png](/Images/OktaSampleAuthorizationServer-scopes.gif)
+>Ensure the appropriate scopes are setup in Okta.  Here is a sample below:
+>![image.png](/Images/OktaSampleAuthorizationServer-scopes.gif)
 
-### Okta App
+>### Okta App
 
-Setup an Okta App with similar settings to the screens below:
-![image.png](/Images/OktaApp1.gif)
-![image.png](/Images/OktaApp2.gif)
+>Setup an Okta App with similar settings to the screens below:
+>![image.png](/Images/OktaApp1.gif)
+>![image.png](/Images/OktaApp2.gif)
 
 </details>
-
+<details>
+<summary>Cert Store Type and Cert Store Setup</summary>
 <details>
 ## Cert Store Type Settings
 
