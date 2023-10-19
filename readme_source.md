@@ -24,51 +24,71 @@ AWS Certificate Manager is a service that lets you easily provision, manage, and
 
 ## **Installation**
 Depending on your choice of authentication providers, choose the appropriate configuration section
-- [Okta Auth Configuration](#aws-certificate-manager-with-okta-auth-configuration)
-- [AWS IAM Auth Configuration](#aws-certificate-manager-with-iam-auth-configuration)
+<details>
+<summary>AWS Certificate Manager with Okta Auth Configuration</summary>
 
-# AWS Certificate Manager with Okta Auth Configuration
-Cert Store Type Settings
-===============
+### AWS Setup
+1. A 3rd party [identity provider](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_oidc.html) similar to [this](/Images/AWSIdentityProvider.gif) needs to be setup in AWS for each account.
+2. An Aws [Role](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-user.html) similar to [this](/Images/AWSRole1.gif) needs Added for each AWS account.
+3. Ensure the [trust relationship](https://docs.aws.amazon.com/directoryservice/latest/admin-guide/edit_trust.html) is setup for that role.  Should  look like [this](/Images/AWSRole2.gif).
 
-Cert Store Types Settings - Basic
----------------
-| Section | Settings |
-| ----------- | ----------- |
-| Details | Name="Custom Name", Short Name="AWSCerManO" |
-| Supported Job Types | Inventory, Add, Remove |
-| General Settings | Needs Server, Blueprint Allowed |
-| Password Settings | Supports Entry Password |
+### OKTA Setup
+1. Ensure your Authorization Server Is Setup in OKTA.  Here is a [sample](/Images/OktaSampleAuthorizationServer.gif).
+2. Ensure the appropriate scopes are setup in Okta.  Here is a [sample](/Images/OktaSampleAuthorizationServer-scopes.gif).
+3. Setup an Okta App with similar settings to [this](/Images/OktaApp1.gif) and [this](/Images/OktaApp2.gif).
 
-![image.png](/Images/CertStoreType-Basic-Okta.gif)
 
-Cert Store Types Settings - Advanced
----------------
-| Section | Settings |
-| ----------- | ----------- |
-| Store Path Type | Freeform |
-| Other Settings | Supports Custom Alias=Optional, Private Key Handling=Optional, PFX Password Style=Default|
+<details>
+<summary>Cert Store Type and Cert Store Setup</summary>
 
-![image.png](/Images/CertStoreType-Advanced.gif)
+**Basic Settings:**
 
-Cert Store Types Settings - Custom Fields
----------------
-| Name | Display Name | Required | Type | Description |
-| ----------- | ----------- | ----------- | ----------- | ----------- |
-| scope | Okta OAuth Scope | True| string | This is the OAuth Scope needed for Okta OAuth
-| grant_type | Okta OAuth Grant Type | True | string | In OAuth 2.0, the term “grant type” refers to the way an application gets an access token
-| awsrole | AWS Assume Identity Role | True | string | This role has to be created in AWS IAM so you can assume an identity and get temp credentials
-| awsregions | AWS Regions | True | string | This will be the list of regions for the account the store iterates through when doing inventory.
+CONFIG ELEMENT | VALUE | DESCRIPTION
+--|--|--
+Name | Any Custom Name | Display name for the store type (may be customized)
+Short Name| AWSCerManO | Short display name for the store type
+Custom Capability | N/A | Store type name orchestrator will register with. Check the box to allow entry of value
+Supported Job Types | Inventory, Add, Remove | Job types the extension supports
+Needs Server | Checked | Determines if a target server name is required when creating store
+Blueprint Allowed | Checked | Determines if store type may be included in an Orchestrator blueprint
+Uses PowerShell | Unchecked | Determines if underlying implementation is PowerShell
+Requires Store Password	| Unchecked | Determines if a store password is required when configuring an individual store.
+Supports Entry Password	| Unchecked | Determines if an individual entry within a store can have a password.
 
-![image.png](/Images/CertStoreType-CustomFields-Okta.gif)
 
-Cert Store Types Settings - Entry Params
----------------
-| Name | Display Name | Type | Default Value | Multiple Choice Questions | Required When |
-| ----------- | ----------- | ----------- | ----------- | ----------- | ----------- |
-| AWS Region | AWS Region | Multiple Choice | us-east-1 | us-east-1,us-east-2... | Adding an Entry, Reenrolling Entry |
+**Advanced Settings:**
 
-![image.png](/Images/CertStoreType-EntryParams.gif)
+CONFIG ELEMENT | VALUE | DESCRIPTION
+--|--|--
+Store Path Type	| Freeform | Determines what restrictions are applied to the store path field when configuring a new store.
+Store Path Value | N/A | This is reserved for the AWS Account Id when setting up the store.
+Supports Custom Alias | Optional | Determines if an individual entry within a store can have a custom Alias.
+Private Keys | Optional | This determines if Keyfactor can send the private key associated with a certificate to the store.
+PFX Password Style | Default or Custom | "Default" - PFX password is randomly generated, "Custom" - PFX password may be specified when the enrollment job is created (Requires the *Allow Custom Password* application setting to be enabled.)
+
+**Custom Fields:**
+
+Custom fields operate at the certificate store level and are used to control how the orchestrator connects to the remote
+target server containing the certificate store to be managed
+
+Name|Display Name|Type|Default Value / Options|Required|Description
+---|---|---|---|---|---
+scope | Okta OAuth Scope | string | N/A | Yes | This is the OAuth Scope needed for Okta OAuth
+grant_type | Okta OAuth Grant Type | string | N/A | Yes | In OAuth 2.0, the term “grant type” refers to the way an application gets an access token
+awsrole | AWS Assume Identity Role | string | N/A | Yes | This role has to be created in AWS IAM so you can assume an identity and get temp credentials
+awsregions | AWS Regions | string | N/A | Yes | This will be the list of regions for the account the store iterates through when doing inventory.
+
+
+**Entry Parameters:**
+
+Entry parameters are inventoried and maintained for each entry within a certificate store.
+They are typically used to support binding of a certificate to a resource.
+
+Name|Display Name| Type|Default Value|Required When|Description
+---|---|---|---|---|---
+AWS Region | AWS Region | Multiple Choice | us-east-1 | Adding | When enrolling, this is the Region that the Certificate will be enrolled to.
+
+
 
 Cert Store Settings
 ===============
@@ -84,47 +104,13 @@ Cert Store Settings
 | 5 | AWS Regions | us-east-1,us-east-2... | List of AWS Regions you want to inventory for the account above. |
 | 6 | Store Password | No Password Needed for this | Set to no password needed. |
 
-![image.png](/Images/CertStore2.gif)
+See [image](/Images/CertStore2.gif) for mappings.  Note screen could change in future versions of Keyfactor Command.
 
+</details>
+</details>
 
-
-AWS Setup
-===============
-Identity Provider Setup
----------------
-A 3rd party [identity provider](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_oidc.html) similar to the one below needs to be setup in AWS for each account.
-![image.png](/Images/AWSIdentityProvider.gif)
-
-AWS Role Setup
----------------
-An Aws [Role](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-user.html) Needs Added for each AWS account.
-![image.png](/Images/AWSRole1.gif)
-
-Trust Relationship
----------------
-Ensure the [trust relationship](https://docs.aws.amazon.com/directoryservice/latest/admin-guide/edit_trust.html) is setup for that role.  Should  look like below:
-![image.png](/Images/AWSRole2.gif)
-
-OKTA Setup
-===============
-Okta API - Settings
----------------
-Ensure your Authorization Server Is Setup in OKTA.  Here is a sample below:
-![image.png](/Images/OktaSampleAuthorizationServer.gif)
-
-Okta API - Scopes
----------------
-Ensure the appropriate scopes are setup in Okta.  Here is a sample below:
-![image.png](/Images/OktaSampleAuthorizationServer-scopes.gif)
-
-Okta App
----------------
-Setup an Okta App with similar settings to the screens below:
-![image.png](/Images/OktaApp1.gif)
-![image.png](/Images/OktaApp2.gif)
-
-
-# AWS Certificate Manager with IAM Auth Configuration
+<details>
+	<summary>AWS Certificate Manager with IAM Auth Configuration</summary>
 NOTE FOR IAM AUTH:
 
 AWS does not support programmatic access for AWS SSO accounts. The account used here must be a standard AWS IAM User with an Access Key credential type.
@@ -184,6 +170,7 @@ Cert Store Settings
 
 ![image.png](/Images/CertStore-IAM.gif)
 
+</details>
 AWS Setup
 ===============
 
