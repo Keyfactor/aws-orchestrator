@@ -30,7 +30,7 @@ Depending on your choice of authentication providers, choose the appropriate con
 ### AWS Setup
 1. A 3rd party [identity provider](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_oidc.html) similar to [this](/Images/AWSIdentityProvider.gif) needs to be setup in AWS for each account.
 2. An Aws [Role](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-user.html) similar to [this](/Images/AWSRole1.gif) needs Added for each AWS account.
-3. Ensure the [trust relationship](https://docs.aws.amazon.com/directoryservice/latest/admin-guide/edit_trust.html) is setup for that role.  Should  look like [this](/Images/AWSRole2.gif)
+3. Ensure the [trust relationship](https://docs.aws.amazon.com/directoryservice/latest/admin-guide/edit_trust.html) is setup for that role.  Should  look like [this](/Images/AWSRole2.gif).
 
 ### OKTA Setup
 1. Ensure your Authorization Server Is Setup in OKTA.  Here is a [sample](/Images/OktaSampleAuthorizationServer.gif).
@@ -40,7 +40,6 @@ Depending on your choice of authentication providers, choose the appropriate con
 
 <details>
 <summary>Cert Store Type and Cert Store Setup</summary>
-<details>
 ## Cert Store Type Settings
 
 Cert Store Types Settings - Basic
@@ -98,7 +97,7 @@ Cert Store Settings
 
 ![image.png](/Images/CertStore2.gif)
 
-
+</details>
 </details>
 
 
