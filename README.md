@@ -143,14 +143,15 @@ See [image](/Images/CertStore2.gif) for mappings.  Note screen could change in f
 
 <details>
 	<summary>AWS Certificate Manager with IAM Auth Configuration</summary>
-NOTE FOR IAM AUTH:
 
-AWS does not support programmatic access for AWS SSO accounts. The account used here must be a standard AWS IAM User with an Access Key credential type.
-![image.png](/Images/UserAccount.gif)
+### AWS Setup
+1. An Aws [Role](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-user.html) Needs Added for the permissions you want to grant, see [sample](/Images/AWSRole1.gif).
+2. A [Trust Relationship](https://docs.aws.amazon.com/directoryservice/latest/admin-guide/edit_trust.html) is setup for that role.  Should look like something like [this](/Images/AssumeRoleTrust.gif).
+3. AWS does not support programmatic access for AWS SSO accounts. The account used here must be a [standard AWS IAM User](/Images/UserAccount.gif) with an Access Key credential type.
 
 
-Cert Store Type Settings
-===============
+<details>
+<summary>Cert Store Type and Cert Store Setup</summary>
 
 Cert Store Types Settings - Basic
 ---------------
@@ -201,18 +202,6 @@ Cert Store Settings
 | 5 | Password | IAM Access Secret | Obtained from the AWS |
 
 ![image.png](/Images/CertStore-IAM.gif)
-
 </details>
-AWS Setup
-===============
-
-AWS Role Setup
----------------
-An Aws [Role](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-user.html) Needs Added for the permissions you want to grant.
-![image.png](/Images/AWSRole1.gif)
-
-Trust Relationship
----------------
-Ensure the [trust relationship](https://docs.aws.amazon.com/directoryservice/latest/admin-guide/edit_trust.html) is setup for that role.  Should  look like below, where AssumeRoleTest is the account whose access key/secret you are using:
-![image.png](/Images/AssumeRoleTrust.gif)
+</details>
 
