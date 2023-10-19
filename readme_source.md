@@ -109,8 +109,7 @@ See [image](/Images/CertStore2.gif) for mappings.  Note screen could change in f
 </details>
 </details>
 
-
-
+<details>
 	<summary>AWS Certificate Manager with IAM Auth Configuration</summary>
 NOTE FOR IAM AUTH:
 
