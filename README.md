@@ -58,44 +58,18 @@ AWS Certificate Manager is a service that lets you easily provision, manage, and
 Depending on your choice of authentication providers, choose the appropriate configuration section
 <details>
 <summary>AWS Certificate Manager with Okta Auth Configuration</summary>
-&nbsp;&nbsp;
-<details>
-<summary>AWS Setup</summary>
 
->### Identity Provider Setup
+### AWS Setup
+1. A 3rd party [identity provider](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_oidc.html) similar to [this](/Images/AWSIdentityProvider.gif) needs to be setup in AWS for each account.
+2. An Aws [Role](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-user.html) similar to [this](/Images/AWSRole1.gif) needs Added for each AWS account.
+3. Ensure the [trust relationship](https://docs.aws.amazon.com/directoryservice/latest/admin-guide/edit_trust.html) is setup for that role.  Should  look like [this](/Images/AWSRole2.gif)
 
-A 3rd party [identity provider](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_oidc.html) similar to the one below needs to be setup in AWS for each account.
-![image.png](/Images/AWSIdentityProvider.gif)
+### OKTA Setup
+1. Ensure your Authorization Server Is Setup in OKTA.  Here is a [sample](/Images/OktaSampleAuthorizationServer.gif).
+2. Ensure the appropriate scopes are setup in Okta.  Here is a [sample](/Images/OktaSampleAuthorizationServer-scopes.gif).
+3. Setup an Okta App with similar settings to [this](/Images/OktaApp1.gif) and [this](/Images/OktaApp2.gif).
 
-### AWS Role Setup
 
-An Aws [Role](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-user.html) Needs Added for each AWS account.
-![image.png](/Images/AWSRole1.gif)
-
-### Trust Relationship
-
-Ensure the [trust relationship](https://docs.aws.amazon.com/directoryservice/latest/admin-guide/edit_trust.html) is setup for that role.  Should  look like below:
-![image.png](/Images/AWSRole2.gif)
->
-## OKTA Setup
-
->### Okta API - Settings
-
->Ensure your Authorization Server Is Setup in OKTA.  Here is a sample below:
->![image.png](/Images/OktaSampleAuthorizationServer.gif)
-
->### Okta API - Scopes
-
->Ensure the appropriate scopes are setup in Okta.  Here is a sample below:
->![image.png](/Images/OktaSampleAuthorizationServer-scopes.gif)
-
->### Okta App
-
->Setup an Okta App with similar settings to the screens below:
->![image.png](/Images/OktaApp1.gif)
->![image.png](/Images/OktaApp2.gif)
-
-</details>
 <details>
 <summary>Cert Store Type and Cert Store Setup</summary>
 <details>
