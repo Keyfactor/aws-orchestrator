@@ -41,6 +41,8 @@ Depending on your choice of authentication providers, choose the appropriate con
 <details>
 <summary>Cert Store Type and Cert Store Setup</summary>
 
+Cert Store Type Settings
+===============
 **Basic Settings:**
 
 CONFIG ELEMENT | VALUE | DESCRIPTION
@@ -121,6 +123,8 @@ See [image](/Images/CertStore2.gif) for mappings.  Note screen could change in f
 <details>
 <summary>Cert Store Type and Cert Store Setup</summary>
 
+Cert Store Type Settings
+===============
 **Basic Settings:**
 
 CONFIG ELEMENT | VALUE | DESCRIPTION
