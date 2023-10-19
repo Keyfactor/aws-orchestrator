@@ -77,6 +77,7 @@ Name|Display Name|Type|Default Value / Options|Required|Description
 ---|---|---|---|---|---
 scope | Okta OAuth Scope | string | N/A | Yes | This is the OAuth Scope needed for Okta OAuth
 grant_type | Okta OAuth Grant Type | string | N/A | Yes | In OAuth 2.0, the term “grant type” refers to the way an application gets an access token
+oauthpath | OKTA OAuth Path | string | /oauth2/default/v1/token | Yes | In path to the OAuth Server.  It will Default to the Default Server.  If you use something outside of the Default, change this.
 awsrole | AWS Assume Identity Role | string | N/A | Yes | This role has to be created in AWS IAM so you can assume an identity and get temp credentials
 awsregions | AWS Regions | string | N/A | Yes | This will be the list of regions for the account the store iterates through when doing inventory.
 
@@ -102,11 +103,12 @@ Cert Store Settings
 | 1 | Store Path | AWS Account Number | Unique account number obtained from AWS |
 | 2 | Okta OAuth Scope | Look in Okta Setup for Scope | OAuth scope setup in the Okta Application |
 | 3 | Okta OAuth Grant Type | client_credentials | This may vary depending on Okta setup but will most likely be this value. |
-| 4 | AWS Assume Identity Role | Whatever Role is setup in AWS | Role must allow a third identity provider in AWS with AWS Cert Manager full access. |
-| 5 | AWS Regions | us-east-1,us-east-2... | List of AWS Regions you want to inventory for the account above. |
-| 6 | Store Password | No Password Needed for this | Set to no password needed. |
+| 4 | OKTA OAuth Path | oauthpath | In path to the OAuth Server.  It will Default to the Default Server.  If you use something outside of the Default, change this. |
+| 5 | AWS Assume Identity Role | Whatever Role is setup in AWS | Role must allow a third identity provider in AWS with AWS Cert Manager full access. |
+| 6 | AWS Regions | us-east-1,us-east-2... | List of AWS Regions you want to inventory for the account above. |
+| 7 | Store Password | No Password Needed for this | Set to no password needed. |
 
-See [image](/Images/CertStore2.gif) for mappings.  Note screen could change in future versions of Keyfactor Command.
+
 
 </details>
 </details>
