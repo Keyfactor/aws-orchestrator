@@ -40,46 +40,55 @@ Depending on your choice of authentication providers, choose the appropriate con
 
 <details>
 <summary>Cert Store Type and Cert Store Setup</summary>
-## Cert Store Type Settings
 
-Cert Store Types Settings - Basic
----------------
-| Section | Settings |
-| ----------- | ----------- |
-| Details | Name="Custom Name", Short Name="AWSCerManO" |
-| Supported Job Types | Inventory, Add, Remove |
-| General Settings | Needs Server, Blueprint Allowed |
-| Password Settings | Supports Entry Password |
+**Basic Settings:**
 
-![image.png](/Images/CertStoreType-Basic-Okta.gif)
+CONFIG ELEMENT | VALUE | DESCRIPTION
+--|--|--
+Name | Any Custom Name | Display name for the store type (may be customized)
+Short Name| AWSCerManO | Short display name for the store type
+Custom Capability | N/A | Store type name orchestrator will register with. Check the box to allow entry of value
+Supported Job Types | Inventory, Add, Remove | Job types the extension supports
+Needs Server | Checked | Determines if a target server name is required when creating store
+Blueprint Allowed | Checked | Determines if store type may be included in an Orchestrator blueprint
+Uses PowerShell | Unchecked | Determines if underlying implementation is PowerShell
+Requires Store Password	| Unchecked | Determines if a store password is required when configuring an individual store.
+Supports Entry Password	| Unchecked | Determines if an individual entry within a store can have a password.
 
-Cert Store Types Settings - Advanced
----------------
-| Section | Settings |
-| ----------- | ----------- |
-| Store Path Type | Freeform |
-| Other Settings | Supports Custom Alias=Optional, Private Key Handling=Optional, PFX Password Style=Default|
 
-![image.png](/Images/CertStoreType-Advanced.gif)
+**Advanced Settings:**
 
-Cert Store Types Settings - Custom Fields
----------------
-| Name | Display Name | Required | Type | Description |
-| ----------- | ----------- | ----------- | ----------- | ----------- |
-| scope | Okta OAuth Scope | True| string | This is the OAuth Scope needed for Okta OAuth
-| grant_type | Okta OAuth Grant Type | True | string | In OAuth 2.0, the term “grant type” refers to the way an application gets an access token
-| awsrole | AWS Assume Identity Role | True | string | This role has to be created in AWS IAM so you can assume an identity and get temp credentials
-| awsregions | AWS Regions | True | string | This will be the list of regions for the account the store iterates through when doing inventory.
+CONFIG ELEMENT | VALUE | DESCRIPTION
+--|--|--
+Store Path Type	| Freeform | Determines what restrictions are applied to the store path field when configuring a new store.
+Store Path Value | N/A | This is reserved for the AWS Account Id when setting up the store.
+Supports Custom Alias | Optional | Determines if an individual entry within a store can have a custom Alias.
+Private Keys | Optional | This determines if Keyfactor can send the private key associated with a certificate to the store.
+PFX Password Style | Default or Custom | "Default" - PFX password is randomly generated, "Custom" - PFX password may be specified when the enrollment job is created (Requires the *Allow Custom Password* application setting to be enabled.)
 
-![image.png](/Images/CertStoreType-CustomFields-Okta.gif)
+**Custom Fields:**
 
-Cert Store Types Settings - Entry Params
----------------
-| Name | Display Name | Type | Default Value | Multiple Choice Questions | Required When |
-| ----------- | ----------- | ----------- | ----------- | ----------- | ----------- |
-| AWS Region | AWS Region | Multiple Choice | us-east-1 | us-east-1,us-east-2... | Adding an Entry, Reenrolling Entry |
+Custom fields operate at the certificate store level and are used to control how the orchestrator connects to the remote
+target server containing the certificate store to be managed
 
-![image.png](/Images/CertStoreType-EntryParams.gif)
+Name|Display Name|Type|Default Value / Options|Required|Description
+---|---|---|---|---|---
+scope | Okta OAuth Scope | string | N/A | Yes | This is the OAuth Scope needed for Okta OAuth
+grant_type | Okta OAuth Grant Type | string | N/A | Yes | In OAuth 2.0, the term “grant type” refers to the way an application gets an access token
+awsrole | AWS Assume Identity Role | string | N/A | Yes | This role has to be created in AWS IAM so you can assume an identity and get temp credentials
+awsregions | AWS Regions | string | N/A | Yes | This will be the list of regions for the account the store iterates through when doing inventory.
+
+
+**Entry Parameters:**
+
+Entry parameters are inventoried and maintained for each entry within a certificate store.
+They are typically used to support binding of a certificate to a resource.
+
+Name|Display Name| Type|Default Value|Required When|Description
+---|---|---|---|---|---
+AWS Region | AWS Region | Multiple Choice | us-east-1 | Adding | When enrolling, this is the Region that the Certificate will be enrolled to.
+
+
 
 Cert Store Settings
 ===============
@@ -95,7 +104,7 @@ Cert Store Settings
 | 5 | AWS Regions | us-east-1,us-east-2... | List of AWS Regions you want to inventory for the account above. |
 | 6 | Store Password | No Password Needed for this | Set to no password needed. |
 
-![image.png](/Images/CertStore2.gif)
+See [image](/Images/CertStore2.gif) for mappings.  Note screen could change in future versions of Keyfactor Command.
 
 </details>
 </details>
