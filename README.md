@@ -56,12 +56,49 @@ AWS Certificate Manager is a service that lets you easily provision, manage, and
 
 ## **Installation**
 Depending on your choice of authentication providers, choose the appropriate configuration section
-- [Okta Auth Configuration](#aws-certificate-manager-with-okta-auth-configuration)
-- [AWS IAM Auth Configuration](#aws-certificate-manager-with-iam-auth-configuration)
+<details>
+	<summary>AWS Certificate Manager with Okta Auth Configuration</summary>
 
-# AWS Certificate Manager with Okta Auth Configuration
-Cert Store Type Settings
-===============
+	*	<details>
+			<summary>AWS Setup</summary>
+
+		### Identity Provider Setup
+
+		A 3rd party [identity provider](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_oidc.html) similar to the one below needs to be setup in AWS for each account.
+		![image.png](/Images/AWSIdentityProvider.gif)
+
+		### AWS Role Setup
+
+		An Aws [Role](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-user.html) Needs Added for each AWS account.
+		![image.png](/Images/AWSRole1.gif)
+
+		### Trust Relationship
+
+		Ensure the [trust relationship](https://docs.aws.amazon.com/directoryservice/latest/admin-guide/edit_trust.html) is setup for that role.  Should  look like below:
+		![image.png](/Images/AWSRole2.gif)
+
+		## OKTA Setup
+
+		### Okta API - Settings
+
+		Ensure your Authorization Server Is Setup in OKTA.  Here is a sample below:
+		![image.png](/Images/OktaSampleAuthorizationServer.gif)
+
+		### Okta API - Scopes
+
+		Ensure the appropriate scopes are setup in Okta.  Here is a sample below:
+		![image.png](/Images/OktaSampleAuthorizationServer-scopes.gif)
+
+		### Okta App
+
+		Setup an Okta App with similar settings to the screens below:
+		![image.png](/Images/OktaApp1.gif)
+		![image.png](/Images/OktaApp2.gif)
+
+		</details>
+
+<details>
+## Cert Store Type Settings
 
 Cert Store Types Settings - Basic
 ---------------
@@ -119,44 +156,11 @@ Cert Store Settings
 ![image.png](/Images/CertStore2.gif)
 
 
-
-AWS Setup
-===============
-Identity Provider Setup
----------------
-A 3rd party [identity provider](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_oidc.html) similar to the one below needs to be setup in AWS for each account.
-![image.png](/Images/AWSIdentityProvider.gif)
-
-AWS Role Setup
----------------
-An Aws [Role](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-user.html) Needs Added for each AWS account.
-![image.png](/Images/AWSRole1.gif)
-
-Trust Relationship
----------------
-Ensure the [trust relationship](https://docs.aws.amazon.com/directoryservice/latest/admin-guide/edit_trust.html) is setup for that role.  Should  look like below:
-![image.png](/Images/AWSRole2.gif)
-
-OKTA Setup
-===============
-Okta API - Settings
----------------
-Ensure your Authorization Server Is Setup in OKTA.  Here is a sample below:
-![image.png](/Images/OktaSampleAuthorizationServer.gif)
-
-Okta API - Scopes
----------------
-Ensure the appropriate scopes are setup in Okta.  Here is a sample below:
-![image.png](/Images/OktaSampleAuthorizationServer-scopes.gif)
-
-Okta App
----------------
-Setup an Okta App with similar settings to the screens below:
-![image.png](/Images/OktaApp1.gif)
-![image.png](/Images/OktaApp2.gif)
+</details>
 
 
-# AWS Certificate Manager with IAM Auth Configuration
+
+	<summary>AWS Certificate Manager with IAM Auth Configuration</summary>
 NOTE FOR IAM AUTH:
 
 AWS does not support programmatic access for AWS SSO accounts. The account used here must be a standard AWS IAM User with an Access Key credential type.
@@ -216,6 +220,7 @@ Cert Store Settings
 
 ![image.png](/Images/CertStore-IAM.gif)
 
+</details>
 AWS Setup
 ===============
 
