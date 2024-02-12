@@ -101,9 +101,6 @@
             "Style": "Default"
           },
           "PrivateKeyAllowed": "Optional",
-          "JobProperties": [
-            "AWS Region"
-          ],
           "ServerRequired": true,
           "PowerShell": false,
           "BlueprintAllowed": true,
@@ -208,9 +205,6 @@
             "Style": "Default"
           },
           "PrivateKeyAllowed": "Optional",
-          "JobProperties": [
-            "AWS Region"
-          ],
           "ServerRequired": true,
           "PowerShell": false,
           "BlueprintAllowed": true,
