@@ -77,12 +77,13 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.IAM
 						var endPoint = RegionEndpoint.GetBySystemName(region);
 						_logger.LogTrace($"Mapped AWS Endpoint: {JsonConvert.SerializeObject(endPoint)}");
 						//Credentials credentials = Utilities.AwsAuthenticate(config.ServerUsername, config.ServerPassword, config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
-						Credentials credentials = Utilities.DefaultAuthenticate(config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
+						//Credentials credentials = Utilities.DefaultAuthenticate(config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
 
-						_logger.LogTrace($"Credentials JSON: {JsonConvert.SerializeObject(credentials)}");
-						AcmClient = new AmazonCertificateManagerClient(credentials.AccessKeyId,
-							credentials.SecretAccessKey, region: RegionEndpoint.GetBySystemName(region),
-							awsSessionToken: credentials.SessionToken);
+						//_logger.LogTrace($"Credentials JSON: {JsonConvert.SerializeObject(credentials)}");
+						AcmClient = new AmazonCertificateManagerClient(region: RegionEndpoint.GetBySystemName(region));
+						//AcmClient = new AmazonCertificateManagerClient(credentials.AccessKeyId,
+						//	credentials.SecretAccessKey, region: RegionEndpoint.GetBySystemName(region),
+						//	awsSessionToken: credentials.SessionToken);
 						_logger.LogTrace($"AcmClient JSON: {JsonConvert.SerializeObject(AcmClient)}");
 						var certList = AsyncHelpers.RunSync(() => AcmClient.ListCertificatesAsync());
 						_logger.LogTrace($"First Cert List JSON For Region {region}: {JsonConvert.SerializeObject(certList)}");
@@ -132,6 +133,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.IAM
 					}
 					catch (Exception e) //have to loop through all regions specified for each account and some may be invalid
 					{
+						// TODO: failed inventory is returning Success even when it cannot authenticate
 						_logger.LogError($"Could not authenticate to AWS, invalid account/region combination account: {config.CertificateStoreDetails.StorePath} region: {region} error: {e.Message}");
 					}
 				}

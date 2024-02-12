@@ -79,6 +79,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager
 
 		public static Credentials DefaultAuthenticate(string awsAccount, string awsRole)
         {
+			// DEFAULT SHOULD NOT ASSUME ROLE
 			Credentials credentials = null;
 			try
             {

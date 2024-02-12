@@ -106,13 +106,14 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.IAM
 				_logger.LogTrace($"Got Endpoint From Job Properties JSON: {JsonConvert.SerializeObject(endPoint)}");
 
 				//Credentials credentials = Utilities.AwsAuthenticate(config.ServerUsername, config.ServerPassword, config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
-				Credentials credentials = Utilities.DefaultAuthenticate(config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
+				//Credentials credentials = Utilities.DefaultAuthenticate(config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
 
-				_logger.LogTrace($"Credentials JSON: {JsonConvert.SerializeObject(credentials)}");
+				//_logger.LogTrace($"Credentials JSON: {JsonConvert.SerializeObject(credentials)}");
 
-				using (AcmClient = new AmazonCertificateManagerClient(credentials.AccessKeyId,
-					credentials.SecretAccessKey, region: endPoint,
-					awsSessionToken: credentials.SessionToken))
+				//using (AcmClient = new AmazonCertificateManagerClient(credentials.AccessKeyId,
+				//	credentials.SecretAccessKey, region: endPoint,
+				//	awsSessionToken: credentials.SessionToken))
+				using (AcmClient = new AmazonCertificateManagerClient(region: endPoint))
 				{
 					_logger.LogTrace($"AcmClient JSON: {JsonConvert.SerializeObject(AcmClient)}");
 					if (!String.IsNullOrWhiteSpace(config.JobCertificate.PrivateKeyPassword)) // This is a PFX Entry
