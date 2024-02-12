@@ -1,4 +1,4 @@
-﻿// Copyright 2023 Keyfactor
+﻿// Copyright 2024 Keyfactor
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -76,7 +76,8 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.IAM
 					{
 						var endPoint = RegionEndpoint.GetBySystemName(region);
 						_logger.LogTrace($"Mapped AWS Endpoint: {JsonConvert.SerializeObject(endPoint)}");
-						Credentials credentials = Utilities.AwsAuthenticate(config.ServerUsername, config.ServerPassword, config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
+						//Credentials credentials = Utilities.AwsAuthenticate(config.ServerUsername, config.ServerPassword, config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
+						Credentials credentials = Utilities.DefaultAuthenticate(config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
 
 						_logger.LogTrace($"Credentials JSON: {JsonConvert.SerializeObject(credentials)}");
 						AcmClient = new AmazonCertificateManagerClient(credentials.AccessKeyId,

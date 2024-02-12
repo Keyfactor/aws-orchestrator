@@ -1,4 +1,4 @@
-﻿// Copyright 2023 Keyfactor
+﻿// Copyright 2024 Keyfactor
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -57,7 +57,33 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager
 			try
 			{
 				var account = awsAccount;
+				// STS needed when using user's credentials, to assume a role
+				// NOT NEEDED? when using role credentials from EC2
 				var stsClient = new AmazonSecurityTokenServiceClient(accessKey, accessSecret);
+				var assumeRequest = new AssumeRoleRequest
+				{
+					RoleArn = $"arn:aws:iam::{account}:role/{awsRole}",
+					RoleSessionName = "KeyfactorSession"
+				};
+
+				var assumeResult = AsyncHelpers.RunSync(() => stsClient.AssumeRoleAsync(assumeRequest));
+				credentials = assumeResult.Credentials;
+			}
+			catch (Exception e)
+			{
+				throw;
+			}
+
+			return credentials;
+		}
+
+		public static Credentials DefaultAuthenticate(string awsAccount, string awsRole)
+        {
+			Credentials credentials = null;
+			try
+            {
+				var account = awsAccount;
+				var stsClient = new AmazonSecurityTokenServiceClient();
 				var assumeRequest = new AssumeRoleRequest
 				{
 					RoleArn = $"arn:aws:iam::{account}:role/{awsRole}",
