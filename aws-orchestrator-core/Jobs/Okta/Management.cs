@@ -1,4 +1,4 @@
-﻿// Copyright 2023 Keyfactor
+﻿// Copyright 2024 Keyfactor
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -110,7 +110,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.Okta
 				var endPoint = RegionEndpoint.GetBySystemName(config.JobProperties["AWS Region"].ToString());
 				_logger.LogTrace($"Got Endpoint From Job Properties JSON: {JsonConvert.SerializeObject(endPoint)}");
 
-				Credentials credentials = Utilities.AwsAuthenticateWithWebIdentity(authResponse, endPoint, config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
+				Credentials credentials = Utilities.AwsAuthenticateWithWebIdentity(authResponse, config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
 
 				_logger.LogTrace($"Credentials JSON: {JsonConvert.SerializeObject(credentials)}");
 
@@ -266,7 +266,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.Okta
 				var endPoint = RegionEndpoint.GetBySystemName(config.JobCertificate.Alias.Split(":")[3]); //Get from ARN so user does not have to enter
 				_logger.LogTrace($"Got Endpoint From Job Properties JSON: {JsonConvert.SerializeObject(endPoint)}");
 
-				Credentials credentials = Utilities.AwsAuthenticateWithWebIdentity(authResponse, endPoint, config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
+				Credentials credentials = Utilities.AwsAuthenticateWithWebIdentity(authResponse, config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
 
 				_logger.LogTrace($"Credentials JSON: {JsonConvert.SerializeObject(credentials)}");
 

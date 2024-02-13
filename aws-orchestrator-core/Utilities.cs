@@ -25,7 +25,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager
 {
 	public static class Utilities
 	{
-		public static Credentials AwsAuthenticateWithWebIdentity(AuthResponse authResponse, RegionEndpoint endpoint, string awsAccount, string awsRole)
+		public static Credentials AwsAuthenticateWithWebIdentity(AuthResponse authResponse, string awsAccount, string awsRole)
 		{
 			Credentials credentials = null;
 			try
