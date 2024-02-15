@@ -60,10 +60,10 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.IAM
 			_logger.MethodEntry();
 			try
 			{
-				Credentials credentials = Utilities.AwsAuthenticate(config.ServerUsername, config.ServerPassword, config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
+				Credentials credentials = AuthUtilities.AwsAuthenticate(config.ServerUsername, config.ServerPassword, config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
 				_logger.LogTrace($"Credentials JSON: {JsonConvert.SerializeObject(credentials)}");
 
-				return base.PerformInventory(credentials, CustomFields, config, siu);
+				return base.PerformInventory(credentials, config, siu);
 			}
 			catch (Exception e)
 			{

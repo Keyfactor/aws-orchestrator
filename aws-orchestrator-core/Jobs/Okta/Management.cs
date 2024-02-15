@@ -82,10 +82,10 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.Okta
 			try
 			{
 				_logger.MethodEntry();
-				AuthResponse authResponse = OktaAuthenticate(config);
+				OAuthResponse authResponse = OktaAuthenticate(config);
 				_logger.LogTrace($"Got authResponse: {JsonConvert.SerializeObject(authResponse)}");
 
-				Credentials credentials = Utilities.AwsAuthenticateWithWebIdentity(authResponse, config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
+				Credentials credentials = AuthUtilities.AwsAuthenticateWithWebIdentity(authResponse, config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
 				_logger.LogTrace($"Credentials JSON: {JsonConvert.SerializeObject(credentials)}");
 
 				return base.PerformAddition(credentials, config);
@@ -108,10 +108,10 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.Okta
 			{
 				_logger.MethodEntry();
 
-				AuthResponse authResponse = OktaAuthenticate(config);
+				OAuthResponse authResponse = OktaAuthenticate(config);
 				_logger.LogTrace($"Got authResponse: {JsonConvert.SerializeObject(authResponse)}");
 
-				Credentials credentials = Utilities.AwsAuthenticateWithWebIdentity(authResponse, config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
+				Credentials credentials = AuthUtilities.AwsAuthenticateWithWebIdentity(authResponse, config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
 				_logger.LogTrace($"Credentials JSON: {JsonConvert.SerializeObject(credentials)}");
 
 				return base.PerformRemoval(credentials, config);
@@ -128,7 +128,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.Okta
 			}
 		}
 
-		private AuthResponse OktaAuthenticate(ManagementJobConfiguration config)
+		private OAuthResponse OktaAuthenticate(ManagementJobConfiguration config)
 		{
 			try
 			{
@@ -159,7 +159,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.Okta
 				}
 				var response = client.Execute(request);
 				_logger.LogTrace($"Okta Auth Raw Response: {response}");
-				var authResponse = JsonConvert.DeserializeObject<AuthResponse>(response.Content);
+				var authResponse = JsonConvert.DeserializeObject<OAuthResponse>(response.Content);
 				_logger.LogTrace($"Okta Serialized Auth Response: {JsonConvert.SerializeObject(authResponse)}");
 
 				return authResponse;

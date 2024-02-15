@@ -37,7 +37,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
         internal IAmazonCertificateManager AcmClient;
         internal ILogger Logger;
 
-        internal JobResult PerformInventory(Credentials awsCredentials, CustomFields customFields, InventoryJobConfiguration config, SubmitInventoryUpdate siu)
+        internal JobResult PerformInventory(Credentials awsCredentials, InventoryJobConfiguration config, SubmitInventoryUpdate siu)
         {
             Logger.MethodEntry();
             bool warningFlag = false;
@@ -46,8 +46,8 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
             sb.Append("");
             try
             {
-                //Get List of regions from Cert Store Regions Param
-                var regions = customFields.AwsRegions.Split(',');
+                //Get List of regions from Cert Store Path
+                var regions = config.CertificateStoreDetails.StorePath.Split(','); // TODO: extract to named parameter in main inventory method
                 Logger.LogTrace($"Raw Regions CSV from AWSRegions Custom Field: {regions}");
 
                 List<CurrentInventoryItem> inventoryItems = new List<CurrentInventoryItem>();

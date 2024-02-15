@@ -46,4 +46,42 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager
 	public class IAMCustomFields : CustomFields
 	{
 	}
+
+	public class ACMCustomFields
+	{
+		[JsonProperty("UseOAuth")]
+		[DefaultValue(false)]
+		public bool UseOAuth { get; set; }
+
+		[JsonProperty("UseIAM")]
+		[DefaultValue(false)]
+		public bool UseIAM { get; set; }
+
+		[JsonProperty("OAuthAccountId")]
+		public string OAuthAccountId { get; set; }
+
+		[JsonProperty("OAuthScope")]
+		public string OAuthScope { get; set; }
+
+		[JsonProperty("OAuthGrantType")]
+		public string OAuthGrantType { get; set; }
+
+		[JsonProperty("OAuthUrl")]
+		public string OAuthUrl { get; set; }
+
+		[JsonProperty("OAuthClientId")]
+		public string OAuthClientId { get; set; }
+
+		[JsonProperty("OAuthClientSecret")]
+		public string OAuthClientSecret { get; set;}
+
+		[JsonProperty("IamAccountId")]
+		public string IamAccountId { get; set; }
+
+		[JsonProperty("IamAccessKey")]
+		public string IamAccessKey { get; set; }
+
+		[JsonProperty("IamAccessSecret")]
+		public string IamAccessSecret { get; set; }
+	}
 }

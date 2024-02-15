@@ -79,7 +79,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.IAM
 			{
 				_logger.MethodEntry();
 
-				Credentials credentials = Utilities.AwsAuthenticate(config.ServerUsername, config.ServerPassword, config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
+				Credentials credentials = AuthUtilities.AwsAuthenticate(config.ServerUsername, config.ServerPassword, config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
 				_logger.LogTrace($"Credentials JSON: {JsonConvert.SerializeObject(credentials)}");
 
 				return base.PerformAddition(credentials, config);
@@ -102,7 +102,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.IAM
 			{
 				_logger.MethodEntry();
 
-				Credentials credentials = Utilities.AwsAuthenticate(config.ServerUsername, config.ServerPassword, config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
+				Credentials credentials = AuthUtilities.AwsAuthenticate(config.ServerUsername, config.ServerPassword, config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
 				_logger.LogTrace($"Credentials JSON: {JsonConvert.SerializeObject(credentials)}");
 
 				return base.PerformRemoval(credentials, config);
