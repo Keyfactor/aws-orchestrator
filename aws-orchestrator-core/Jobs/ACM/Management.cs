@@ -16,6 +16,7 @@ using Amazon.SecurityToken.Model;
 using Keyfactor.AnyAgent.AwsCertificateManager.Models;
 using Keyfactor.Orchestrators.Common.Enums;
 using Keyfactor.Orchestrators.Extensions;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.ACM
@@ -23,6 +24,11 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.ACM
     public class Management : Jobs.Management, IManagementJobExtension
     {
         public string ExtensionName => "AWS-ACM";
+
+        public Management(ILogger<Management> logger)
+        {
+            Logger = logger;
+        }
 
         public JobResult ProcessJob(ManagementJobConfiguration jobConfiguration)
         {
@@ -35,18 +41,22 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.ACM
 
             if (customFields.UseIAM)
             {
-                providedCredentials = AuthUtilities.AwsAuthenticate(customFields.IamAccessKey, customFields.IamAccessSecret, customFields.IamAccountId, awsRole);
+                var accessKey = jobConfiguration.ServerUsername;
+                var accessSecret = jobConfiguration.ServerPassword;
+                providedCredentials = AuthUtilities.AwsAuthenticate(accessKey, accessSecret, customFields.IamAccountId, awsRole);
                 //_logger.LogTrace($"Credentials JSON: {JsonConvert.SerializeObject(credentials)}");
             }
             else if (customFields.UseOAuth)
             {
+                var clientId = jobConfiguration.ServerUsername;
+                var clientSecret = jobConfiguration.ServerPassword;
                 OAuthParameters oauthParams = new OAuthParameters()
                 {
                     OAuthUrl = customFields.OAuthUrl,
                     GrantType = customFields.OAuthGrantType,
                     Scope = customFields.OAuthScope,
-                    ClientId = customFields.OAuthClientId,
-                    ClientSecret = customFields.OAuthClientSecret
+                    ClientId = clientId,
+                    ClientSecret = clientSecret
                 };
 
                 OAuthResponse authResponse = AuthUtilities.OktaAuthenticate(oauthParams);

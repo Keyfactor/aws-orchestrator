@@ -69,19 +69,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager
 		[JsonProperty("OAuthUrl")]
 		public string OAuthUrl { get; set; }
 
-		[JsonProperty("OAuthClientId")]
-		public string OAuthClientId { get; set; }
-
-		[JsonProperty("OAuthClientSecret")]
-		public string OAuthClientSecret { get; set;}
-
 		[JsonProperty("IamAccountId")]
 		public string IamAccountId { get; set; }
-
-		[JsonProperty("IamAccessKey")]
-		public string IamAccessKey { get; set; }
-
-		[JsonProperty("IamAccessSecret")]
-		public string IamAccessSecret { get; set; }
 	}
 }
