@@ -65,7 +65,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.Okta
 				OAuthResponse authResponse = OktaAuthenticate(config);
 				_logger.LogTrace($"Got authResponse: {JsonConvert.SerializeObject(authResponse)}");
 
-                Credentials credentials = AuthUtilities.AwsAuthenticateWithWebIdentity(authResponse, config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
+                Credentials credentials = AuthUtilities.AwsAuthenticateWithWebIdentity(Logger, authResponse, config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
                 _logger.LogTrace($"Credentials JSON: {JsonConvert.SerializeObject(credentials)}");
 
 				return base.PerformInventory(credentials, config, siu);

@@ -35,42 +35,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.ACM
             ACMCustomFields customFields = JsonConvert.DeserializeObject<ACMCustomFields>(jobConfiguration.CertificateStoreDetails.Properties,
                     new JsonSerializerSettings { DefaultValueHandling = DefaultValueHandling.Populate });
 
-            Credentials providedCredentials;
-            string awsRole = jobConfiguration.CertificateStoreDetails.ClientMachine;
-
-            if (customFields.UseIAM)
-            {
-                var accessKey = jobConfiguration.ServerUsername;
-                var accessSecret = jobConfiguration.ServerPassword;
-                providedCredentials = AuthUtilities.AwsAuthenticate(accessKey, accessSecret, customFields.IamAccountId, awsRole);
-                //_logger.LogTrace($"Credentials JSON: {JsonConvert.SerializeObject(credentials)}");
-            }
-            else if (customFields.UseOAuth)
-            {
-                var clientId = jobConfiguration.ServerUsername;
-                var clientSecret = jobConfiguration.ServerPassword;
-                OAuthParameters oauthParams = new OAuthParameters()
-                {
-                    OAuthUrl = customFields.OAuthUrl,
-                    GrantType = customFields.OAuthGrantType,
-                    Scope = customFields.OAuthScope,
-                    ClientId = clientId,
-                    ClientSecret = clientSecret
-                };
-
-                OAuthResponse authResponse = AuthUtilities.OktaAuthenticate(oauthParams);
-                //_logger.LogTrace($"Got authResponse: {JsonConvert.SerializeObject(authResponse)}");
-
-                providedCredentials = AuthUtilities.AwsAuthenticateWithWebIdentity(authResponse, customFields.OAuthAccountId, awsRole);
-                //_logger.LogTrace($"Credentials JSON: {JsonConvert.SerializeObject(credentials)}");
-
-                
-            }
-            else // use default SDK credential resolution
-            {
-                // log
-                providedCredentials = null;
-            }
+            Credentials providedCredentials = AuthUtilities.GetCredentials(Logger, customFields, jobConfiguration, jobConfiguration.CertificateStoreDetails);
 
             return base.PerformInventory(providedCredentials, jobConfiguration, submitInventoryUpdate);
         }
