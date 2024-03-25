@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using Amazon.SecurityToken.Model;
+using Keyfactor.Logging;
 using Keyfactor.Orchestrators.Extensions;
 using Keyfactor.Orchestrators.Extensions.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -33,11 +34,16 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.ACM
 
         public JobResult ProcessJob(InventoryJobConfiguration jobConfiguration, SubmitInventoryUpdate submitInventoryUpdate)
         {
+            Logger.MethodEntry();
+            Logger.LogTrace($"Deserializing Cert Store Properties: {jobConfiguration.CertificateStoreDetails.Properties}");
             ACMCustomFields customFields = JsonConvert.DeserializeObject<ACMCustomFields>(jobConfiguration.CertificateStoreDetails.Properties,
                     new JsonSerializerSettings { DefaultValueHandling = DefaultValueHandling.Populate });
+            Logger.LogTrace($"Populated ACMCustomFields: {JsonConvert.SerializeObject(customFields)}");
 
+            Logger.LogTrace("Resolving AWS Credentials object.");
             Credentials providedCredentials = AuthUtilities.GetCredentials(customFields, jobConfiguration, jobConfiguration.CertificateStoreDetails);
-
+            
+            Logger.LogTrace("AWS Credentials resolved. Performing Inventory.");
             return PerformInventory(providedCredentials, jobConfiguration, submitInventoryUpdate);
         }
     }

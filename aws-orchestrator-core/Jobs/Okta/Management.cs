@@ -39,9 +39,13 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.Okta
 
 		public JobResult ProcessJob(ManagementJobConfiguration jobConfiguration)
 		{
-			CustomFields = JsonConvert.DeserializeObject<OktaCustomFields>(jobConfiguration.CertificateStoreDetails.Properties,
-	new JsonSerializerSettings { DefaultValueHandling = DefaultValueHandling.Populate });
-			return PerformManagement(jobConfiguration);
+			Logger.MethodEntry();
+            Logger.LogTrace($"Deserializing Cert Store Properties: {jobConfiguration.CertificateStoreDetails.Properties}");
+            CustomFields = JsonConvert.DeserializeObject<OktaCustomFields>(jobConfiguration.CertificateStoreDetails.Properties,
+				new JsonSerializerSettings { DefaultValueHandling = DefaultValueHandling.Populate });
+            Logger.LogTrace($"Populated OktaCustomFields: {JsonConvert.SerializeObject(CustomFields)}");
+
+            return PerformManagement(jobConfiguration);
 		}
 
 		private JobResult PerformManagement(ManagementJobConfiguration config)
@@ -82,11 +86,12 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.Okta
 			try
 			{
 				Logger.MethodEntry();
+				Logger.LogTrace("Authenticating with Okta.");
 				OAuthResponse authResponse = OktaAuthenticate(config);
-				Logger.LogTrace($"Got authResponse: {JsonConvert.SerializeObject(authResponse)}");
+                Logger.LogTrace("Received Okta auth response. Resolving AWS Credentials.");
 
                 Credentials credentials = AuthUtilities.AwsAuthenticateWithWebIdentity(authResponse, config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
-				Logger.LogTrace($"Credentials JSON: {JsonConvert.SerializeObject(credentials)}");
+				Logger.LogTrace("Resolved AWS Credentials. Performing Management Add.");
 
 				return PerformAddition(credentials, config);
 			}
@@ -107,12 +112,12 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.Okta
 			try
 			{
 				Logger.MethodEntry();
-
+				Logger.LogTrace("Authenticating with Okta.");
 				OAuthResponse authResponse = OktaAuthenticate(config);
-				Logger.LogTrace($"Got authResponse: {JsonConvert.SerializeObject(authResponse)}");
+                Logger.LogTrace("Received Okta auth response. Resolving AWS Credentials.");
 
                 Credentials credentials = AuthUtilities.AwsAuthenticateWithWebIdentity(authResponse, config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
-				Logger.LogTrace($"Credentials JSON: {JsonConvert.SerializeObject(credentials)}");
+				Logger.LogTrace("Resolved AWS Credentials. Performing Management Remove.");
 
 				return PerformRemoval(credentials, config);
 			}

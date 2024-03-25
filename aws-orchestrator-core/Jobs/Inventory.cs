@@ -57,6 +57,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
 
                 foreach (var region in regions)
                 {
+                    Logger.LogTrace($"Working on AWS Region - {region}");
                     try
                     {
                         var endpoint = RegionEndpoint.GetBySystemName(region);

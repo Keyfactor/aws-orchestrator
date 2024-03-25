@@ -38,11 +38,12 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.IAM
 		public JobResult ProcessJob(InventoryJobConfiguration jobConfiguration, SubmitInventoryUpdate submitInventoryUpdate)
 		{
 			Logger.MethodEntry();
-
-			CustomFields = JsonConvert.DeserializeObject<IAMCustomFields>(jobConfiguration.CertificateStoreDetails.Properties,
+            Logger.LogTrace($"Deserializing Cert Store Properties: {jobConfiguration.CertificateStoreDetails.Properties}");
+            CustomFields = JsonConvert.DeserializeObject<IAMCustomFields>(jobConfiguration.CertificateStoreDetails.Properties,
 					new JsonSerializerSettings { DefaultValueHandling = DefaultValueHandling.Populate });
+            Logger.LogTrace($"Populated IAMCustomFields: {JsonConvert.SerializeObject(CustomFields)}");
 
-			return PerformInventory(jobConfiguration, submitInventoryUpdate);
+            return PerformInventory(jobConfiguration, submitInventoryUpdate);
 		}
 
 		private JobResult PerformInventory(InventoryJobConfiguration config, SubmitInventoryUpdate siu)
@@ -50,8 +51,9 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.IAM
 			Logger.MethodEntry();
 			try
 			{
+				Logger.LogTrace("Resolving AWS Credentials.");
                 Credentials credentials = AuthUtilities.AwsAuthenticate(config.ServerUsername, config.ServerPassword, config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
-				Logger.LogTrace($"Credentials JSON: {JsonConvert.SerializeObject(credentials)}");
+				Logger.LogTrace("Resolved AWS Credentials. Performing Inventory.");
 
 				return PerformInventory(credentials, config, siu);
 			}

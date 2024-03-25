@@ -39,11 +39,12 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.Okta
 		public JobResult ProcessJob(InventoryJobConfiguration jobConfiguration, SubmitInventoryUpdate submitInventoryUpdate)
 		{
 			Logger.MethodEntry();
-
-			CustomFields = JsonConvert.DeserializeObject<OktaCustomFields>(jobConfiguration.CertificateStoreDetails.Properties,
+            Logger.LogTrace($"Deserializing Cert Store Properties: {jobConfiguration.CertificateStoreDetails.Properties}");
+            CustomFields = JsonConvert.DeserializeObject<OktaCustomFields>(jobConfiguration.CertificateStoreDetails.Properties,
 					new JsonSerializerSettings { DefaultValueHandling = DefaultValueHandling.Populate });
+            Logger.LogTrace($"Populated OktaCustomFields: {JsonConvert.SerializeObject(CustomFields)}");
 
-			return PerformInventory(jobConfiguration, submitInventoryUpdate);
+            return PerformInventory(jobConfiguration, submitInventoryUpdate);
 		}
 
 		private JobResult PerformInventory(InventoryJobConfiguration config, SubmitInventoryUpdate siu)
@@ -51,11 +52,12 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.Okta
 			Logger.MethodEntry();
 			try
 			{
+				Logger.LogTrace("Authenticating with Okta.");
 				OAuthResponse authResponse = OktaAuthenticate(config);
-				Logger.LogTrace($"Got authResponse: {JsonConvert.SerializeObject(authResponse)}");
 
+				Logger.LogTrace("Received Okta auth response. Resolving AWS Credentials.");
                 Credentials credentials = AuthUtilities.AwsAuthenticateWithWebIdentity(authResponse, config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
-                Logger.LogTrace($"Credentials JSON: {JsonConvert.SerializeObject(credentials)}");
+				Logger.LogTrace("Resolved AWS Credentials. Performing Inventory.");
 
 				return PerformInventory(credentials, config, siu);
 			}

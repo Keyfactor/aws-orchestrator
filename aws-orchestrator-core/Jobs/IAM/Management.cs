@@ -38,9 +38,13 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.IAM
 
 		public JobResult ProcessJob(ManagementJobConfiguration jobConfiguration)
 		{
-			CustomFields = JsonConvert.DeserializeObject<IAMCustomFields>(jobConfiguration.CertificateStoreDetails.Properties,
+			Logger.MethodEntry();
+            Logger.LogTrace($"Deserializing Cert Store Properties: {jobConfiguration.CertificateStoreDetails.Properties}");
+            CustomFields = JsonConvert.DeserializeObject<IAMCustomFields>(jobConfiguration.CertificateStoreDetails.Properties,
 	new JsonSerializerSettings { DefaultValueHandling = DefaultValueHandling.Populate });
-			return PerformManagement(jobConfiguration);
+            Logger.LogTrace($"Populated IAMCustomFields: {JsonConvert.SerializeObject(CustomFields)}");
+
+            return PerformManagement(jobConfiguration);
 		}
 
 		private JobResult PerformManagement(ManagementJobConfiguration config)
@@ -81,9 +85,9 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.IAM
 			try
 			{
 				Logger.MethodEntry();
-
+				Logger.LogTrace("Resolving AWS Credentials.");
                 Credentials credentials = AuthUtilities.AwsAuthenticate(config.ServerUsername, config.ServerPassword, config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
-				Logger.LogTrace($"Credentials JSON: {JsonConvert.SerializeObject(credentials)}");
+				Logger.LogTrace("Resolved AWS Credentials. Performing Management Add.");
 
 				return PerformAddition(credentials, config);
 			}
@@ -104,9 +108,9 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.IAM
 			try
 			{
 				Logger.MethodEntry();
-
+				Logger.LogTrace("Resolving AWS Credentials.");
                 Credentials credentials = AuthUtilities.AwsAuthenticate(config.ServerUsername, config.ServerPassword, config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
-				Logger.LogTrace($"Credentials JSON: {JsonConvert.SerializeObject(credentials)}");
+				Logger.LogTrace("Resolved AWS Credentials. Perfoming Management Remove.");
 
 				return PerformRemoval(credentials, config);
 			}

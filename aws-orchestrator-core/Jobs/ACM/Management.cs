@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using Amazon.SecurityToken.Model;
+using Keyfactor.Logging;
 using Keyfactor.Orchestrators.Common.Enums;
 using Keyfactor.Orchestrators.Extensions;
 using Keyfactor.Orchestrators.Extensions.Interfaces;
@@ -34,24 +35,30 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.ACM
 
         public JobResult ProcessJob(ManagementJobConfiguration jobConfiguration)
         {
+            Logger.MethodEntry();
+            Logger.LogTrace($"Deserializing Cert Store Properties: {jobConfiguration.CertificateStoreDetails.Properties}");
             ACMCustomFields customFields = JsonConvert.DeserializeObject<ACMCustomFields>(jobConfiguration.CertificateStoreDetails.Properties,
                     new JsonSerializerSettings { DefaultValueHandling = DefaultValueHandling.Populate });
+            Logger.LogTrace($"Populated ACMCustomFields: {JsonConvert.SerializeObject(customFields)}");
 
+            Logger.LogTrace("Resolving AWS Credentials object.");
             Credentials providedCredentials = AuthUtilities.GetCredentials(customFields, jobConfiguration, jobConfiguration.CertificateStoreDetails);
+            Logger.LogTrace("AWS Credentials resolved.");
 
             // perform add or remove
             if (jobConfiguration.OperationType.ToString() == "Add")
             {
-                //_logger.LogTrace($"Adding...");
+                Logger.LogTrace("Performing Management Add.");
                 return PerformAddition(providedCredentials, jobConfiguration);
             }
             else if (jobConfiguration.OperationType.ToString() == "Remove")
             {
-                //_logger.LogTrace($"Removing...");
+                Logger.LogTrace("Performing Management Remove.");
                 return PerformRemoval(providedCredentials, jobConfiguration);
             }
             else
             {
+                Logger.LogError($"Unrecognized Management Operation Type: {jobConfiguration.OperationType}");
                 return new JobResult
                 {
                     Result = OrchestratorJobStatusJobResult.Failure,
