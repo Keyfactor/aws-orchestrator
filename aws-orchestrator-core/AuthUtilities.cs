@@ -174,6 +174,13 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager
                     Timeout = -1
                 };
 
+                if (client.BaseUrl.Scheme != "https")
+                {
+                    var errorMessage = $"OAuth server needs to use HTTPS scheme but does not: {parameters.OAuthUrl}";
+                    _logger.LogError(errorMessage);
+                    throw new Exception(errorMessage);
+                }
+
                 var request = new RestRequest(Method.POST);
                 request.AddHeader("Accept", "application/json");
                 var clientId = parameters.ClientId;

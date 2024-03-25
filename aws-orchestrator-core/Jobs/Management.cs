@@ -56,7 +56,29 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
             {
                 Logger.MethodEntry();
 
-                var endpoint = RegionEndpoint.GetBySystemName(config.JobProperties["AwsRegion"].ToString()); // TODO: check entry parameter is present and extract to variable
+                string region;
+                if (config.JobProperties.ContainsKey("AwsRegion"))
+                {
+                    region = config.JobProperties["AwsRegion"].ToString();
+                }
+                else if (config.JobProperties.ContainsKey("AWS Region"))
+                {
+                    region = config.JobProperties["AWS Region"].ToString();
+                }
+                else
+                {
+                    var errorMessage = "Required field for Management Job - AWS Region (AwsRegion) - was not present.";
+                    Logger.LogError(errorMessage);
+                    return new JobResult
+                    {
+                        Result = OrchestratorJobStatusJobResult.Failure,
+                        JobHistoryId = config.JobHistoryId,
+                        FailureMessage = errorMessage
+                    };
+                }
+
+                Logger.LogTrace($"Targeting AWS Region - {region}");
+                var endpoint = RegionEndpoint.GetBySystemName(region);
                 Logger.LogTrace($"Got Endpoint From Job Properties JSON: {JsonConvert.SerializeObject(endpoint)}");
 
                 if (awsCredentials == null)
@@ -78,19 +100,20 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
 
                 using (AcmClient)
                 {
-                    if (!String.IsNullOrWhiteSpace(config.JobCertificate.PrivateKeyPassword)) // This is a PFX Entry
+                    if (!string.IsNullOrWhiteSpace(config.JobCertificate.PrivateKeyPassword)) // This is a PFX Entry
                     {
                         Logger.LogTrace($"Found Private Key {config.JobCertificate.PrivateKeyPassword}");
-                        if (!String.IsNullOrWhiteSpace(config.JobCertificate.Alias))
+                        if (!string.IsNullOrWhiteSpace(config.JobCertificate.Alias))
                         {
-                            Logger.LogTrace($"No Alias Found"); // incorrect logging message
-                            //ARN Provided, Verify It is Not A PCA/Amazon Issued Cert
+                            // Alias is specified, this is a replace / renewal
+                            Logger.LogTrace($"Alias specified, validating existing cert can be renewed / replaced: {config.JobCertificate.Alias}");
+                            // ARN Provided, Verify It is Not A PCA/Amazon Issued Cert
                             DescribeCertificateResponse DescribeCertificateResponse = AsyncHelpers.RunSync(() => AcmClient.DescribeCertificateAsync(config.JobCertificate.Alias));
                             Logger.LogTrace($"DescribeCertificateResponse JSON: {JsonConvert.SerializeObject(DescribeCertificateResponse)}");
 
                             if (DescribeCertificateResponse.Certificate.Type != CertificateType.IMPORTED)
                             {
-                                Logger.LogTrace($"Non User Imported Certificate Type Found");
+                                Logger.LogError($"Non User Imported Certificate Type Found");
                                 return new JobResult
                                 {
                                     Result = OrchestratorJobStatusJobResult.Failure,
@@ -119,7 +142,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
                             {
                                 PemWriter pemWriter = new PemWriter(streamWriter);
 
-                                alias = (p.Aliases.Cast<String>()).SingleOrDefault(a => p.IsKeyEntry(a));
+                                alias = (p.Aliases.Cast<string>()).SingleOrDefault(a => p.IsKeyEntry(a));
                                 AsymmetricKeyParameter publicKey = p.GetCertificate(alias).Certificate.GetPublicKey();
 
                                 AsymmetricKeyEntry KeyEntry = p.GetKey(alias);//Don't really need alias?
@@ -140,7 +163,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
                             }
                         }
 
-                        String certPem = certStart + _pemify(Convert.ToBase64String(p.GetCertificate(alias).Certificate.GetEncoded())) + certEnd;
+                        string certPem = certStart + _pemify(Convert.ToBase64String(p.GetCertificate(alias).Certificate.GetEncoded())) + certEnd;
                         Logger.LogTrace($"Got certPem {certPem}");
                         //Create Memory Stream For Server Cert
                         ImportCertificateRequest icr;
@@ -219,7 +242,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
                 Logger.MethodEntry();
 
                 var endpoint = RegionEndpoint.GetBySystemName(config.JobCertificate.Alias.Split(":")[3]); //Get from ARN so user does not have to enter
-                Logger.LogTrace($"Got Endpoint From Job Properties JSON: {JsonConvert.SerializeObject(endpoint)}");
+                Logger.LogTrace($"Got Endpoint From ARN from Certificate Alias: {JsonConvert.SerializeObject(endpoint)}");
 
                 if (awsCredentials == null)
                 {

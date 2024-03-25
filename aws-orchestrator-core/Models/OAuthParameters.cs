@@ -12,15 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace Keyfactor.AnyAgent.AwsCertificateManager.Models
 {
     public class OAuthParameters
     {
-        public string OAuthUrl { get; set; } // TODO: validate and force as https url
+        public string OAuthUrl { get; set; }
         public string GrantType { get; set; }
         public string Scope { get; set; }
         public string ClientId { get; set; }

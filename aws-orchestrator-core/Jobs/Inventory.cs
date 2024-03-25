@@ -50,7 +50,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
             try
             {
                 //Get List of regions from Cert Store Path
-                var regions = config.CertificateStoreDetails.StorePath.Split(','); // TODO: extract to named parameter in main inventory method
+                var regions = config.CertificateStoreDetails.StorePath.Split(',');
                 Logger.LogTrace($"Raw Regions CSV from AWSRegions Custom Field: {regions}");
 
                 List<CurrentInventoryItem> inventoryItems = new List<CurrentInventoryItem>();
@@ -128,7 +128,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
                     }
                     catch (Exception e) //have to loop through all regions specified for each account and some may be invalid
                     {
-                        // TODO: failed inventory is returning Success even when it cannot authenticate
+                        warningFlag = true; // not sure if inventory should fail if a region fails to authenticate
                         Logger.LogError($"Could not authenticate to AWS, invalid account/region combination account: {config.CertificateStoreDetails.StorePath} region: {region} error: {e.Message}");
                     }
                 }
