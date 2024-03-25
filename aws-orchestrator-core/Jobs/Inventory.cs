@@ -19,11 +19,11 @@ using Amazon.SecurityToken.Model;
 using Keyfactor.Logging;
 using Keyfactor.Orchestrators.Common.Enums;
 using Keyfactor.Orchestrators.Extensions;
+using Keyfactor.Orchestrators.Extensions.Interfaces;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Net.Sockets;
 using System.Text;
 using Amazon;
 using System.Linq;
@@ -36,6 +36,9 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
     {
         internal IAmazonCertificateManager AcmClient;
         internal ILogger Logger;
+        internal IPAMSecretResolver PamSecretResolver;
+
+        internal AuthUtilities AuthUtilities;
 
         internal JobResult PerformInventory(Credentials awsCredentials, InventoryJobConfiguration config, SubmitInventoryUpdate siu)
         {

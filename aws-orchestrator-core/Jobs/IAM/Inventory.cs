@@ -12,20 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Amazon;
-using Amazon.CertificateManager;
-using Amazon.CertificateManager.Model;
-using Amazon.Runtime.Internal.Util;
 using Amazon.SecurityToken.Model;
 using Keyfactor.Logging;
-using Keyfactor.Orchestrators.Common.Enums;
 using Keyfactor.Orchestrators.Extensions;
+using Keyfactor.Orchestrators.Extensions.Interfaces;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.IAM
 {
@@ -33,21 +26,18 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.IAM
 	{
 		public string ExtensionName => "AWSCerManA";
 
-		private readonly ILogger<Inventory> _logger;
-
-		public Inventory(ILogger<Inventory> logger) =>
-			_logger = logger;
+		public Inventory(IPAMSecretResolver pam, ILogger<Inventory> logger)
+		{
+			PamSecretResolver = pam;
+			Logger = logger;
+			AuthUtilities = new AuthUtilities(pam, logger);
+		}
 
 		protected internal virtual IAMCustomFields CustomFields { get; set; }
 
-		protected internal virtual ListCertificatesResponse AllCertificates { get; set; }
-		protected internal virtual GetCertificateRequest GetCertificateRequest { get; set; }
-		protected internal virtual GetCertificateResponse GetCertificateResponse { get; set; }
-
 		public JobResult ProcessJob(InventoryJobConfiguration jobConfiguration, SubmitInventoryUpdate submitInventoryUpdate)
 		{
-			base.Logger = _logger;
-			_logger.MethodEntry();
+			Logger.MethodEntry();
 
 			CustomFields = JsonConvert.DeserializeObject<IAMCustomFields>(jobConfiguration.CertificateStoreDetails.Properties,
 					new JsonSerializerSettings { DefaultValueHandling = DefaultValueHandling.Populate });
@@ -57,17 +47,17 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.IAM
 
 		private JobResult PerformInventory(InventoryJobConfiguration config, SubmitInventoryUpdate siu)
 		{
-			_logger.MethodEntry();
+			Logger.MethodEntry();
 			try
 			{
-				Credentials credentials = AuthUtilities.AwsAuthenticate(Logger, config.ServerUsername, config.ServerPassword, config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
-				_logger.LogTrace($"Credentials JSON: {JsonConvert.SerializeObject(credentials)}");
+                Credentials credentials = AuthUtilities.AwsAuthenticate(config.ServerUsername, config.ServerPassword, config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
+				Logger.LogTrace($"Credentials JSON: {JsonConvert.SerializeObject(credentials)}");
 
-				return base.PerformInventory(credentials, config, siu);
+				return PerformInventory(credentials, config, siu);
 			}
 			catch (Exception e)
 			{
-				_logger.LogError(e.Message);
+				Logger.LogError(e.Message);
 				throw;
 			}
 		}

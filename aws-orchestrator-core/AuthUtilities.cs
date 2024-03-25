@@ -21,6 +21,7 @@ using Amazon.SecurityToken.Model;
 using Keyfactor.AnyAgent.AwsCertificateManager.Models;
 using Keyfactor.Logging;
 using Keyfactor.Orchestrators.Extensions;
+using Keyfactor.Orchestrators.Extensions.Interfaces;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using RestSharp;
@@ -29,28 +30,37 @@ using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace Keyfactor.AnyAgent.AwsCertificateManager
 {
-	public static class AuthUtilities
+	public class AuthUtilities
 	{
-		public static Credentials GetCredentials(ILogger logger, ACMCustomFields customFields, JobConfiguration jobConfiguration, CertificateStore certStore)
+        private readonly ILogger _logger;
+        private readonly IPAMSecretResolver _pam;
+
+        public AuthUtilities(IPAMSecretResolver pam, ILogger logger)
+        {
+            _pam = pam;
+            _logger = logger;
+        }
+
+		public Credentials GetCredentials(ACMCustomFields customFields, JobConfiguration jobConfiguration, CertificateStore certStore)
 		{
-            logger.MethodEntry();
-            logger.LogDebug("Selecting credential method.");
+            _logger.MethodEntry();
+            _logger.LogDebug("Selecting credential method.");
 			string awsRole = certStore.ClientMachine;
-            logger.LogDebug($"Using AWS Role - {awsRole} - from the ClientMachine field");
+            _logger.LogDebug($"Using AWS Role - {awsRole} - from the ClientMachine field");
             if (customFields.UseIAM)
             {
-                logger.LogInformation("Using IAM User authentication method for creating AWS Credentials.");
-                var accessKey = jobConfiguration.ServerUsername;
-                var accessSecret = jobConfiguration.ServerPassword;
+                _logger.LogInformation("Using IAM User authentication method for creating AWS Credentials.");
+                var accessKey = ResolvePamField(jobConfiguration.ServerUsername, "ServerUsername (IAM AccessKey)");
+                var accessSecret = ResolvePamField(jobConfiguration.ServerPassword, "ServerPassword (IAM AccessSecret)");
 
-                logger.LogTrace("Attempting to authenticate with AWS using IAM access credentials.");
-                return AwsAuthenticate(logger, accessKey, accessSecret, customFields.IamAccountId, awsRole);
+                _logger.LogTrace("Attempting to authenticate with AWS using IAM access credentials.");
+                return AwsAuthenticate(accessKey, accessSecret, customFields.IamAccountId, awsRole);
             }
             else if (customFields.UseOAuth)
             {
-                logger.LogInformation("Using OAuth authenticaiton method for creating AWS Credentials.");
-                var clientId = jobConfiguration.ServerUsername;
-                var clientSecret = jobConfiguration.ServerPassword;
+                _logger.LogInformation("Using OAuth authenticaiton method for creating AWS Credentials.");
+                var clientId = ResolvePamField(jobConfiguration.ServerUsername, "ServerUsername (OAuth Client ID)");
+                var clientSecret = ResolvePamField(jobConfiguration.ServerPassword, "ServerPassword (OAuth Client Secret)");
                 OAuthParameters oauthParams = new OAuthParameters()
                 {
                     OAuthUrl = customFields.OAuthUrl,
@@ -60,30 +70,30 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager
                     ClientSecret = clientSecret
                 };
 
-                logger.LogTrace("Attempting to authenticate with OAuth provider.");
-                OAuthResponse authResponse = OAuthAuthenticate(logger, oauthParams);
-                logger.LogTrace("Received OAuth response.");
+                _logger.LogTrace("Attempting to authenticate with OAuth provider.");
+                OAuthResponse authResponse = OAuthAuthenticate(oauthParams);
+                _logger.LogTrace("Received OAuth response.");
 
-                logger.LogTrace("Attempting to authenticate with AWS using OAuth response.");
-                return AwsAuthenticateWithWebIdentity(logger, authResponse, customFields.OAuthAccountId, awsRole);
+                _logger.LogTrace("Attempting to authenticate with AWS using OAuth response.");
+                return AwsAuthenticateWithWebIdentity(authResponse, customFields.OAuthAccountId, awsRole);
             }
             else // use default SDK credential resolution
             {
-                logger.LogInformation("Using default AWS SDK credential resolution for creating AWS Credentials.");
+                _logger.LogInformation("Using default AWS SDK credential resolution for creating AWS Credentials.");
                 return null;
             }
         }
 
-		public static Credentials AwsAuthenticateWithWebIdentity(ILogger logger, OAuthResponse authResponse, string awsAccount, string awsRole)
+		public Credentials AwsAuthenticateWithWebIdentity(OAuthResponse authResponse, string awsAccount, string awsRole)
 		{
-            logger.MethodEntry();
+            _logger.MethodEntry();
 			Credentials credentials = null;
 			try
 			{
 				var account = awsAccount;
-                logger.LogTrace($"Using AWS Account - {account}");
+                _logger.LogTrace($"Using AWS Account - {account}");
 				var stsClient = new AmazonSecurityTokenServiceClient(new AnonymousAWSCredentials());
-                logger.LogTrace("Created AWS STS client with anonymous credentials.");
+                _logger.LogTrace("Created AWS STS client with anonymous credentials.");
 				var assumeRequest = new AssumeRoleWithWebIdentityRequest
 				{
 					WebIdentityToken = authResponse?.AccessToken,
@@ -98,16 +108,16 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager
                     assumeRequest.RoleSessionName,
                     assumeRequest.DurationSeconds
                 };
-                logger.LogDebug($"Prepared Assume Role With Web Identity request with fields: {logAssumeRequest}");
+                _logger.LogDebug($"Prepared Assume Role With Web Identity request with fields: {logAssumeRequest}");
 
-                logger.LogTrace("Submitting Assume Role With Web Identity request.");
+                _logger.LogTrace("Submitting Assume Role With Web Identity request.");
 				var assumeResult = AsyncHelpers.RunSync(() => stsClient.AssumeRoleWithWebIdentityAsync(assumeRequest));
-                logger.LogTrace("Received response to Assume Role With Web Identity request.");
+                _logger.LogTrace("Received response to Assume Role With Web Identity request.");
 				credentials = assumeResult.Credentials;
 			}
 			catch (Exception e)
 			{
-                logger.LogError($"Error Occurred in AwsAuthenticateWithWebIdentity: {e.Message}");
+                _logger.LogError($"Error Occurred in AwsAuthenticateWithWebIdentity: {e.Message}");
 
                 throw;
 			}
@@ -115,16 +125,16 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager
 			return credentials;
 		}
 
-		public static Credentials AwsAuthenticate(ILogger logger, string accessKey, string accessSecret, string awsAccount, string awsRole)
+		public Credentials AwsAuthenticate(string accessKey, string accessSecret, string awsAccount, string awsRole)
 		{
-            logger.MethodEntry();
+            _logger.MethodEntry();
 			Credentials credentials = null;
 			try
 			{
 				var account = awsAccount;
-                logger.LogTrace($"Using AWS Account - {account}");
+                _logger.LogTrace($"Using AWS Account - {account}");
                 var stsClient = new AmazonSecurityTokenServiceClient(accessKey, accessSecret);
-                logger.LogTrace("Created AWS STS client with IAM user credentials.");
+                _logger.LogTrace("Created AWS STS client with IAM user credentials.");
 				var assumeRequest = new AssumeRoleRequest
 				{
 					RoleArn = $"arn:aws:iam::{account}:role/{awsRole}",
@@ -136,28 +146,28 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager
                     assumeRequest.RoleArn,
                     assumeRequest.RoleSessionName
                 };
-                logger.LogDebug($"Prepared Assume Role request with fields: {logAssumeRequest}");
+                _logger.LogDebug($"Prepared Assume Role request with fields: {logAssumeRequest}");
 
-                logger.LogTrace("Submitting Assume Role request.");
+                _logger.LogTrace("Submitting Assume Role request.");
                 var assumeResult = AsyncHelpers.RunSync(() => stsClient.AssumeRoleAsync(assumeRequest));
-                logger.LogTrace("Received response to Assume Role request.");
+                _logger.LogTrace("Received response to Assume Role request.");
 				credentials = assumeResult.Credentials;
 			}
 			catch (Exception e)
 			{
-                logger.LogError($"Error Occurred in AwsAuthenticate: {e.Message}");
+                _logger.LogError($"Error Occurred in AwsAuthenticate: {e.Message}");
 				throw;
 			}
 
 			return credentials;
 		}
 
-		public static OAuthResponse OAuthAuthenticate(ILogger logger, OAuthParameters parameters)
+		public OAuthResponse OAuthAuthenticate(OAuthParameters parameters)
         {
             try
             {
-                logger.MethodEntry();
-                logger.LogTrace($"Creating RestClient with OAuth URL: {parameters.OAuthUrl}");
+                _logger.MethodEntry();
+                _logger.LogTrace($"Creating RestClient with OAuth URL: {parameters.OAuthUrl}");
 
                 var client = new RestClient(parameters.OAuthUrl)
                 {
@@ -184,19 +194,33 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager
                     grant_type = parameters.GrantType,
                     scope = parameters.Scope
                 };
-                logger.LogDebug($"Prepared Rest Request: {logHttpRequest}");
+                _logger.LogDebug($"Prepared Rest Request: {logHttpRequest}");
 
-                logger.LogTrace("Executing Rest request.");
+                _logger.LogTrace("Executing Rest request.");
                 var response = client.Execute(request);
-                logger.LogTrace("Received responst to Rest request to OAUth");
+                _logger.LogTrace("Received responst to Rest request to OAUth");
                 var authResponse = JsonConvert.DeserializeObject<OAuthResponse>(response.Content);
-                logger.LogTrace("Deserialized OAuthResponse.");
+                _logger.LogTrace("Deserialized OAuthResponse.");
                 return authResponse;
             }
             catch (Exception e)
             {
-                logger.LogError($"Error Occurred in OAuthAuthenticate: {e.Message}");
+                _logger.LogError($"Error Occurred in OAuthAuthenticate: {e.Message}");
                 throw;
+            }
+        }
+
+        public string ResolvePamField(string field, string fieldName)
+        {
+            if (_pam != null)
+            {
+                _logger.LogDebug($"Attempting to resolve PAM-eligible field - {fieldName}");
+                return _pam.Resolve(field);
+            }
+            else
+            {
+                _logger.LogTrace($"PAM-eigible field {fieldName} was not resolved via PAM as no IPAMSecretResolver was present.");
+                return field;
             }
         }
 	}

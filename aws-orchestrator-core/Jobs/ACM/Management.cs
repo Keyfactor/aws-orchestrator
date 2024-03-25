@@ -13,9 +13,9 @@
 // limitations under the License.
 
 using Amazon.SecurityToken.Model;
-using Keyfactor.AnyAgent.AwsCertificateManager.Models;
 using Keyfactor.Orchestrators.Common.Enums;
 using Keyfactor.Orchestrators.Extensions;
+using Keyfactor.Orchestrators.Extensions.Interfaces;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
@@ -25,29 +25,30 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.ACM
     {
         public string ExtensionName => "AWS-ACM";
 
-        public Management(ILogger<Management> logger)
+        public Management(IPAMSecretResolver pam, ILogger<Management> logger)
         {
+            PamSecretResolver = pam;
             Logger = logger;
+            AuthUtilities = new AuthUtilities(pam, logger);
         }
 
         public JobResult ProcessJob(ManagementJobConfiguration jobConfiguration)
         {
-            // TODO: validate presence of required parameters based on auth type selected
             ACMCustomFields customFields = JsonConvert.DeserializeObject<ACMCustomFields>(jobConfiguration.CertificateStoreDetails.Properties,
                     new JsonSerializerSettings { DefaultValueHandling = DefaultValueHandling.Populate });
 
-            Credentials providedCredentials = AuthUtilities.GetCredentials(Logger, customFields, jobConfiguration, jobConfiguration.CertificateStoreDetails);
+            Credentials providedCredentials = AuthUtilities.GetCredentials(customFields, jobConfiguration, jobConfiguration.CertificateStoreDetails);
 
             // perform add or remove
             if (jobConfiguration.OperationType.ToString() == "Add")
             {
                 //_logger.LogTrace($"Adding...");
-                return base.PerformAddition(providedCredentials, jobConfiguration);
+                return PerformAddition(providedCredentials, jobConfiguration);
             }
             else if (jobConfiguration.OperationType.ToString() == "Remove")
             {
                 //_logger.LogTrace($"Removing...");
-                return base.PerformRemoval(providedCredentials, jobConfiguration);
+                return PerformRemoval(providedCredentials, jobConfiguration);
             }
             else
             {

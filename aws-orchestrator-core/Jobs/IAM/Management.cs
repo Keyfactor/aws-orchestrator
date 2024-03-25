@@ -12,13 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
 using Amazon.SecurityToken.Model;
 using Keyfactor.Logging;
 using Keyfactor.Orchestrators.Common.Enums;
 using Keyfactor.Orchestrators.Extensions;
+using Keyfactor.Orchestrators.Extensions.Interfaces;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System;
 
 namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.IAM
 {
@@ -28,10 +29,12 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.IAM
 
 		protected internal virtual IAMCustomFields CustomFields { get; set; }
 
-		private readonly ILogger<Management> _logger;
-
-		public Management(ILogger<Management> logger) =>
-			_logger = logger;
+		public Management(IPAMSecretResolver pam, ILogger<Management> logger)
+		{
+			PamSecretResolver = pam;
+			Logger = logger;
+			AuthUtilities = new AuthUtilities(pam, logger);
+		}
 
 		public JobResult ProcessJob(ManagementJobConfiguration jobConfiguration)
 		{
@@ -44,7 +47,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.IAM
 		{
 			try
 			{
-				_logger.MethodEntry();
+				Logger.MethodEntry();
 				var complete = new JobResult
 				{
 					Result = OrchestratorJobStatusJobResult.Failure,
@@ -55,12 +58,12 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.IAM
 
 				if (config.OperationType.ToString() == "Add")
 				{
-					_logger.LogTrace($"Adding...");
+					Logger.LogTrace($"Adding...");
 					complete = PerformAddition(config);
 				}
 				else if (config.OperationType.ToString() == "Remove")
 				{
-					_logger.LogTrace($"Removing...");
+					Logger.LogTrace($"Removing...");
 					complete = PerformRemoval(config);
 				}
 
@@ -68,7 +71,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.IAM
 			}
 			catch (Exception e)
 			{
-				_logger.LogError($"Error Occurred in Management.PerformManagement: {e.Message}");
+				Logger.LogError($"Error Occurred in Management.PerformManagement: {e.Message}");
 				throw;
 			}
 		}
@@ -77,12 +80,12 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.IAM
 		{
 			try
 			{
-				_logger.MethodEntry();
+				Logger.MethodEntry();
 
-				Credentials credentials = AuthUtilities.AwsAuthenticate(Logger, config.ServerUsername, config.ServerPassword, config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
-				_logger.LogTrace($"Credentials JSON: {JsonConvert.SerializeObject(credentials)}");
+                Credentials credentials = AuthUtilities.AwsAuthenticate(config.ServerUsername, config.ServerPassword, config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
+				Logger.LogTrace($"Credentials JSON: {JsonConvert.SerializeObject(credentials)}");
 
-				return base.PerformAddition(credentials, config);
+				return PerformAddition(credentials, config);
 			}
 			catch (Exception e)
 			{
@@ -100,12 +103,12 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.IAM
 		{
 			try
 			{
-				_logger.MethodEntry();
+				Logger.MethodEntry();
 
-				Credentials credentials = AuthUtilities.AwsAuthenticate(Logger, config.ServerUsername, config.ServerPassword, config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
-				_logger.LogTrace($"Credentials JSON: {JsonConvert.SerializeObject(credentials)}");
+                Credentials credentials = AuthUtilities.AwsAuthenticate(config.ServerUsername, config.ServerPassword, config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
+				Logger.LogTrace($"Credentials JSON: {JsonConvert.SerializeObject(credentials)}");
 
-				return base.PerformRemoval(credentials, config);
+				return PerformRemoval(credentials, config);
 			}
 			catch (Exception e)
 			{

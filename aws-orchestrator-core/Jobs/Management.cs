@@ -32,6 +32,7 @@ using Org.BouncyCastle.OpenSsl;
 using System.Linq;
 
 using ILogger = Microsoft.Extensions.Logging.ILogger;
+using Keyfactor.Orchestrators.Extensions.Interfaces;
 
 namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
 {
@@ -45,6 +46,9 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
 
         internal IAmazonCertificateManager AcmClient;
         internal ILogger Logger;
+        internal IPAMSecretResolver PamSecretResolver;
+
+        internal AuthUtilities AuthUtilities;
 
         internal JobResult PerformAddition(Credentials awsCredentials, ManagementJobConfiguration config)
         {
@@ -52,7 +56,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
             {
                 Logger.MethodEntry();
 
-                var endpoint = RegionEndpoint.GetBySystemName(config.JobProperties["AWS Region"].ToString());
+                var endpoint = RegionEndpoint.GetBySystemName(config.JobProperties["AwsRegion"].ToString()); // TODO: check entry parameter is present and extract to variable
                 Logger.LogTrace($"Got Endpoint From Job Properties JSON: {JsonConvert.SerializeObject(endpoint)}");
 
                 if (awsCredentials == null)
@@ -79,7 +83,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
                         Logger.LogTrace($"Found Private Key {config.JobCertificate.PrivateKeyPassword}");
                         if (!String.IsNullOrWhiteSpace(config.JobCertificate.Alias))
                         {
-                            Logger.LogTrace($"No Alias Found");
+                            Logger.LogTrace($"No Alias Found"); // incorrect logging message
                             //ARN Provided, Verify It is Not A PCA/Amazon Issued Cert
                             DescribeCertificateResponse DescribeCertificateResponse = AsyncHelpers.RunSync(() => AcmClient.DescribeCertificateAsync(config.JobCertificate.Alias));
                             Logger.LogTrace($"DescribeCertificateResponse JSON: {JsonConvert.SerializeObject(DescribeCertificateResponse)}");

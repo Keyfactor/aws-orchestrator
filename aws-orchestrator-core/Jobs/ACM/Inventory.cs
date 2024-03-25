@@ -13,8 +13,8 @@
 // limitations under the License.
 
 using Amazon.SecurityToken.Model;
-using Keyfactor.AnyAgent.AwsCertificateManager.Models;
 using Keyfactor.Orchestrators.Extensions;
+using Keyfactor.Orchestrators.Extensions.Interfaces;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
@@ -24,20 +24,21 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.ACM
     {
         public string ExtensionName => "AWS-ACM";
 
-        public Inventory(ILogger<Inventory> logger)
+        public Inventory(IPAMSecretResolver pam, ILogger<Inventory> logger)
         {
+            PamSecretResolver = pam;
             Logger = logger;
+            AuthUtilities = new AuthUtilities(pam, logger);
         }
 
         public JobResult ProcessJob(InventoryJobConfiguration jobConfiguration, SubmitInventoryUpdate submitInventoryUpdate)
         {
-            // TODO: validate presence of required parameters based on auth type selected
             ACMCustomFields customFields = JsonConvert.DeserializeObject<ACMCustomFields>(jobConfiguration.CertificateStoreDetails.Properties,
                     new JsonSerializerSettings { DefaultValueHandling = DefaultValueHandling.Populate });
 
-            Credentials providedCredentials = AuthUtilities.GetCredentials(Logger, customFields, jobConfiguration, jobConfiguration.CertificateStoreDetails);
+            Credentials providedCredentials = AuthUtilities.GetCredentials(customFields, jobConfiguration, jobConfiguration.CertificateStoreDetails);
 
-            return base.PerformInventory(providedCredentials, jobConfiguration, submitInventoryUpdate);
+            return PerformInventory(providedCredentials, jobConfiguration, submitInventoryUpdate);
         }
     }
 }
