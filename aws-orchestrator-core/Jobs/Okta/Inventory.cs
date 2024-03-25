@@ -38,7 +38,8 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.Okta
 
 		public JobResult ProcessJob(InventoryJobConfiguration jobConfiguration, SubmitInventoryUpdate submitInventoryUpdate)
 		{
-			Logger.MethodEntry();
+            Logger.LogWarning("This Inventory job is running for a deprecated store type 'AWSCerManO'. Consider migrating to the supported store type.");
+            Logger.MethodEntry();
             Logger.LogTrace($"Deserializing Cert Store Properties: {jobConfiguration.CertificateStoreDetails.Properties}");
             CustomFields = JsonConvert.DeserializeObject<OktaCustomFields>(jobConfiguration.CertificateStoreDetails.Properties,
 					new JsonSerializerSettings { DefaultValueHandling = DefaultValueHandling.Populate });
@@ -59,8 +60,10 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.Okta
                 Credentials credentials = AuthUtilities.AwsAuthenticateWithWebIdentity(authResponse, config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
 				Logger.LogTrace("Resolved AWS Credentials. Performing Inventory.");
 
-				return PerformInventory(credentials, config, siu);
-			}
+				var result = PerformInventory(credentials, config, siu);
+                Logger.LogWarning("This Inventory job completed running for a deprecated store type 'AWSCerManO'. Consider migrating to the supported store type.");
+				return result;
+            }
 			catch (Exception e)
 			{
 				Logger.LogError(e.Message);

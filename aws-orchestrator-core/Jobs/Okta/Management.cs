@@ -39,7 +39,8 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.Okta
 
 		public JobResult ProcessJob(ManagementJobConfiguration jobConfiguration)
 		{
-			Logger.MethodEntry();
+            Logger.LogWarning("This Management job is running for a deprecated store type 'AWSCerManO'. Consider migrating to the supported store type.");
+            Logger.MethodEntry();
             Logger.LogTrace($"Deserializing Cert Store Properties: {jobConfiguration.CertificateStoreDetails.Properties}");
             CustomFields = JsonConvert.DeserializeObject<OktaCustomFields>(jobConfiguration.CertificateStoreDetails.Properties,
 				new JsonSerializerSettings { DefaultValueHandling = DefaultValueHandling.Populate });
@@ -72,7 +73,8 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.Okta
 					complete = PerformRemoval(config);
 				}
 
-				return complete;
+                Logger.LogWarning("This Management job completed running for a deprecated store type 'AWSCerManO'. Consider migrating to the supported store type.");
+                return complete;
 			}
 			catch (Exception e)
 			{

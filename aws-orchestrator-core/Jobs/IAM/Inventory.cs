@@ -37,6 +37,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.IAM
 
 		public JobResult ProcessJob(InventoryJobConfiguration jobConfiguration, SubmitInventoryUpdate submitInventoryUpdate)
 		{
+			Logger.LogWarning("This Inventory job is running for a deprecated store type 'AWSCerManA'. Consider migrating to the supported store type.");
 			Logger.MethodEntry();
             Logger.LogTrace($"Deserializing Cert Store Properties: {jobConfiguration.CertificateStoreDetails.Properties}");
             CustomFields = JsonConvert.DeserializeObject<IAMCustomFields>(jobConfiguration.CertificateStoreDetails.Properties,
@@ -55,8 +56,10 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.IAM
                 Credentials credentials = AuthUtilities.AwsAuthenticate(config.ServerUsername, config.ServerPassword, config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
 				Logger.LogTrace("Resolved AWS Credentials. Performing Inventory.");
 
-				return PerformInventory(credentials, config, siu);
-			}
+				var result = PerformInventory(credentials, config, siu);
+                Logger.LogWarning("This Inventory job completed running for a deprecated store type 'AWSCerManA'. Consider migrating to the supported store type.");
+				return result;
+            }
 			catch (Exception e)
 			{
 				Logger.LogError(e.Message);
