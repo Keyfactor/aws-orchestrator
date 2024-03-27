@@ -1,3 +1,18 @@
+2.0.0
+* Consolidate all AWS auth types under one Store Type: `AWS-ACM`
+* Continues to provide backwards support for previous Store Types `AwsCerManO` and `AwsCerManA`
+  * This support will be removed in a future version, it is now considered `DEPRECATED`
+* Support choosing auth type:
+  * OAuth Provider
+  * AWS IAM User
+  * Inferred credentials present on an EC2 instance running the orchestrator
+	* The valid sources for credentials received in this manner can be found here: 
+	  https://docs.aws.amazon.com/sdk-for-net/v3/developer-guide/creds-assign.html
+* PAM Provider support for the following fields:
+  * `ServerUsername`
+  * `ServerPassword`
+  * These fields are supported on all Store Types (including backwards support): `AWS-ACM`, `AwsCerMan0` and `AwsCerManA`
+
 1.2.0
 * Added OTKA Auth Path to support Authentication Servers outside of the default server.
 
