@@ -57,17 +57,13 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
                 Logger.MethodEntry();
 
                 string region;
-                if (config.JobProperties.ContainsKey("AwsRegion"))
-                {
-                    region = config.JobProperties["AwsRegion"].ToString();
-                }
-                else if (config.JobProperties.ContainsKey("AWS Region"))
+                if (config.JobProperties.ContainsKey("AWS Region"))
                 {
                     region = config.JobProperties["AWS Region"].ToString();
                 }
                 else
                 {
-                    var errorMessage = "Required field for Management Job - AWS Region (AwsRegion) - was not present.";
+                    var errorMessage = "Required field for Management Job - AWS Region - was not present.";
                     Logger.LogError(errorMessage);
                     return new JobResult
                     {
@@ -96,13 +92,11 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
                         awsSessionToken: awsCredentials.SessionToken);
                 }
 
-                Logger.LogTrace($"AcmClient JSON: {JsonConvert.SerializeObject(AcmClient)}");
-
                 using (AcmClient)
                 {
                     if (!string.IsNullOrWhiteSpace(config.JobCertificate.PrivateKeyPassword)) // This is a PFX Entry
                     {
-                        Logger.LogTrace($"Found Private Key {config.JobCertificate.PrivateKeyPassword}");
+                        Logger.LogTrace($"Found Private Key password.");
                         if (!string.IsNullOrWhiteSpace(config.JobCertificate.Alias))
                         {
                             // Alias is specified, this is a replace / renewal
@@ -125,6 +119,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
                         }
 
                         // Load PFX
+                        Logger.LogTrace($"Loading certificate content: {config.JobCertificate.Contents}");
                         byte[] pfxBytes = Convert.FromBase64String(config.JobCertificate.Contents);
                         Pkcs12Store p;
                         using (var pfxBytesMemoryStream = new MemoryStream(pfxBytes))
@@ -190,7 +185,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
                         // Ensure 200 Response
                         if (IcrResponse.HttpStatusCode == HttpStatusCode.OK)
                         {
-                            Logger.LogTrace($"Return Success");
+                            Logger.LogTrace($"Certificate Import reported success.");
                             return new JobResult
                             {
                                 Result = OrchestratorJobStatusJobResult.Success,
@@ -200,7 +195,8 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
                         }
                         else
                         {
-                            Logger.LogTrace($"Return Failure");
+                            Logger.LogError($"Certificate Import reported failure.");
+                            Logger.LogError($"Failure HTTP status code: {IcrResponse.HttpStatusCode}");
                             return new JobResult
                             {
                                 Result = OrchestratorJobStatusJobResult.Failure,
@@ -212,7 +208,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
                     }
                     else  // Non-PFX
                     {
-                        Logger.LogTrace($"Return PFX Failure");
+                        Logger.LogError($"Certificate did not have private key password. Only PFX certificates may be added.");
                         return new JobResult
                         {
                             Result = OrchestratorJobStatusJobResult.Failure,
@@ -225,6 +221,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
             }
             catch (Exception e)
             {
+                Logger.LogError($"Error in Performing Addition: {e.Message}");
                 return new JobResult
                 {
                     Result = OrchestratorJobStatusJobResult.Failure,
@@ -241,6 +238,18 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
             {
                 Logger.MethodEntry();
 
+                if (string.IsNullOrEmpty(config.JobCertificate.Alias))
+                {
+                    Logger.LogError("A certificate Alias containing the ARN is required in order to remove a certificate.");
+                    return new JobResult
+                    {
+                        Result = OrchestratorJobStatusJobResult.Failure,
+                        JobHistoryId = config.JobHistoryId,
+                        FailureMessage = "Alias is required but not present."
+                    };
+                }
+
+                Logger.LogTrace($"Certificate Alias - {config.JobCertificate.Alias}");
                 var endpoint = RegionEndpoint.GetBySystemName(config.JobCertificate.Alias.Split(":")[3]); //Get from ARN so user does not have to enter
                 Logger.LogTrace($"Got Endpoint From ARN from Certificate Alias: {JsonConvert.SerializeObject(endpoint)}");
 
@@ -259,8 +268,6 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
                         awsSessionToken: awsCredentials.SessionToken);
                 }
 
-                Logger.LogTrace($"AcmClient JSON: {JsonConvert.SerializeObject(AcmClient)}");
-
                 using (AcmClient)
                 {
                     DeleteCertificateRequest deleteRequest = new DeleteCertificateRequest(config.JobCertificate.Alias);
@@ -269,7 +276,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
                     Logger.LogTrace($"DeleteResponse JSON: {JsonConvert.SerializeObject(DeleteResponse)}");
                     if (DeleteResponse.HttpStatusCode == HttpStatusCode.OK)
                     {
-                        Logger.LogTrace($"Return Success");
+                        Logger.LogTrace($"Certificate Removal reported success.");
                         return new JobResult
                         {
                             Result = OrchestratorJobStatusJobResult.Success,
@@ -279,7 +286,8 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
                     }
                     else
                     {
-                        Logger.LogTrace($"Return Failure");
+                        Logger.LogError($"Certificate Removal reported failure.");
+                        Logger.LogError($"Failure HTTP status code - {DeleteResponse.HttpStatusCode}");
                         return new JobResult
                         {
                             Result = OrchestratorJobStatusJobResult.Failure,
@@ -292,6 +300,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
             }
             catch (Exception e)
             {
+                Logger.LogError($"Error in Perform Removal: {e.Message}");
                 return new JobResult
                 {
                     Result = OrchestratorJobStatusJobResult.Failure,

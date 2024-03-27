@@ -78,7 +78,6 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
                                 awsSessionToken: awsCredentials.SessionToken);
                         }
 
-                        Logger.LogTrace($"AcmClient JSON: {JsonConvert.SerializeObject(AcmClient)}");
                         var certList = AsyncHelpers.RunSync(() => AcmClient.ListCertificatesAsync());
                         Logger.LogTrace($"First Cert List JSON For Region {region}: {JsonConvert.SerializeObject(certList)}");
                         Console.Write($"Found {certList.CertificateSummaryList.Count} Certificates\n");
@@ -137,17 +136,17 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
 
                 if (warningFlag)
                 {
-                    Logger.LogTrace("Found Warning");
+                    Logger.LogWarning("Found Warning(s) during inventory.");
                     return new JobResult
                     {
                         Result = OrchestratorJobStatusJobResult.Warning,
                         JobHistoryId = config.JobHistoryId,
-                        FailureMessage = ""
+                        FailureMessage = "Check the orchestrator logs for warnings or errors that ocurred during the inventory."
                     };
                 }
                 else
                 {
-                    Logger.LogTrace("Return Success");
+                    Logger.LogTrace("No warnings found during Inventory. Reporting success.");
                     return new JobResult
                     {
                         Result = OrchestratorJobStatusJobResult.Success,
@@ -158,8 +157,13 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
             }
             catch (Exception e)
             {
-                Logger.LogError(e.Message);
-                throw;
+                Logger.LogError($"Error ocurred in Perform Inventory: {e.Message}");
+                return new JobResult
+                {
+                    Result = OrchestratorJobStatusJobResult.Failure,
+                    JobHistoryId = config.JobHistoryId,
+                    FailureMessage = $"Error occurred in Perform Inventory: {e.Message}"
+                };
             }
         }
 
