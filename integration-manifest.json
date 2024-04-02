@@ -1,14 +1,16 @@
 {
   "$schema": "https://keyfactor.github.io/integration-manifest-schema.json",
   "integration_type": "orchestrator",
-  "name": "AWS Orchestrator",
+  "name": "AWS Certificate Manager (ACM) Orchestrator",
   "status": "production",
   "link_github": true,
-  "description": "This repository contains a Universal Orchestrator Extension which is a plugin to the Keyfactor Universal Orchestrator. Within the Keyfactor Platform, Orchestrators are used to manage “certificate stores” — collections of certificates and roots of trust that are found within and used by various applications.  The Universal Orchestrator is part of the Keyfactor software distribution and is available via the Keyfactor customer portal. For general instructions on installing Extensions, see the “Keyfactor Command Orchestrator Installation and Configuration Guide” section of the Keyfactor documentation. For configuration details of this specific Extension see below in this readme.  The Universal Orchestrator is the successor to the Windows Orchestrator. This Orchestrator Extension plugin only works with the Universal Orchestrator and does not work with the Windows Orchestrator.",
+  "release_dir":  "aws-orchestrator-core/bin/Release/netcoreapp3.1",
+  "support_level": "kf-supported",
+  "description": "The AWS ACM Orchestrator supports Inventory and Management of certificates in the AWS Certificate Manager. It supports three methods of authentication: Environmental Credentials loaded via the AWS SDK e.g. inside an EC2 instance; IAM User Credentials for assuming a Role as a specific user; OAuth-based Credentials to authenticate with an OAuth provider to assume a Role.",
   "about": {
     "orchestrator": {
       "UOFramework": "10.1",
-      "pam_support": false,
+      "pam_support": true,
       "win": {
         "supportsCreateStore": false,
         "supportsDiscovery": false,
@@ -29,9 +31,9 @@
       },
       "store_types": [
         {
-          "Name": "AWS Cert Manager IAM Auth",
-          "ShortName": "AWSCerManA",
-          "Capability": "AWSCerManA",
+          "Name": "AWS Certificate Manager",
+          "ShortName": "AWS-ACM",
+          "Capability": "AWS-ACM",
           "LocalStore": false,
           "SupportedOperations": {
             "Add": true,
@@ -42,20 +44,60 @@
           },
           "Properties": [
             {
-              "Name": "awsrole",
-              "DisplayName": "AWS Assume Identity Role",
-              "Type": "String",
+              "Name": "UseOAuth",
+              "DisplayName": "Use OAuth 2.0 Provider",
+              "Type": "Bool",
               "DependsOn": null,
-              "DefaultValue": null,
+              "DefaultValue": "false",
               "Required": true
             },
             {
-              "Name": "awsregions",
-              "DisplayName": "AWS Regions",
-              "Type": "String",
+              "Name": "UseIAM",
+              "DisplayName": "Use IAM User Auth",
+              "Type": "Bool",
               "DependsOn": null,
-              "DefaultValue": null,
+              "DefaultValue": "false",
               "Required": true
+            },
+            {
+              "Name": "OAuthScope",
+              "DisplayName": "OAuth Scope",
+              "Type": "String",
+              "DependsOn": "UseOAuth",
+              "DefaultValue": null,
+              "Required": false
+            },
+            {
+              "Name": "OAuthGrantType",
+              "DisplayName": "OAuth Grant Type",
+              "Type": "String",
+              "DependsOn": "UseOAuth",
+              "DefaultValue": "client_credentials",
+              "Required": false
+            },
+            {
+              "Name": "OAuthUrl",
+              "DisplayName": "OAuth Url",
+              "Type": "String",
+              "DependsOn": "UseOAuth",
+              "DefaultValue": "https://***/oauth2/default/v1/token",
+              "Required": false
+            },
+            {
+              "Name": "IamAccountId",
+              "DisplayName": "IAM AWS Account ID",
+              "Type": "String",
+              "DependsOn": "UseIAM",
+              "DefaultValue": null,
+              "Required": false
+            },
+            {
+              "Name": "OAuthAccountId",
+              "DisplayName": "OAuth AWS Account ID",
+              "Type": "String",
+              "DependsOn": "UseOAuth",
+              "DefaultValue": null,
+              "Required": false
             },
             {
               "Name": "ServerUsername",
@@ -105,111 +147,7 @@
           "PowerShell": false,
           "BlueprintAllowed": true,
           "CustomAliasAllowed": "Optional"
-        },
-        {
-          "Name": "AWS Certificate Manager With Okta Auth",
-          "ShortName": "AwsCerManO",
-          "Capability": "AwsCerManO",
-          "LocalStore": false,
-          "SupportedOperations": {
-            "Add": true,
-            "Create": false,
-            "Discovery": false,
-            "Enrollment": false,
-            "Remove": true
-          },
-          "Properties": [
-            {
-              "Name": "scope",
-              "DisplayName": "Okta OAuth Scope",
-              "Type": "String",
-              "DependsOn": null,
-              "DefaultValue": null,
-              "Required": true
-            },
-            {
-              "Name": "grant_type",
-              "DisplayName": "Okta OAuth Grant Type",
-              "Type": "String",
-              "DependsOn": null,
-              "DefaultValue": null,
-              "Required": true
-            },
-            {
-              "Name": "awsrole",
-              "DisplayName": "AWS Assume Identity Role",
-              "Type": "String",
-              "DependsOn": null,
-              "DefaultValue": null,
-              "Required": true
-            },
-            {
-              "Name": "awsregions",
-              "DisplayName": "AWS Regions",
-              "Type": "String",
-              "DependsOn": null,
-              "DefaultValue": null,
-              "Required": true
-            },
-            {
-              "Name": "ServerUsername",
-              "DisplayName": "Server Username",
-              "Type": "Secret",
-              "DependsOn": null,
-              "DefaultValue": null,
-              "Required": false
-            },
-            {
-              "Name": "ServerPassword",
-              "DisplayName": "Server Password",
-              "Type": "Secret",
-              "DependsOn": null,
-              "DefaultValue": null,
-              "Required": false
-            },
-            {
-              "Name": "ServerUseSsl",
-              "DisplayName": "Use SSL",
-              "Type": "Bool",
-              "DependsOn": null,
-              "DefaultValue": "true",
-              "Required": true
-            },
-            {
-              "Name": "oauthpath",
-              "DisplayName": "OKTA OAuth Path",
-              "Type": "String",
-              "DependsOn": null,
-              "DefaultValue": "/oauth2/default/v1/token",
-              "Required": true
-            }
-          ],
-          "EntryParameters": [
-            {
-              "Name": "AWS Region",
-              "DisplayName": "AWS Region",
-              "Type": "MultipleChoice",
-              "RequiredWhen": {
-                "HasPrivateKey": false,
-                "OnAdd": true,
-                "OnRemove": false,
-                "OnReenrollment": true
-              },
-              "DefaultValue": "us-east-1",
-              "Options": "us-east-1,us-east-2"
-            }
-          ],
-          "PasswordOptions": {
-            "EntrySupported": true,
-            "StoreRequired": false,
-            "Style": "Default"
-          },
-          "PrivateKeyAllowed": "Optional",
-          "ServerRequired": true,
-          "PowerShell": false,
-          "BlueprintAllowed": true,
-          "CustomAliasAllowed": "Optional"
-        }
+        }        
       ]
     }
   }
