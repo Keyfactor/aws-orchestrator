@@ -53,7 +53,9 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs.IAM
 			try
 			{
 				Logger.LogTrace("Resolving AWS Credentials.");
-                Credentials credentials = AuthUtilities.AwsAuthenticate(config.ServerUsername, config.ServerPassword, config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
+				string accessKey = AuthUtilities.ResolvePamField(config.ServerUsername, "ServerUsername (IAM AccessKey)");
+				string accessSecret = AuthUtilities.ResolvePamField(config.ServerPassword, "ServerPassword (IAM AccessSecret)");
+                Credentials credentials = AuthUtilities.AwsAuthenticate(accessKey, accessSecret, config.CertificateStoreDetails.StorePath, CustomFields.AwsRole);
 				Logger.LogTrace("Resolved AWS Credentials. Performing Inventory.");
 
 				var result = PerformInventory(credentials, config, siu);
