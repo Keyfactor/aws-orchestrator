@@ -1,4 +1,4 @@
-﻿// Copyright 2023 Keyfactor
+﻿// Copyright 2024 Keyfactor
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,15 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Newtonsoft.Json;
-
 namespace Keyfactor.AnyAgent.AwsCertificateManager.Models
 {
-    public class AuthResponse
+    public class OAuthParameters
     {
-        [JsonProperty("token_type", NullValueHandling = NullValueHandling.Ignore)] public string TokenType { get; set; }
-        [JsonProperty("expires_in", NullValueHandling = NullValueHandling.Ignore)] public int ExpiresIn { get; set; }
-        [JsonProperty("access_token", NullValueHandling = NullValueHandling.Ignore)] public string AccessToken { get; set; }
-        [JsonProperty("scope", NullValueHandling = NullValueHandling.Ignore)] public string Scope { get; set; }
+        public string OAuthUrl { get; set; }
+        public string GrantType { get; set; }
+        public string Scope { get; set; }
+        public string ClientId { get; set; }
+        public string ClientSecret { get; set; }
     }
 }
