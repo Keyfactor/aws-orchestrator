@@ -73,7 +73,7 @@ Custom fields operate at the certificate store level and are used to control how
 target server containing the certificate store to be managed
 
 Name|Display Name|Type|Default Value|Depends On|Required|Description
----|---|---|---|---|---
+---|---|---|---|---|---|---
 UseOAuth | Use OAuth 2.0 Provider | boolean | False | N/A | Yes | A switch to enable the store to use an OAuth provider workflow to authenticate with AWS ACM
 UseIAM | Use IAM User Auth | boolean | False | N/A | Yes | A switch to enable the store to use IAM User auth to assume a role when authenticating with AWS ACM
 OAuthScope | OAuth Scope | string | N/A | Use OAuth 2.0 Provider | No | This is the OAuth Scope needed for Okta OAuth, defined in Okta
