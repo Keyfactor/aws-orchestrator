@@ -1,4 +1,4 @@
-﻿// Copyright 2023 Keyfactor
+﻿// Copyright 2024 Keyfactor
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -45,5 +45,31 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager
 
 	public class IAMCustomFields : CustomFields
 	{
+	}
+
+	public class ACMCustomFields
+	{
+		[JsonProperty("UseOAuth")]
+		[DefaultValue(false)]
+		public bool UseOAuth { get; set; }
+
+		[JsonProperty("UseIAM")]
+		[DefaultValue(false)]
+		public bool UseIAM { get; set; }
+
+		[JsonProperty("OAuthAccountId")]
+		public string OAuthAccountId { get; set; }
+
+		[JsonProperty("OAuthScope")]
+		public string OAuthScope { get; set; }
+
+		[JsonProperty("OAuthGrantType")]
+		public string OAuthGrantType { get; set; }
+
+		[JsonProperty("OAuthUrl")]
+		public string OAuthUrl { get; set; }
+
+		[JsonProperty("IamAccountId")]
+		public string IamAccountId { get; set; }
 	}
 }
