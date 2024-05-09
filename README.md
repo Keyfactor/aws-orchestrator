@@ -1,9 +1,9 @@
+
 # AWS Certificate Manager (ACM) Orchestrator
 
 The AWS ACM Orchestrator supports Inventory and Management of certificates in the AWS Certificate Manager. It supports three methods of authentication: Environmental Credentials loaded via the AWS SDK e.g. inside an EC2 instance; IAM User Credentials for assuming a Role as a specific user; OAuth-based Credentials to authenticate with an OAuth provider to assume a Role.
 
 #### Integration status: Production - Ready for use in production environments.
-
 
 ## About the Keyfactor Universal Orchestrator Extension
 
@@ -13,23 +13,22 @@ The Universal Orchestrator is part of the Keyfactor software distribution and is
 
 The Universal Orchestrator is the successor to the Windows Orchestrator. This Orchestrator Extension plugin only works with the Universal Orchestrator and does not work with the Windows Orchestrator.
 
-
 ## Support for AWS Certificate Manager (ACM) Orchestrator
 
 AWS Certificate Manager (ACM) Orchestrator is supported by Keyfactor for Keyfactor customers. If you have a support issue, please open a support ticket via the Keyfactor Support Portal at https://support.keyfactor.com
 
 ###### To report a problem or suggest a new feature, use the **[Issues](../../issues)** tab. If you want to contribute actual bug fixes or proposed enhancements, use the **[Pull requests](../../pulls)** tab.
 
-
 ---
 
+
+---
 
 
 
 ## Keyfactor Version Supported
 
 The minimum version of the Keyfactor Universal Orchestrator Framework needed to run this version of the extension is 10.1
-
 ## Platform Specific Notes
 
 The Keyfactor Universal Orchestrator may be installed on either Windows or Linux based platforms. The certificate operations supported by a capability may vary based what platform the capability is installed on. The table below indicates what capabilities are supported based on which platform the encompassing Universal Orchestrator is running.
@@ -39,7 +38,7 @@ The Keyfactor Universal Orchestrator may be installed on either Windows or Linux
 |Supports Management Remove|&check; |&check; |
 |Supports Create Store|  |  |
 |Supports Discovery|  |  |
-|Supports Renrollment|  |  |
+|Supports Reenrollment|  |  |
 |Supports Inventory|&check; |&check; |
 
 
@@ -390,4 +389,7 @@ Cert Store Settings
 
 </details>
 </details>
+
+When creating cert store type manually, that store property names and entry parameter names are case sensitive
+
 
