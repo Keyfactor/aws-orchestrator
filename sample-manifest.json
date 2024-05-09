@@ -16,6 +16,14 @@
       "CertStores.AwsCerManA.Management": {
         "assemblypath": "Keyfactor.AnyAgent.AwsCertificateManager.dll",
         "TypeFullName": "Keyfactor.AnyAgent.AwsCertificateManager.Jobs.IAM.Management"
+      },
+      "CertStores.AWS-ACM.Inventory": {
+        "assemblypath": "Keyfactor.AnyAgent.AwsCertificateManager.dll",
+        "TypeFullName": "Keyfactor.AnyAgent.AwsCertificateManager.Jobs.ACM.Inventory"
+      },
+      "CertStores.AWS-ACM.Management": {
+        "assemblypath": "Keyfactor.AnyAgent.AwsCertificateManager.dll",
+        "TypeFullName": "Keyfactor.AnyAgent.AwsCertificateManager.Jobs.ACM.Management"
       }
     }
   }
