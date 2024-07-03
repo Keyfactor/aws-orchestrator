@@ -1,156 +1,65 @@
 {
-  "$schema": "https://keyfactor.github.io/integration-manifest-schema.json",
-  "integration_type": "orchestrator",
-  "name": "AWS Certificate Manager (ACM) Orchestrator",
-  "status": "production",
-  "update_catalog": true,
-  "link_github": true,
-  "release_dir":  "aws-orchestrator-core/bin/Release/netcoreapp3.1",
-  "support_level": "kf-supported",
-  "description": "The AWS ACM Orchestrator supports Inventory and Management of certificates in the AWS Certificate Manager. It supports three methods of authentication: Environmental Credentials loaded via the AWS SDK e.g. inside an EC2 instance; IAM User Credentials for assuming a Role as a specific user; OAuth-based Credentials to authenticate with an OAuth provider to assume a Role.",
-  "about": {
-    "orchestrator": {
-      "UOFramework": "10.1",
-      "keyfactor_platform_version": "9.10",
-      "pam_support": true,
-      "win": {
-        "supportsCreateStore": false,
-        "supportsDiscovery": false,
-        "supportsManagementAdd": true,
-        "supportsManagementRemove": true,
-        "supportsReenrollment": false,
-        "supportsInventory": true,
-        "platformSupport": "Unused"
-      },
-      "linux": {
-        "supportsCreateStore": false,
-        "supportsDiscovery": false,
-        "supportsManagementAdd": true,
-        "supportsManagementRemove": true,
-        "supportsReenrollment": false,
-        "supportsInventory": true,
-        "platformSupport": "Unused"
-      },
-      "store_types": [
-        {
-          "Name": "AWS Certificate Manager",
-          "ShortName": "AWS-ACM",
-          "Capability": "AWS-ACM",
-          "LocalStore": false,
-          "SupportedOperations": {
-            "Add": true,
-            "Create": false,
-            "Discovery": false,
-            "Enrollment": false,
-            "Remove": true
-          },
-          "Properties": [
-            {
-              "Name": "UseOAuth",
-              "DisplayName": "Use OAuth 2.0 Provider",
-              "Type": "Bool",
-              "DependsOn": null,
-              "DefaultValue": "false",
-              "Required": true
+    "$schema": "/Users/hroszell/coding/dev/staff-tools/keyfactor.github.io/v2/integration-manifest-schema.json",
+    "integration_type": "orchestrator",
+    "name": "AWS Certificate Manager (ACM) Orchestrator",
+    "status": "production",
+    "update_catalog": true,
+    "link_github": true,
+    "release_dir": "aws-orchestrator-core/bin/Release/netcoreapp3.1",
+    "support_level": "kf-supported",
+    "description": "The AWS ACM Orchestrator supports Inventory and Management of certificates in the AWS Certificate Manager. It supports three methods of authentication: Environmental Credentials loaded via the AWS SDK e.g. inside an EC2 instance; IAM User Credentials for assuming a Role as a specific user; OAuth-based Credentials to authenticate with an OAuth provider to assume a Role.",
+    "about": {
+        "orchestrator": {
+            "UOFramework": "10.1",
+            "keyfactor_platform_version": "9.10",
+            "pam_support": true,
+            "win": {
+                "supportsCreateStore": false,
+                "supportsDiscovery": false,
+                "supportsManagementAdd": true,
+                "supportsManagementRemove": true,
+                "supportsReenrollment": false,
+                "supportsInventory": true,
+                "platformSupport": "Unused"
             },
-            {
-              "Name": "UseIAM",
-              "DisplayName": "Use IAM User Auth",
-              "Type": "Bool",
-              "DependsOn": null,
-              "DefaultValue": "false",
-              "Required": true
+            "linux": {
+                "supportsCreateStore": false,
+                "supportsDiscovery": false,
+                "supportsManagementAdd": true,
+                "supportsManagementRemove": true,
+                "supportsReenrollment": false,
+                "supportsInventory": true,
+                "platformSupport": "Unused"
             },
-            {
-              "Name": "OAuthScope",
-              "DisplayName": "OAuth Scope",
-              "Type": "String",
-              "DependsOn": "UseOAuth",
-              "DefaultValue": null,
-              "Required": false
-            },
-            {
-              "Name": "OAuthGrantType",
-              "DisplayName": "OAuth Grant Type",
-              "Type": "String",
-              "DependsOn": "UseOAuth",
-              "DefaultValue": "client_credentials",
-              "Required": false
-            },
-            {
-              "Name": "OAuthUrl",
-              "DisplayName": "OAuth Url",
-              "Type": "String",
-              "DependsOn": "UseOAuth",
-              "DefaultValue": "https://***/oauth2/default/v1/token",
-              "Required": false
-            },
-            {
-              "Name": "IamAccountId",
-              "DisplayName": "IAM AWS Account ID",
-              "Type": "String",
-              "DependsOn": "UseIAM",
-              "DefaultValue": null,
-              "Required": false
-            },
-            {
-              "Name": "OAuthAccountId",
-              "DisplayName": "OAuth AWS Account ID",
-              "Type": "String",
-              "DependsOn": "UseOAuth",
-              "DefaultValue": null,
-              "Required": false
-            },
-            {
-              "Name": "ServerUsername",
-              "DisplayName": "Server Username",
-              "Type": "Secret",
-              "DependsOn": null,
-              "DefaultValue": null,
-              "Required": false
-            },
-            {
-              "Name": "ServerPassword",
-              "DisplayName": "Server Password",
-              "Type": "Secret",
-              "DependsOn": null,
-              "DefaultValue": null,
-              "Required": false
-            },
-            {
-              "Name": "ServerUseSsl",
-              "DisplayName": "Use SSL",
-              "Type": "Bool",
-              "DependsOn": null,
-              "DefaultValue": "true",
-              "Required": true
-            }
-          ],
-          "EntryParameters": [
-            {
-              "Name": "AWS Region",
-              "DisplayName": "AWS Region",
-              "Type": "String",
-              "RequiredWhen": {
-                "HasPrivateKey": false,
-                "OnAdd": true,
-                "OnRemove": false,
-                "OnReenrollment": false
-              }
-            }
-          ],
-          "PasswordOptions": {
-            "EntrySupported": false,
-            "StoreRequired": false,
-            "Style": "Default"
-          },
-          "PrivateKeyAllowed": "Optional",
-          "ServerRequired": true,
-          "PowerShell": false,
-          "BlueprintAllowed": true,
-          "CustomAliasAllowed": "Optional"
-        }        
-      ]
+            "store_types": [
+                {
+                    "Name": "AWS Certificate Manager",
+                    "ShortName": "AWS-ACM",
+                    "Capability": "AWS-ACM",
+                    "LocalStore": false,
+                    "SupportedOperations": {
+                        "Add": true,
+                        "Create": false,
+                        "Discovery": false,
+                        "Enrollment": false,
+                        "Remove": true
+                    },
+                    "Properties": [],
+                    "EntryParameters": [],
+                    "PasswordOptions": {
+                        "EntrySupported": false,
+                        "StoreRequired": false,
+                        "Style": "Default"
+                    },
+                    "PrivateKeyAllowed": "Optional",
+                    "ServerRequired": true,
+                    "PowerShell": false,
+                    "BlueprintAllowed": true,
+                    "CustomAliasAllowed": "Optional",
+                    "ClientMachineDescription": "For the 'Client Machine' field, enter the specific AWS Role that will be used for access. This role will be assumed, and its permissions will apply to all actions taken by the orchestrator. Example: 'arn:aws:iam::123456789012:role/ACMAccessRole'.",
+                    "StorePathDescription": "For the 'Store Path' field, enter the AWS region or a comma-separated list of multiple regions where the orchestrator will operate. Example: 'us-east-1,us-east-2'."
+                }
+            ]
+        }
     }
-  }
 }
