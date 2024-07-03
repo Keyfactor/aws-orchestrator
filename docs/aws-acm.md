@@ -199,8 +199,8 @@ The following table describes the required and optional fields for the `AWS-ACM`
 | --------- | ----------- | ------------------------- |
 | Category | Select "AWS Certificate Manager" or the customized certificate store name from the previous step. | |
 | Container | Optional container to associate certificate store with. | |
-| Client Machine | For the 'Client Machine' field, enter the specific AWS Role that will be used for access. This role will be assumed, and its permissions will apply to all actions taken by the orchestrator. Example: 'arn:aws:iam::123456789012:role/ACMAccessRole'. | |
-| Store Path | For the 'Store Path' field, enter the AWS region or a comma-separated list of multiple regions where the orchestrator will operate. Example: 'us-east-1,us-east-2'. | |
+| Client Machine | The AWS Role that will be used for access, which will be assumed to apply its permissions to all orchestrator actions. Example: 'arn:aws:iam::123456789012:role/ACMAccess' | |
+| Store Path | The AWS Region, or a comma-separated list of multiple regions, where the store will operate. Example: 'us-east-1,us-west-2' | |
 | Orchestrator | Select an approved orchestrator capable of managing `AWS-ACM` certificates. Specifically, one with the `AWS-ACM` capability. | |
 
 * **Using kfutil**

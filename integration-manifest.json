@@ -1,5 +1,5 @@
 {
-    "$schema": "/Users/hroszell/coding/dev/staff-tools/keyfactor.github.io/v2/integration-manifest-schema.json",
+    "$schema": "https://keyfactor.github.io/v2/integration-manifest-schema.json",
     "integration_type": "orchestrator",
     "name": "AWS Certificate Manager (ACM) Orchestrator",
     "status": "production",
@@ -7,30 +7,12 @@
     "link_github": true,
     "release_dir": "aws-orchestrator-core/bin/Release/netcoreapp3.1",
     "support_level": "kf-supported",
-    "description": "The AWS ACM Orchestrator supports Inventory and Management of certificates in the AWS Certificate Manager. It supports three methods of authentication: Environmental Credentials loaded via the AWS SDK e.g. inside an EC2 instance; IAM User Credentials for assuming a Role as a specific user; OAuth-based Credentials to authenticate with an OAuth provider to assume a Role.",
+    "description": "The AWS Certificate Manager (ACM) Universal Orchestrator extension enables automated management of SSL/TLS certificates across AWS services, including tasks such as inventory, addition, and removal of certificates.",
     "about": {
         "orchestrator": {
             "UOFramework": "10.1",
             "keyfactor_platform_version": "9.10",
             "pam_support": true,
-            "win": {
-                "supportsCreateStore": false,
-                "supportsDiscovery": false,
-                "supportsManagementAdd": true,
-                "supportsManagementRemove": true,
-                "supportsReenrollment": false,
-                "supportsInventory": true,
-                "platformSupport": "Unused"
-            },
-            "linux": {
-                "supportsCreateStore": false,
-                "supportsDiscovery": false,
-                "supportsManagementAdd": true,
-                "supportsManagementRemove": true,
-                "supportsReenrollment": false,
-                "supportsInventory": true,
-                "platformSupport": "Unused"
-            },
             "store_types": [
                 {
                     "Name": "AWS Certificate Manager",
@@ -56,8 +38,8 @@
                     "PowerShell": false,
                     "BlueprintAllowed": true,
                     "CustomAliasAllowed": "Optional",
-                    "ClientMachineDescription": "For the 'Client Machine' field, enter the specific AWS Role that will be used for access. This role will be assumed, and its permissions will apply to all actions taken by the orchestrator. Example: 'arn:aws:iam::123456789012:role/ACMAccessRole'.",
-                    "StorePathDescription": "For the 'Store Path' field, enter the AWS region or a comma-separated list of multiple regions where the orchestrator will operate. Example: 'us-east-1,us-east-2'."
+                    "ClientMachineDescription": "The AWS Role that will be used for access, which will be assumed to apply its permissions to all orchestrator actions. Example: 'arn:aws:iam::123456789012:role/ACMAccess'",
+                    "StorePathDescription": "The AWS Region, or a comma-separated list of multiple regions, where the store will operate. Example: 'us-east-1,us-west-2'"
                 }
             ]
         }
