@@ -163,7 +163,7 @@ CONFIG ELEMENT | VALUE | DESCRIPTION
 Store Path Type	| Freeform | Determines what restrictions are applied to the store path field when configuring a new store.
 Store Path Value | N/A | This is reserved for the AWS Account Id when setting up the store.
 Supports Custom Alias | Optional | Determines if an individual entry within a store can have a custom Alias.
-Private Keys | Optional | This determines if Keyfactor can send the private key associated with a certificate to the store.
+Private Keys | Required | This determines if Keyfactor can send the private key associated with a certificate to the store.
 PFX Password Style | Default or Custom | "Default" - PFX password is randomly generated, "Custom" - PFX password may be specified when the enrollment job is created (Requires the *Allow Custom Password* application setting to be enabled.)
 
 **Custom Fields:**
