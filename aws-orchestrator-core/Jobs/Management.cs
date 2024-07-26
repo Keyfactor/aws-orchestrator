@@ -152,7 +152,6 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
                                 pemWriter.WriteObject(keyPair.Private);
                                 streamWriter.Flush();
                                 privateKeyString = Encoding.ASCII.GetString(memoryStream.GetBuffer()).Trim().Replace("\r", "").Replace("\0", "");
-                                Logger.LogTrace($"Got Private Key String {privateKeyString}");
                                 memoryStream.Close();
                                 streamWriter.Close();
                             }
