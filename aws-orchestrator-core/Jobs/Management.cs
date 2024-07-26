@@ -100,7 +100,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
                         if (!string.IsNullOrWhiteSpace(config.JobCertificate.Alias))
                         {
                             // Alias is specified, this is a replace / renewal
-                            Logger.LogTrace($"Alias specified, validating existing cert can be renewed / replaced: {config.JobCertificate.Alias}");
+                            Logger.LogDebug($"Alias specified, validating existing cert can be renewed / replaced: {config.JobCertificate.Alias}");
                             // ARN Provided, Verify It is Not A PCA/Amazon Issued Cert
                             DescribeCertificateResponse DescribeCertificateResponse = AsyncHelpers.RunSync(() => AcmClient.DescribeCertificateAsync(config.JobCertificate.Alias));
                             Logger.LogTrace($"DescribeCertificateResponse JSON: {JsonConvert.SerializeObject(DescribeCertificateResponse)}");
@@ -152,6 +152,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
                                 pemWriter.WriteObject(keyPair.Private);
                                 streamWriter.Flush();
                                 privateKeyString = Encoding.ASCII.GetString(memoryStream.GetBuffer()).Trim().Replace("\r", "").Replace("\0", "");
+                                Logger.LogTrace("Loaded private key.");
                                 memoryStream.Close();
                                 streamWriter.Close();
                             }
