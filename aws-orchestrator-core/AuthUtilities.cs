@@ -45,16 +45,21 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager
 		{
             _logger.MethodEntry();
             _logger.LogDebug("Selecting credential method.");
-			string awsRole = certStore.ClientMachine;
-            _logger.LogDebug($"Using AWS Role - {awsRole} - from the ClientMachine field");
+			
             if (customFields.UseIAM)
             {
                 _logger.LogInformation("Using IAM User authentication method for creating AWS Credentials.");
                 var accessKey = ResolvePamField(jobConfiguration.ServerUsername, "ServerUsername (IAM AccessKey)");
                 var accessSecret = ResolvePamField(jobConfiguration.ServerPassword, "ServerPassword (IAM AccessSecret)");
 
+                string awsRole = customFields.IAMAssumeRole;
+                _logger.LogDebug($"Assuming AWS Role - {awsRole}");
+
+                string awsAccountId = certStore.ClientMachine;
+                _logger.LogDebug($"Using AWS Account ID - {awsAccountId} - from the ClientMachine field");
+
                 _logger.LogTrace("Attempting to authenticate with AWS using IAM access credentials.");
-                return AwsAuthenticate(accessKey, accessSecret, customFields.IamAccountId, awsRole);
+                return AwsAuthenticate(accessKey, accessSecret, awsAccountId, awsRole);
             }
             else if (customFields.UseOAuth)
             {
@@ -74,8 +79,14 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager
                 OAuthResponse authResponse = OAuthAuthenticate(oauthParams);
                 _logger.LogTrace("Received OAuth response.");
 
+                string awsRole = customFields.OAuthAssumeRole;
+                _logger.LogDebug($"Assuming AWS Role - {awsRole}");
+
+                string awsAccountId = certStore.ClientMachine;
+                _logger.LogDebug($"Using AWS Account ID - {awsAccountId} - from the ClientMachine field");
+
                 _logger.LogTrace("Attempting to authenticate with AWS using OAuth response.");
-                return AwsAuthenticateWithWebIdentity(authResponse, customFields.OAuthAccountId, awsRole);
+                return AwsAuthenticateWithWebIdentity(authResponse, awsAccountId, awsRole);
             }
             else // use default SDK credential resolution
             {
