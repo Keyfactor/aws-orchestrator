@@ -45,7 +45,9 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager
 		{
             _logger.MethodEntry();
             _logger.LogDebug("Selecting credential method.");
-			
+
+            string awsAccountId = certStore.ClientMachine;
+
             if (customFields.UseIAM)
             {
                 _logger.LogInformation("Using IAM User authentication method for creating AWS Credentials.");
@@ -55,7 +57,6 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager
                 string awsRole = customFields.IAMAssumeRole;
                 _logger.LogDebug($"Assuming AWS Role - {awsRole}");
 
-                string awsAccountId = certStore.ClientMachine;
                 _logger.LogDebug($"Using AWS Account ID - {awsAccountId} - from the ClientMachine field");
 
                 _logger.LogTrace("Attempting to authenticate with AWS using IAM access credentials.");
@@ -63,7 +64,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager
             }
             else if (customFields.UseOAuth)
             {
-                _logger.LogInformation("Using OAuth authenticaiton method for creating AWS Credentials.");
+                _logger.LogInformation("Using OAuth authentication method for creating AWS Credentials.");
                 var clientId = ResolvePamField(jobConfiguration.ServerUsername, "ServerUsername (OAuth Client ID)");
                 var clientSecret = ResolvePamField(jobConfiguration.ServerPassword, "ServerPassword (OAuth Client Secret)");
                 OAuthParameters oauthParams = new OAuthParameters()
@@ -82,7 +83,6 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager
                 string awsRole = customFields.OAuthAssumeRole;
                 _logger.LogDebug($"Assuming AWS Role - {awsRole}");
 
-                string awsAccountId = certStore.ClientMachine;
                 _logger.LogDebug($"Using AWS Account ID - {awsAccountId} - from the ClientMachine field");
 
                 _logger.LogTrace("Attempting to authenticate with AWS using OAuth response.");
@@ -91,6 +91,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager
             else // use default SDK credential resolution
             {
                 _logger.LogInformation("Using default AWS SDK credential resolution for creating AWS Credentials.");
+                _logger.LogDebug($"Default Role and Account ID will be used. Specified AWS Account ID - {awsAccountId} - will not be used.");
                 return null;
             }
         }
