@@ -57,8 +57,8 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager
 		[DefaultValue(false)]
 		public bool UseIAM { get; set; }
 
-		[JsonProperty("OAuthAccountId")]
-		public string OAuthAccountId { get; set; }
+		[JsonProperty("OAuthAssumeRole")]
+		public string OAuthAssumeRole { get; set; }
 
 		[JsonProperty("OAuthScope")]
 		public string OAuthScope { get; set; }
@@ -69,7 +69,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager
 		[JsonProperty("OAuthUrl")]
 		public string OAuthUrl { get; set; }
 
-		[JsonProperty("IamAccountId")]
-		public string IamAccountId { get; set; }
+		[JsonProperty("IAMAssumeRole")]
+		public string IAMAssumeRole { get; set; }
 	}
 }
