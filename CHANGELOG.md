@@ -1,4 +1,4 @@
-2.1.0
+2.0.2
 * Return parity to original AWS store type organization - differentiating based on AWS Account ID
 
 2.0.1
