@@ -1,3 +1,6 @@
+2.1.0
+* Return parity to original AWS store type organization - differentiating based on AWS Account ID
+
 2.0.1
 * Remove logging of sensitive data
 * Update Private Key to required for certificates in this store in docs and store definition
