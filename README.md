@@ -131,7 +131,7 @@ Options for authenticating:
 2. IAM User Auth configuration (refer to `AwsCerManA` below)
 3. EC2 Role Auth or other default method supported by the [AWS SDK](https://docs.aws.amazon.com/sdk-for-net/v3/developer-guide/creds-assign.html)
 
-As one option for #3, to set up Role Auth for an EC2 instance, follow the steps below. Note, this applies specifically __when the orchestrator is running `ACM-AWS` inside of an EC2 instance__.
+As one option for #3, to set up Role Auth for an EC2 instance, follow the steps below. Note, this applies specifically __when the orchestrator is running `ACM-AWS` inside of an EC2 instance__. Additionally, the EC2 credentials do not use the AWS Account ID specified in the certificate store and only use the single account/role indicated by the EC2 settings.
 1. Assign or note the existing IAM Role assigned to the EC2 instance running
 2. Make sure that role has access to ACM
 3. When configuring the `AWS-ACM` store, do not select either IAM or OAuth methods in the store's settings. This will make it use the AWS SDK to lookup EC2 credentials.
@@ -200,7 +200,7 @@ Cert Store Settings
 ===============
 | Name | Value | Description |
 | ----------- | ----------- | ----------- |
-| Client Machine | AWS Account ID | This is the AWS Account ID that will be used for access. This will dictate what certificates are usable by the orchestrator. |
+| Client Machine | AWS Account ID | This is the AWS Account ID that will be used for access. This will dictate what certificates are usable by the orchestrator. Note: this does not have any effect on EC2 inferred credentials, which are limited to a specific role/account. |
 | User Name | See Below | See Below |
 | Password | See Below | See Below |
 | Store Path | us-east-1,us-east-2,...,etc. | The AWS Region, or a comma-separated list of multiple regions, the store will operate in. |
