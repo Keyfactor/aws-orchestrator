@@ -86,16 +86,16 @@
               "Required": false
             },
             {
-              "Name": "IamAccountId",
-              "DisplayName": "IAM AWS Account ID",
+              "Name": "IAMAssumeRole",
+              "DisplayName": "AWS Role to Assume (IAM)",
               "Type": "String",
               "DependsOn": "UseIAM",
               "DefaultValue": null,
               "Required": false
             },
             {
-              "Name": "OAuthAccountId",
-              "DisplayName": "OAuth AWS Account ID",
+              "Name": "OAuthAssumeRole",
+              "DisplayName": "AWS Role to Assume (OAuth)",
               "Type": "String",
               "DependsOn": "UseOAuth",
               "DefaultValue": null,
