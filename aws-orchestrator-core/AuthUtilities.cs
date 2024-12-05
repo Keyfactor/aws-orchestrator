@@ -30,8 +30,8 @@ using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace Keyfactor.AnyAgent.AwsCertificateManager
 {
-	public class AuthUtilities
-	{
+    public class AuthUtilities
+    {
         private readonly ILogger _logger;
         private readonly IPAMSecretResolver _pam;
 
@@ -41,8 +41,8 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager
             _logger = logger;
         }
 
-		public Credentials GetCredentials(ACMCustomFields customFields, JobConfiguration jobConfiguration, CertificateStore certStore)
-		{
+        public Credentials GetCredentials(ACMCustomFields customFields, JobConfiguration jobConfiguration, CertificateStore certStore)
+        {
             _logger.MethodEntry();
             _logger.LogDebug("Selecting credential method.");
 
@@ -60,7 +60,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager
                 _logger.LogDebug($"Using AWS Account ID - {awsAccountId} - from the ClientMachine field");
 
                 _logger.LogTrace("Attempting to authenticate with AWS using IAM access credentials.");
-                return AwsAuthenticate(accessKey, accessSecret, awsAccountId, awsRole);
+                return AwsAuthenticate(accessKey, accessSecret, awsAccountId, awsRole, customFields.ExternalId);
             }
             else if (customFields.UseOAuth)
             {
@@ -88,6 +88,21 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager
                 _logger.LogTrace("Attempting to authenticate with AWS using OAuth response.");
                 return AwsAuthenticateWithWebIdentity(authResponse, awsAccountId, awsRole);
             }
+            else if (customFields.UseEC2AssumeRole)
+            {
+                // use SDK credential resolution, but run Assume Role
+                _logger.LogInformation("Using default AWS SDK credential resolution with Assume Role for creating AWS Credentials.");
+                string accessKey = null;
+                string accessSecret = null;
+
+                string awsRole = customFields.EC2AssumeRole;
+                _logger.LogDebug($"Assuming AWS Role - {awsRole}");
+
+                _logger.LogDebug($"Using AWS Account ID - {awsAccountId} - from the ClientMachine field");
+
+                _logger.LogTrace("Attempting to assume new Role with AWS using default AWS SDK credential.");
+                return AwsAuthenticate(accessKey, accessSecret, awsAccountId, awsRole, customFields.ExternalId);
+            }
             else // use default SDK credential resolution
             {
                 _logger.LogInformation("Using default AWS SDK credential resolution for creating AWS Credentials.");
@@ -96,23 +111,23 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager
             }
         }
 
-		public Credentials AwsAuthenticateWithWebIdentity(OAuthResponse authResponse, string awsAccount, string awsRole)
-		{
+        public Credentials AwsAuthenticateWithWebIdentity(OAuthResponse authResponse, string awsAccount, string awsRole)
+        {
             _logger.MethodEntry();
-			Credentials credentials = null;
-			try
-			{
-				var account = awsAccount;
+            Credentials credentials = null;
+            try
+            {
+                var account = awsAccount;
                 _logger.LogTrace($"Using AWS Account - {account}");
-				var stsClient = new AmazonSecurityTokenServiceClient(new AnonymousAWSCredentials());
+                var stsClient = new AmazonSecurityTokenServiceClient(new AnonymousAWSCredentials());
                 _logger.LogTrace("Created AWS STS client with anonymous credentials.");
-				var assumeRequest = new AssumeRoleWithWebIdentityRequest
-				{
-					WebIdentityToken = authResponse?.AccessToken,
-					RoleArn = $"arn:aws:iam::{account}:role/{awsRole}",
-					RoleSessionName = "KeyfactorSession",
-					DurationSeconds = Convert.ToInt32(authResponse?.ExpiresIn)
-				};
+                var assumeRequest = new AssumeRoleWithWebIdentityRequest
+                {
+                    WebIdentityToken = authResponse?.AccessToken,
+                    RoleArn = $"arn:aws:iam::{account}:role/{awsRole}",
+                    RoleSessionName = "KeyfactorSession",
+                    DurationSeconds = Convert.ToInt32(authResponse?.ExpiresIn)
+                };
                 var logAssumeRequest = new
                 {
                     WebIdentityToken = "**redacted**",
@@ -123,58 +138,85 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager
                 _logger.LogDebug($"Prepared Assume Role With Web Identity request with fields: {logAssumeRequest}");
 
                 _logger.LogTrace("Submitting Assume Role With Web Identity request.");
-				var assumeResult = AsyncHelpers.RunSync(() => stsClient.AssumeRoleWithWebIdentityAsync(assumeRequest));
+                var assumeResult = AsyncHelpers.RunSync(() => stsClient.AssumeRoleWithWebIdentityAsync(assumeRequest));
                 _logger.LogTrace("Received response to Assume Role With Web Identity request.");
-				credentials = assumeResult.Credentials;
-			}
-			catch (Exception e)
-			{
+                credentials = assumeResult.Credentials;
+            }
+            catch (Exception e)
+            {
                 _logger.LogError($"Error Occurred in AwsAuthenticateWithWebIdentity: {e.Message}");
 
                 throw;
-			}
+            }
 
-			return credentials;
-		}
+            return credentials;
+        }
 
-		public Credentials AwsAuthenticate(string accessKey, string accessSecret, string awsAccount, string awsRole)
-		{
+        public Credentials AwsAuthenticate(string accessKey, string accessSecret, string awsAccount, string awsRole, string externalId = null)
+        {
             _logger.MethodEntry();
-			Credentials credentials = null;
-			try
-			{
-				var account = awsAccount;
+            Credentials credentials = null;
+            try
+            {
+                var account = awsAccount;
                 _logger.LogTrace($"Using AWS Account - {account}");
-                var stsClient = new AmazonSecurityTokenServiceClient(accessKey, accessSecret);
-                _logger.LogTrace("Created AWS STS client with IAM user credentials.");
-				var assumeRequest = new AssumeRoleRequest
-				{
-					RoleArn = $"arn:aws:iam::{account}:role/{awsRole}",
-					RoleSessionName = "KeyfactorSession"
-				};
 
-                var logAssumeRequest = new
+                AmazonSecurityTokenServiceClient stsClient;
+                if (accessKey != null && accessSecret != null)
                 {
-                    assumeRequest.RoleArn,
-                    assumeRequest.RoleSessionName
-                };
-                _logger.LogDebug($"Prepared Assume Role request with fields: {logAssumeRequest}");
+                    stsClient = new AmazonSecurityTokenServiceClient(accessKey, accessSecret);
+                    _logger.LogTrace("Created AWS STS client with IAM user credentials.");
+                }
+                else
+                {
+                    stsClient = new AmazonSecurityTokenServiceClient();
+                    _logger.LogTrace("Created AWS STS client with default credential resolution.");
+                }
 
+                var assumeRequest = new AssumeRoleRequest
+                {
+                    RoleArn = $"arn:aws:iam::{account}:role/{awsRole}",
+                    RoleSessionName = "KeyfactorSession",
+                };
+
+                if (string.IsNullOrWhiteSpace(externalId))
+                {
+                    // no sts:ExternalId
+                    var logAssumeRequest = new
+                    {
+                        assumeRequest.RoleArn,
+                        assumeRequest.RoleSessionName
+                    };
+                    _logger.LogDebug($"Prepared Assume Role request with fields: {logAssumeRequest}");
+                }
+                else
+                {
+                    // include sts:ExternalId with assume role request
+                    assumeRequest.ExternalId = externalId;
+                    var logAssumeRequestWithExternalId = new
+                    {
+                        assumeRequest.RoleArn,
+                        assumeRequest.RoleSessionName,
+                        assumeRequest.ExternalId
+                    };
+                    _logger.LogDebug($"Prepared Assume Role request with fields: {logAssumeRequestWithExternalId}");
+
+                }
                 _logger.LogTrace("Submitting Assume Role request.");
                 var assumeResult = AsyncHelpers.RunSync(() => stsClient.AssumeRoleAsync(assumeRequest));
                 _logger.LogTrace("Received response to Assume Role request.");
-				credentials = assumeResult.Credentials;
-			}
-			catch (Exception e)
-			{
+                credentials = assumeResult.Credentials;
+            }
+            catch (Exception e)
+            {
                 _logger.LogError($"Error Occurred in AwsAuthenticate: {e.Message}");
-				throw;
-			}
+                throw;
+            }
 
-			return credentials;
-		}
+            return credentials;
+        }
 
-		public OAuthResponse OAuthAuthenticate(OAuthParameters parameters)
+        public OAuthResponse OAuthAuthenticate(OAuthParameters parameters)
         {
             try
             {
@@ -242,5 +284,5 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager
                 return field;
             }
         }
-	}
+    }
 }
