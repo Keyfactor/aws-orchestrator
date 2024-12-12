@@ -15,9 +15,6 @@ AWS Certificate Manager is a service that lets you easily provision, manage, and
 - Inventory Root Certificates
 - Inventory Certificates with Public and Private Keys
 
-### Assumptions:
-- In order for the Certificates and Keys to renew or reenroll correctly, they need to derive of the <alias> which is passed into the any agent.  The <alias> drives the files and object creation and is essentially how we are able to relate them to each other.
-
 ### Not Implemented/Supported
 - Reenrollment, Management, Discovery
 
