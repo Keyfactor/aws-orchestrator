@@ -1,3 +1,7 @@
+2.1.0
+* Allow EC2 default credentials to also run the Assume Role command
+* Add sts:ExtenalId parameter option to Assume Role calls (not applicable when using OAuth)
+
 2.0.2
 * Return parity to original AWS store type organization - differentiating based on AWS Account ID
 
