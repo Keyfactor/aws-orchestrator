@@ -29,7 +29,7 @@ Options for authenticating:
 2. IAM User Auth configuration (refer to `AwsCerManA` below)
 3. EC2 Role Auth or other default method supported by the [AWS SDK](https://docs.aws.amazon.com/sdk-for-net/v3/developer-guide/creds-assign.html)
 
-As one option for #3, to set up Role Auth for an EC2 instance, follow the steps below. Note, this applies specifically __when the orchestrator is running `ACM-AWS` inside of an EC2 instance__. Additionally, the EC2 credentials do not use the AWS Account ID specified in the certificate store and only use the single account/role indicated by the EC2 settings.
+As one option for #3, to set up Role Auth for an EC2 instance, follow the steps below. Note, this applies specifically __when the orchestrator is running `ACM-AWS` inside of an EC2 instance__. When the option to assume an EC2 role is selected, the Account ID and Role will be assumed using the default credentials supplied in the EC2 instance via the AWS SDK.
 1. Assign or note the existing IAM Role assigned to the EC2 instance running
 2. Make sure that role has access to ACM
 3. When configuring the `AWS-ACM` store, do not select either IAM or OAuth methods in the store's settings. This will make it use the AWS SDK to lookup EC2 credentials.
@@ -71,13 +71,16 @@ target server containing the certificate store to be managed
 
 Name|Display Name|Type|Default Value|Depends On|Required|Description
 ---|---|---|---|---|---|---
+UseEC2AssumeRole | Assume new Account / Role in EC2 | boolean | False | N/A | Yes | A switch to enable the store to assume a new Account ID and Role when using EC2 credentials
 UseOAuth | Use OAuth 2.0 Provider | boolean | False | N/A | Yes | A switch to enable the store to use an OAuth provider workflow to authenticate with AWS ACM
 UseIAM | Use IAM User Auth | boolean | False | N/A | Yes | A switch to enable the store to use IAM User auth to assume a role when authenticating with AWS ACM
+EC2AssumeRole | AWS Role to Assume (EC2) | string | N/A | UseEC2AssumeRole | The AWS Role to assume using the EC2 instance credentials
 OAuthScope | OAuth Scope | string | N/A | Use OAuth 2.0 Provider | No | This is the OAuth Scope needed for Okta OAuth, defined in Okta
 OAuthGrantType | OAuth Grant Type | string | client_credentials | Use OAuth 2.0 Provider | No | In OAuth 2.0, the term “grant type” refers to the way an application gets an access token. In Okta this is `client_credentials`
 OAuthUrl | OAuth URL | string | https://***/oauth2/default/v1/token | Use OAuth 2.0 Provider | No | The URL to request a token from your OAuth Provider. Fill this out with the correct URL.
 OAuthAssumeRole | AWS Role to Assume (OAuth) | string | N/A | Use OAuth 2.0 Provider | No | The AWS Role to assume after getting an OAuth token.
 IAMAssumeRole | AWS Role to Assume (IAM) | string | N/A | Use IAM User Auth | No | The AWS Role to assume as the IAM User.
+ExternalId | sts:ExternalId | string | N/A | N/A | No | An optional parameter sts:ExternalId to pass with Assume Role calls
 
 
 **Entry Parameters:**
@@ -102,13 +105,16 @@ Cert Store Settings
 | User Name | See Below | See Below |
 | Password | See Below | See Below |
 | Store Path | us-east-1,us-east-2,...,etc. | The AWS Region, or a comma-separated list of multiple regions, the store will operate in. |
+| Assume new Account / Role in EC2 | Use the EC2 credentials to make an Assume Role request to change Role and Account ID in use | Set to true to use EC2 credentials and assume a different role than the default EC2 role. |
 | Use OAuth 2.0 Provider | Use an OAuth provider to authenticate with AWS | Set to true to enable OAuth usage and display additional OAuth fields |
 | Use IAM User Auth | Use an IAM user's credentials to assume a role | Set to true to enable IAM user auth and the IAM Account ID field. |
+| AWS Role to Assume (EC2) | AWS Role | Displayed and required when using Assume new Account / Role in EC2. This Role is assumed using the EC2 default credentials. |
 | OAuth Scope | Look in OAuth provider for Scope | Displayed and required when using OAuth 2.0 Provider. OAuth scope setup in the Okta Application or other OAuth provider |
 | OAuth Grant Type | client_credentials | Displayed and required when using OAuth 2.0 Provider. This may vary depending on Okta setup but will most likely be this value. |
 | OAuth URL | https://***/oauth2/default/v1/token | Displayed and required when using OAuth 2.0 Provider. URL to request token from OAuth provider. Example given is for an Okta token. |
 | AWS Role to Assume (OAuth) | AWS Role | Displayed and required when using OAuth 2.0 Provider. This Role is assumed after getting an OAuth token. |
 | AWS Role to Assume (IAM) | AWS Role | Displayed and required when using IAM User Auth. This Role is assumed with the IAM credentials. |
+| sts:ExternalId | Configured AWS External ID | An optional field to enter an External ID value set in AWS, which may be required to make Assume Role calls. |
 
 The User Name and Password fields are used differently based on the auth method you intend to use. The three options for auth are IAM User, OAuth, or default auth.
 
@@ -118,8 +124,8 @@ The User Name and Password fields are used differently based on the auth method 
 | IAM User | Password | Set to the IAM User's AWS `Access Secret` |
 | OAuth 2.0 | User Name | Set to the OAuth `Client ID` |
 | OAuth 2.0 | Password | Set to the OAuth `Client Secret` |
-| Default (SDK) | User Name | No Value |
-| Default (SDK) | Password | No Value |
+| Default EC2 (SDK) | User Name | No Value |
+| Default EC2 (SDK) | Password | No Value |
 
 </details>
 </details>
