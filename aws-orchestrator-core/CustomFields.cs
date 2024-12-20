@@ -49,6 +49,10 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager
 
 	public class ACMCustomFields
 	{
+		[JsonProperty("UseEC2AssumeRole")]
+		[DefaultValue(false)]
+		public bool UseEC2AssumeRole { get; set; }
+
 		[JsonProperty("UseOAuth")]
 		[DefaultValue(false)]
 		public bool UseOAuth { get; set; }
@@ -56,6 +60,9 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager
 		[JsonProperty("UseIAM")]
 		[DefaultValue(false)]
 		public bool UseIAM { get; set; }
+
+		[JsonProperty("EC2AssumeRole")]
+		public string EC2AssumeRole { get; set; }
 
 		[JsonProperty("OAuthAssumeRole")]
 		public string OAuthAssumeRole { get; set; }
@@ -71,5 +78,8 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager
 
 		[JsonProperty("IAMAssumeRole")]
 		public string IAMAssumeRole { get; set; }
+
+		[JsonProperty("ExternalId")]
+		public string ExternalId { get; set; }
 	}
 }

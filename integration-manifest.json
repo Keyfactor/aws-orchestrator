@@ -46,6 +46,14 @@
           },
           "Properties": [
             {
+              "Name": "UseEC2AssumeRole",
+              "DisplayName": "Assume new Account / Role in EC2",
+              "Type": "Bool",
+              "DependsOn": null,
+              "DefaultValue": "false",
+              "Required": true
+            },
+            {
               "Name": "UseOAuth",
               "DisplayName": "Use OAuth 2.0 Provider",
               "Type": "Bool",
@@ -60,6 +68,14 @@
               "DependsOn": null,
               "DefaultValue": "false",
               "Required": true
+            },
+            {
+              "Name": "EC2AssumeRole",
+              "DisplayName": "AWS Role to Assume (EC2)",
+              "Type": "String",
+              "DependsOn": "UseEC2AssumeRole",
+              "DefaultValue": null,
+              "Required": false
             },
             {
               "Name": "OAuthScope",
@@ -98,6 +114,14 @@
               "DisplayName": "AWS Role to Assume (OAuth)",
               "Type": "String",
               "DependsOn": "UseOAuth",
+              "DefaultValue": null,
+              "Required": false
+            },
+            {
+              "Name": "ExternalId",
+              "DisplayName": "sts:ExternalId",
+              "Type": "String",
+              "DependsOn": null,
               "DefaultValue": null,
               "Required": false
             },
