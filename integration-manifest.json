@@ -172,7 +172,7 @@
                 "OnRemove": false,
                 "OnReenrollment": false
               },
-	      "Description": "The ACM tags that should be assigned to the certificate.  Multiple name/value pairs may be entered in the format of `Name1=Value1,Name2=Value2,...,NameN=ValueN`"
+	      "Description": "The optional ACM tags that should be assigned to the certificate.  Multiple name/value pairs may be entered in the format of `Name1=Value1,Name2=Value2,...,NameN=ValueN`"
             }
           ],
           "PasswordOptions": {
