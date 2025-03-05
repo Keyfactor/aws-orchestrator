@@ -5,7 +5,8 @@
   "status": "production",
   "update_catalog": true,
   "link_github": true,
-  "release_dir":  "aws-orchestrator-core/bin/Release/netcoreapp3.1",
+  "release_dir":  "aws-orchestrator-core/bin/Release",
+  "release_project": "aws-orchestrator-core/aws-orchestrator-core.csproj",
   "support_level": "kf-supported",
   "description": "The AWS ACM Orchestrator supports Inventory and Management of certificates in the AWS Certificate Manager. It supports three methods of authentication: Environmental Credentials loaded via the AWS SDK e.g. inside an EC2 instance; IAM User Credentials for assuming a Role as a specific user; OAuth-based Credentials to authenticate with an OAuth provider to assume a Role.",
   "about": {
@@ -13,24 +14,6 @@
       "UOFramework": "10.1",
       "keyfactor_platform_version": "9.10",
       "pam_support": true,
-      "win": {
-        "supportsCreateStore": false,
-        "supportsDiscovery": false,
-        "supportsManagementAdd": true,
-        "supportsManagementRemove": true,
-        "supportsReenrollment": false,
-        "supportsInventory": true,
-        "platformSupport": "Unused"
-      },
-      "linux": {
-        "supportsCreateStore": false,
-        "supportsDiscovery": false,
-        "supportsManagementAdd": true,
-        "supportsManagementRemove": true,
-        "supportsReenrollment": false,
-        "supportsInventory": true,
-        "platformSupport": "Unused"
-      },
       "store_types": [
         {
           "Name": "AWS Certificate Manager",
@@ -49,41 +32,51 @@
               "Name": "UseEC2AssumeRole",
               "DisplayName": "Assume new Account / Role in EC2",
               "Type": "Bool",
-              "DependsOn": null,
+              "DependsOn": "",
               "DefaultValue": "false",
-              "Required": true
+              "Required": true,
+              "IsPAMEligible": false,
+              "Description": "A switch to enable the store to assume a new Account ID and Role when using EC2 credentials"
             },
             {
               "Name": "UseOAuth",
               "DisplayName": "Use OAuth 2.0 Provider",
               "Type": "Bool",
-              "DependsOn": null,
+              "DependsOn": "",
               "DefaultValue": "false",
-              "Required": true
+              "Required": true,
+              "IsPAMEligible": false,
+              "Description": "A switch to enable the store to use an OAuth provider workflow to authenticate with AWS ACM"
             },
             {
               "Name": "UseIAM",
               "DisplayName": "Use IAM User Auth",
               "Type": "Bool",
-              "DependsOn": null,
+              "DependsOn": "",
               "DefaultValue": "false",
-              "Required": true
+              "Required": true,
+              "IsPAMEligible": false,
+              "Description": "A switch to enable the store to use IAM User auth to assume a role when authenticating with AWS ACM"
             },
             {
               "Name": "EC2AssumeRole",
               "DisplayName": "AWS Role to Assume (EC2)",
               "Type": "String",
               "DependsOn": "UseEC2AssumeRole",
-              "DefaultValue": null,
-              "Required": false
+              "DefaultValue": "",
+              "Required": false,
+              "IsPAMEligible": false,
+              "Description": "The AWS Role to assume using the EC2 instance credentials"
             },
             {
               "Name": "OAuthScope",
               "DisplayName": "OAuth Scope",
               "Type": "String",
               "DependsOn": "UseOAuth",
-              "DefaultValue": null,
-              "Required": false
+              "DefaultValue": "",
+              "Required": false,
+              "IsPAMEligible": false,
+              "Description": "This is the OAuth Scope needed for Okta OAuth, defined in Okta"
             },
             {
               "Name": "OAuthGrantType",
@@ -91,7 +84,9 @@
               "Type": "String",
               "DependsOn": "UseOAuth",
               "DefaultValue": "client_credentials",
-              "Required": false
+              "Required": false,
+              "IsPAMEligible": false,
+              "Description": "In OAuth 2.0, the term �grant type� refers to the way an application gets an access token. In Okta this is `client_credentials`"
             },
             {
               "Name": "OAuthUrl",
@@ -99,55 +94,59 @@
               "Type": "String",
               "DependsOn": "UseOAuth",
               "DefaultValue": "https://***/oauth2/default/v1/token",
-              "Required": false
+              "Required": false,
+              "IsPAMEligible": false,
+              "Description": "An optional parameter sts:ExternalId to pass with Assume Role calls"
             },
             {
               "Name": "IAMAssumeRole",
               "DisplayName": "AWS Role to Assume (IAM)",
               "Type": "String",
               "DependsOn": "UseIAM",
-              "DefaultValue": null,
-              "Required": false
+              "DefaultValue": "",
+              "Required": false,
+              "IsPAMEligible": false,
+              "Description": "The AWS Role to assume as the IAM User."
             },
             {
               "Name": "OAuthAssumeRole",
               "DisplayName": "AWS Role to Assume (OAuth)",
               "Type": "String",
               "DependsOn": "UseOAuth",
-              "DefaultValue": null,
-              "Required": false
+              "DefaultValue": "",
+              "Required": false,
+              "IsPAMEligible": false,
+              "Description": "The AWS Role to assume after getting an OAuth token."
             },
             {
               "Name": "ExternalId",
               "DisplayName": "sts:ExternalId",
               "Type": "String",
-              "DependsOn": null,
-              "DefaultValue": null,
-              "Required": false
+              "DependsOn": "",
+              "DefaultValue": "",
+              "Required": false,
+              "IsPAMEligible": false,
+              "Description": "An optional parameter sts:ExternalId to pass with Assume Role calls"
             },
             {
               "Name": "ServerUsername",
               "DisplayName": "Server Username",
               "Type": "Secret",
-              "DependsOn": null,
-              "DefaultValue": null,
-              "Required": false
+              "DependsOn": "",
+              "DefaultValue": "",
+              "Required": false,
+              "IsPAMEligible": true,
+              "Description": "The AWS Access Key for an IAM User or Client ID for OAuth. Depends on Auth method in use."
             },
             {
               "Name": "ServerPassword",
               "DisplayName": "Server Password",
               "Type": "Secret",
-              "DependsOn": null,
-              "DefaultValue": null,
-              "Required": false
-            },
-            {
-              "Name": "ServerUseSsl",
-              "DisplayName": "Use SSL",
-              "Type": "Bool",
-              "DependsOn": null,
-              "DefaultValue": "true",
-              "Required": true
+              "DependsOn": "",
+              "DefaultValue": "",
+              "Required": false,
+              "IsPAMEligible": true,
+              "Description": "The AWS Access Secret for an IAM User or Client Secret for OAuth. Depends on Auth method in use."
             }
           ],
           "EntryParameters": [
@@ -160,7 +159,20 @@
                 "OnAdd": true,
                 "OnRemove": false,
                 "OnReenrollment": false
-              }
+              },
+	      "Description": "When adding, this is the Region that the Certificate will be added to"
+            },
+            {
+              "Name": "ACM Tags",
+              "DisplayName": "ACM Tags",
+              "Type": "String",
+              "RequiredWhen": {
+                "HasPrivateKey": false,
+                "OnAdd": false,
+                "OnRemove": false,
+                "OnReenrollment": false
+              },
+	      "Description": "The ACM tags that should be assigned to the certificate.  Multiple name/value pairs may be entered in the format of `Name1=Value1,Name2=Value2,...,NameN=ValueN`"
             }
           ],
           "PasswordOptions": {
