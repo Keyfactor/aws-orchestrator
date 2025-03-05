@@ -160,7 +160,7 @@
                 "OnRemove": false,
                 "OnReenrollment": false
               },
-	      "Description": "When adding, this is the Region that the Certificate will be added to"
+              "Description": "When adding, this is the Region that the Certificate will be added to"
             },
             {
               "Name": "ACM Tags",
@@ -172,7 +172,7 @@
                 "OnRemove": false,
                 "OnReenrollment": false
               },
-	      "Description": "The optional ACM tags that should be assigned to the certificate.  Multiple name/value pairs may be entered in the format of `Name1=Value1,Name2=Value2,...,NameN=ValueN`"
+              "Description": "The optional ACM tags that should be assigned to the certificate.  Multiple name/value pairs may be entered in the format of `Name1=Value1,Name2=Value2,...,NameN=ValueN`"
             }
           ],
           "PasswordOptions": {
@@ -184,7 +184,9 @@
           "ServerRequired": true,
           "PowerShell": false,
           "BlueprintAllowed": true,
-          "CustomAliasAllowed": "Optional"
+          "CustomAliasAllowed": "Optional",
+          "ClientMachineDescription": "This is the AWS Account ID that will be used for access. This will dictate what certificates are usable by the orchestrator. Note: this does not have any effect on EC2 inferred credentials, which are limited to a specific role/account.",
+          "StorePathDescription": "The AWS Region, or a comma-separated list of multiple regions, the store will operate in."
         }        
       ]
     }
