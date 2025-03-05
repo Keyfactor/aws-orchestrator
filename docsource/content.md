@@ -10,6 +10,8 @@ AWS Certificate Manager is a service that lets you easily provision, manage, and
 
 ## Requirements
 
+### Setting up AWS Authentication
+
 Depending on your choice of authentication providers, choose the appropriate section:
 <details>
 <summary>AWS Certificate Manager <code>AWS-ACM</code></summary>
