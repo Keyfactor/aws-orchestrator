@@ -254,8 +254,8 @@ To use the AWS Certificate Manager (ACM) Universal Orchestrator extension, you *
         | --------- | ----------- |
         | Category | Select "AWS Certificate Manager" or the customized certificate store name from the previous step. |
         | Container | Optional container to associate certificate store with. |
-        | Client Machine |  |
-        | Store Path |  |
+        | Client Machine | This is the AWS Account ID that will be used for access. This will dictate what certificates are usable by the orchestrator. Note: this does not have any effect on EC2 inferred credentials, which are limited to a specific role/account. |
+        | Store Path | The AWS Region, or a comma-separated list of multiple regions, the store will operate in. |
         | Orchestrator | Select an approved orchestrator capable of managing `AWS-ACM` certificates. Specifically, one with the `AWS-ACM` capability. |
         | UseEC2AssumeRole | A switch to enable the store to assume a new Account ID and Role when using EC2 credentials |
         | UseOAuth | A switch to enable the store to use an OAuth provider workflow to authenticate with AWS ACM |
@@ -306,8 +306,8 @@ To use the AWS Certificate Manager (ACM) Universal Orchestrator extension, you *
         | --------- | ----------- |
         | Category | Select "AWS Certificate Manager" or the customized certificate store name from the previous step. |
         | Container | Optional container to associate certificate store with. |
-        | Client Machine |  |
-        | Store Path |  |
+        | Client Machine | This is the AWS Account ID that will be used for access. This will dictate what certificates are usable by the orchestrator. Note: this does not have any effect on EC2 inferred credentials, which are limited to a specific role/account. |
+        | Store Path | The AWS Region, or a comma-separated list of multiple regions, the store will operate in. |
         | Orchestrator | Select an approved orchestrator capable of managing `AWS-ACM` certificates. Specifically, one with the `AWS-ACM` capability. |
         | UseEC2AssumeRole | A switch to enable the store to assume a new Account ID and Role when using EC2 credentials |
         | UseOAuth | A switch to enable the store to use an OAuth provider workflow to authenticate with AWS ACM |
