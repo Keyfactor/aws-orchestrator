@@ -4,7 +4,7 @@
   "name": "AWS Certificate Manager (ACM) Orchestrator",
   "status": "production",
   "update_catalog": true,
-  "link_github": true,
+  "link_github": true, 
   "release_dir":  "aws-orchestrator-core/bin/Release/netcoreapp3.1",
   "release_project": "aws-orchestrator-core/aws-orchestrator-core.csproj",
   "support_level": "kf-supported",
