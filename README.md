@@ -54,6 +54,8 @@ The AWS Certificate Manager (ACM) Universal Orchestrator extension If you have a
 Before installing the AWS Certificate Manager (ACM) Universal Orchestrator extension, we recommend that you install [kfutil](https://github.com/Keyfactor/kfutil). Kfutil is a command-line tool that simplifies the process of creating store types, installing extensions, and instantiating certificate stores in Keyfactor Command.
 
 
+### Setting up AWS Authentication
+
 Depending on your choice of authentication providers, choose the appropriate section:
 <details>
 <summary>AWS Certificate Manager <code>AWS-ACM</code></summary>
