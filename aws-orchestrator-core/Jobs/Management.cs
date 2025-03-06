@@ -27,12 +27,15 @@ using System;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Collections.Generic;
 using Amazon;
 using Org.BouncyCastle.OpenSsl;
 using System.Linq;
 
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 using Keyfactor.Orchestrators.Extensions.Interfaces;
+using static Org.BouncyCastle.Math.EC.ECCurve;
+using System.Drawing;
 
 namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
 {
@@ -72,6 +75,8 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
                         FailureMessage = errorMessage
                     };
                 }
+
+                List<Amazon.CertificateManager.Model.Tag> acmTags = ParseACMTags(config.JobProperties);
 
                 Logger.LogTrace($"Targeting AWS Region - {region}");
                 var endpoint = RegionEndpoint.GetBySystemName(region);
@@ -172,7 +177,8 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
                                     {
                                         Certificate = serverCertStream,
                                         PrivateKey = privateStream,
-                                        CertificateChain = chainStream
+                                        CertificateChain = chainStream,
+                                        Tags = acmTags
                                     };
                                 }
                             }
@@ -331,6 +337,31 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
             // Builds a MemoryStream from the Base64 Encoded String Representation of a cert
             byte[] certBytes = Encoding.ASCII.GetBytes(certString);
             return new MemoryStream(certBytes);
+        }
+
+        private List<Amazon.CertificateManager.Model.Tag> ParseACMTags(Dictionary<string, object> jobProperties)
+        {
+            List<Amazon.CertificateManager.Model.Tag> acmTags = new List<Amazon.CertificateManager.Model.Tag>();
+
+            if (jobProperties != null && jobProperties.ContainsKey("ACM Tags"))
+            {
+                string acmTagsString = jobProperties["ACM Tags"].ToString();
+                string[] acmTagsAry = acmTagsString.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+                foreach(string acmTagString in acmTagsAry)
+                {
+                    string[] acmTagAry = acmTagString.Split("=", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                    if (acmTagAry.Length != 2)
+                    {
+                        throw new Exception($"Error parsing ACM Tags - invalid format.  Found {acmTagAry.Length.ToString()} items for a tag instead of 2 (key/value).");
+                    }
+
+                    Amazon.CertificateManager.Model.Tag acmTag = new Amazon.CertificateManager.Model.Tag() { Key = acmTagAry[0], Value = acmTagAry[1] };
+                    acmTags.Add(acmTag);
+                }
+            }
+
+            return acmTags;
         }
     }
 }

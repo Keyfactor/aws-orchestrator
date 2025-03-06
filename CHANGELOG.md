@@ -1,3 +1,8 @@
+2.2.0
+* Add entry parameter for ACM tags
+* Modify to produce .net6/8 dual builds
+* Modify README to use doctool
+
 2.1.0
 * Allow EC2 default credentials to also run the Assume Role command
 * Add sts:ExtenalId parameter option to Assume Role calls (not applicable when using OAuth)
