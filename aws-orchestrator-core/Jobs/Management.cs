@@ -177,7 +177,8 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
                                     {
                                         Certificate = serverCertStream,
                                         PrivateKey = privateStream,
-                                        CertificateChain = chainStream
+                                        CertificateChain = chainStream,
+                                        Tags = acmTags
                                     };
                                 }
                             }
