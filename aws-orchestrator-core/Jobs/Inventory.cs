@@ -176,9 +176,10 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
                 Logger.LogTrace($"Certificate: {certificate}");
                 string base64Cert = RemoveAnchors(certificate);
                 Logger.LogTrace($"Base64 Certificate: {base64Cert}");
-                var regionDict = new Dictionary<string, object>
+                var entryParams = new Dictionary<string, object>
                 {
-                    { "AWS Region", region }
+                    { "AWS Region", region },
+                    { "ACM Tags", GetCertificateTagsFromArn(alias) }
                 };
                 CurrentInventoryItem acsi = new CurrentInventoryItem()
                 {
@@ -187,7 +188,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
                     ItemStatus = OrchestratorInventoryItemStatus.Unknown,
                     PrivateKeyEntry = true,
                     UseChainLevel = false,
-                    Parameters = regionDict
+                    Parameters = entryParams
                 };
 
                 return acsi;
@@ -215,6 +216,34 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
             {
                 Logger.LogError($"Error Occurred in Inventory.GetCertificateFromArn: {e.Message}");
                 throw;
+            }
+        }
+
+        private string GetCertificateTagsFromArn(string arn)
+        {
+            try
+            {
+                Logger.MethodEntry();
+                Logger.LogTrace($"arn: {arn}");
+                ListTagsForCertificateRequest getTagsRequest = new ListTagsForCertificateRequest() { CertificateArn = arn };
+                ListTagsForCertificateResponse getTagsResponse = AsyncHelpers.RunSync(() => AcmClient.ListTagsForCertificateAsync(getTagsRequest));
+
+                string tags = "";
+                foreach (Amazon.CertificateManager.Model.Tag tag in getTagsResponse.Tags)
+                {
+                    tags += $",{tag.Key}={tag.Value}";
+                }
+
+                return tags.Length > 0 ? tags.Substring(1) : tags; 
+            }
+            catch (Exception e)
+            {
+                Logger.LogError($"Error Occurred in Inventory.GetCertificateTagsFromArn: {e.Message}");
+                throw;
+            }
+            finally
+            { 
+                Logger.MethodExit(); 
             }
         }
 
