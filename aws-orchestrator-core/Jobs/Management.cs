@@ -36,6 +36,7 @@ using ILogger = Microsoft.Extensions.Logging.ILogger;
 using Keyfactor.Orchestrators.Extensions.Interfaces;
 using static Org.BouncyCastle.Math.EC.ECCurve;
 using System.Drawing;
+using Amazon.IdentityManagement.Model;
 
 namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
 {
@@ -177,15 +178,18 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
                                     {
                                         Certificate = serverCertStream,
                                         PrivateKey = privateStream,
-                                        CertificateChain = chainStream,
-                                        Tags = acmTags
+                                        CertificateChain = chainStream
                                     };
                                 }
                             }
                         }
                         icr.CertificateArn = config.JobCertificate.Alias?.Length >= 20 ? config.JobCertificate.Alias.Trim() : null; //If an arn is provided, use it, this will perform a renewal/replace
+                        if (icr.CertificateArn == null )
+                        {
+                            icr.Tags = acmTags;
+                        }
                         Logger.LogTrace($"Certificate arn {icr.CertificateArn}");
-
+                        
                         ImportCertificateResponse IcrResponse = AsyncHelpers.RunSync(() => AcmClient.ImportCertificateAsync(icr));
                         Logger.LogTrace($"IcrResponse JSON: {JsonConvert.SerializeObject(IcrResponse)}");
                         // Ensure 200 Response
@@ -343,7 +347,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
         {
             List<Amazon.CertificateManager.Model.Tag> acmTags = new List<Amazon.CertificateManager.Model.Tag>();
 
-            if (jobProperties != null && jobProperties.ContainsKey("ACM Tags"))
+            if (jobProperties != null && jobProperties.ContainsKey("ACM Tags") && jobProperties["ACM Tags"] != null)
             {
                 string acmTagsString = jobProperties["ACM Tags"].ToString();
                 string[] acmTagsAry = acmTagsString.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
