@@ -32,6 +32,8 @@
 ## Overview
 
 AWS Certificate Manager is a service that lets you easily provision, manage, and deploy public and private Secure Sockets Layer/Transport Layer Security (SSL/TLS) certificates for use with AWS services and your internal connected resources. SSL/TLS certificates are used to secure network communications and establish the identity of websites over the Internet as well as resources on private networks. AWS Certificate Manager removes the time-consuming manual process of purchasing, uploading, and renewing SSL/TLS certificates.  The orchestrator supports Okta OAth authentication, as well as AWS IAM accounts. The Okta Support allows authentication against a 3rd party identity provider in AWS.  From there you can get temporary credentials for a role that you setup in each AWS Account.
+
+This integration also supports the reading of existing certificate ACM key/value pair tags during inventory and adding these tags when adding new certificates.  Modifying and adding ACM tags during certificate renewal, however, is NOT supported.  This is due to the fact that the AWS API does not allow for ACM tag modification when updating a certificate in one step.  This would need to be done in multiple steps, leading to the possibility of the certificate being left in an error state if any intermediate step were to fail.  However, while the modification/addition of ACM tags is not supported, all existing ACM tags WILL remain in place during renewal.
  
 ### Documentation
 
