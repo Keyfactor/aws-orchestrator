@@ -29,6 +29,7 @@ using Amazon;
 using System.Linq;
 
 using ILogger = Microsoft.Extensions.Logging.ILogger;
+using aws_auth_library;
 
 namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
 {
@@ -40,20 +41,20 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
         internal ILogger Logger;
         internal IPAMSecretResolver PamSecretResolver;
 
-        internal AuthUtilities AuthUtilities;
+        internal AwsAuthUtility AuthUtilities;
 
         public Inventory(IPAMSecretResolver pam, ILogger<Inventory> logger)
         {
             PamSecretResolver = pam;
             Logger = logger;
-            AuthUtilities = new AuthUtilities(pam, logger);
+            AuthUtilities = new AwsAuthUtility(pam, logger);
         }
 
         public JobResult ProcessJob(InventoryJobConfiguration jobConfiguration, SubmitInventoryUpdate submitInventoryUpdate)
         {
             Logger.MethodEntry();
             Logger.LogTrace($"Deserializing Cert Store Properties: {jobConfiguration.CertificateStoreDetails.Properties}");
-            ACMCustomFields customFields = JsonConvert.DeserializeObject<ACMCustomFields>(jobConfiguration.CertificateStoreDetails.Properties,
+            CustomFieldParameters customFields = JsonConvert.DeserializeObject<CustomFieldParameters>(jobConfiguration.CertificateStoreDetails.Properties,
                     new JsonSerializerSettings { DefaultValueHandling = DefaultValueHandling.Populate });
             Logger.LogTrace($"Populated ACMCustomFields: {JsonConvert.SerializeObject(customFields)}");
 
