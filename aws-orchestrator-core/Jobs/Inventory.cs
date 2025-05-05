@@ -1,4 +1,4 @@
-﻿// Copyright 2024 Keyfactor
+﻿// Copyright 2025 Keyfactor
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,13 +32,37 @@ using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
 {
-    abstract public class Inventory
+    public class Inventory : IInventoryJobExtension
     {
+        public string ExtensionName => "AWS-ACM";
+
         internal IAmazonCertificateManager AcmClient;
         internal ILogger Logger;
         internal IPAMSecretResolver PamSecretResolver;
 
         internal AuthUtilities AuthUtilities;
+
+        public Inventory(IPAMSecretResolver pam, ILogger<Inventory> logger)
+        {
+            PamSecretResolver = pam;
+            Logger = logger;
+            AuthUtilities = new AuthUtilities(pam, logger);
+        }
+
+        public JobResult ProcessJob(InventoryJobConfiguration jobConfiguration, SubmitInventoryUpdate submitInventoryUpdate)
+        {
+            Logger.MethodEntry();
+            Logger.LogTrace($"Deserializing Cert Store Properties: {jobConfiguration.CertificateStoreDetails.Properties}");
+            ACMCustomFields customFields = JsonConvert.DeserializeObject<ACMCustomFields>(jobConfiguration.CertificateStoreDetails.Properties,
+                    new JsonSerializerSettings { DefaultValueHandling = DefaultValueHandling.Populate });
+            Logger.LogTrace($"Populated ACMCustomFields: {JsonConvert.SerializeObject(customFields)}");
+
+            Logger.LogTrace("Resolving AWS Credentials object.");
+            Credentials providedCredentials = AuthUtilities.GetCredentials(customFields, jobConfiguration, jobConfiguration.CertificateStoreDetails);
+
+            Logger.LogTrace("AWS Credentials resolved. Performing Inventory.");
+            return PerformInventory(providedCredentials, jobConfiguration, submitInventoryUpdate);
+        }
 
         internal JobResult PerformInventory(Credentials awsCredentials, InventoryJobConfiguration config, SubmitInventoryUpdate siu)
         {

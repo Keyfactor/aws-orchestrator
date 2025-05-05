@@ -1,4 +1,4 @@
-﻿// Copyright 2024 Keyfactor
+﻿// Copyright 2025 Keyfactor
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -40,8 +40,10 @@ using Amazon.IdentityManagement.Model;
 
 namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
 {
-    abstract public class Management
+    public class Management : IManagementJobExtension
     {
+        public string ExtensionName => "AWS-ACM";
+
         private static String certStart = "-----BEGIN CERTIFICATE-----\n";
         private static String certEnd = "\n-----END CERTIFICATE-----";
 
@@ -53,6 +55,48 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
         internal IPAMSecretResolver PamSecretResolver;
 
         internal AuthUtilities AuthUtilities;
+
+        public Management(IPAMSecretResolver pam, ILogger<Management> logger)
+        {
+            PamSecretResolver = pam;
+            Logger = logger;
+            AuthUtilities = new AuthUtilities(pam, logger);
+        }
+
+        public JobResult ProcessJob(ManagementJobConfiguration jobConfiguration)
+        {
+            Logger.MethodEntry();
+            Logger.LogTrace($"Deserializing Cert Store Properties: {jobConfiguration.CertificateStoreDetails.Properties}");
+            ACMCustomFields customFields = JsonConvert.DeserializeObject<ACMCustomFields>(jobConfiguration.CertificateStoreDetails.Properties,
+                    new JsonSerializerSettings { DefaultValueHandling = DefaultValueHandling.Populate });
+            Logger.LogTrace($"Populated ACMCustomFields: {JsonConvert.SerializeObject(customFields)}");
+
+            Logger.LogTrace("Resolving AWS Credentials object.");
+            Credentials providedCredentials = AuthUtilities.GetCredentials(customFields, jobConfiguration, jobConfiguration.CertificateStoreDetails);
+            Logger.LogTrace("AWS Credentials resolved.");
+
+            // perform add or remove
+            if (jobConfiguration.OperationType.ToString() == "Add")
+            {
+                Logger.LogTrace("Performing Management Add.");
+                return PerformAddition(providedCredentials, jobConfiguration);
+            }
+            else if (jobConfiguration.OperationType.ToString() == "Remove")
+            {
+                Logger.LogTrace("Performing Management Remove.");
+                return PerformRemoval(providedCredentials, jobConfiguration);
+            }
+            else
+            {
+                Logger.LogError($"Unrecognized Management Operation Type: {jobConfiguration.OperationType}");
+                return new JobResult
+                {
+                    Result = OrchestratorJobStatusJobResult.Failure,
+                    JobHistoryId = jobConfiguration.JobHistoryId,
+                    FailureMessage = "Invalid Management Operation"
+                };
+            }
+        }
 
         internal JobResult PerformAddition(Credentials awsCredentials, ManagementJobConfiguration config)
         {
