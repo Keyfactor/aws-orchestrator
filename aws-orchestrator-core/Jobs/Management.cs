@@ -43,7 +43,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
 {
     public class Management : IManagementJobExtension
     {
-        public string ExtensionName => "AWS-ACM";
+        public string ExtensionName => "AWS-ACM-v3";
 
         private static String certStart = "-----BEGIN CERTIFICATE-----\n";
         private static String certEnd = "\n-----END CERTIFICATE-----";
@@ -68,12 +68,12 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
         {
             Logger.MethodEntry();
             Logger.LogTrace($"Deserializing Cert Store Properties: {jobConfiguration.CertificateStoreDetails.Properties}");
-            CustomFieldParameters customFields = JsonConvert.DeserializeObject<CustomFieldParameters>(jobConfiguration.CertificateStoreDetails.Properties,
+            AuthCustomFieldParameters customFields = JsonConvert.DeserializeObject<AuthCustomFieldParameters>(jobConfiguration.CertificateStoreDetails.Properties,
                     new JsonSerializerSettings { DefaultValueHandling = DefaultValueHandling.Populate });
             Logger.LogTrace($"Populated ACMCustomFields: {JsonConvert.SerializeObject(customFields)}");
 
             Logger.LogTrace("Resolving AWS Credentials object.");
-            Credentials providedCredentials = AuthUtilities.GetCredentials(customFields, jobConfiguration, jobConfiguration.CertificateStoreDetails);
+            AwsExtensionCredential providedCredentials = AuthUtilities.GetCredentials(customFields, jobConfiguration.CertificateStoreDetails);
             Logger.LogTrace("AWS Credentials resolved.");
 
             // perform add or remove
@@ -99,7 +99,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
             }
         }
 
-        internal JobResult PerformAddition(Credentials awsCredentials, ManagementJobConfiguration config)
+        internal JobResult PerformAddition(AwsExtensionCredential awsCredentials, ManagementJobConfiguration config)
         {
             try
             {
@@ -138,9 +138,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
                 {
                     // use credentials configured by assuming a role through AWS STS
                     Logger.LogDebug("Using credentials from assuming a Role through AWS STS");
-                    AcmClient = new AmazonCertificateManagerClient(awsCredentials.AccessKeyId,
-                        awsCredentials.SecretAccessKey, region: endpoint,
-                        awsSessionToken: awsCredentials.SessionToken);
+                    AcmClient = new AmazonCertificateManagerClient(awsCredentials.GetAwsCredentialObject(), awsCredentials.Region);
                 }
 
                 using (AcmClient)
@@ -287,7 +285,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
             }
         }
 
-        internal JobResult PerformRemoval(Credentials awsCredentials, ManagementJobConfiguration config)
+        internal JobResult PerformRemoval(AwsExtensionCredential awsCredentials, ManagementJobConfiguration config)
         {
             try
             {
@@ -318,9 +316,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
                 {
                     // use credentials configured by assuming a role through AWS STS
                     Logger.LogDebug("Using credentials from assuming a Role through AWS STS");
-                    AcmClient = new AmazonCertificateManagerClient(awsCredentials.AccessKeyId,
-                        awsCredentials.SecretAccessKey, region: endpoint,
-                        awsSessionToken: awsCredentials.SessionToken);
+                    AcmClient = new AmazonCertificateManagerClient(awsCredentials.GetAwsCredentialObject(), awsCredentials.Region);
                 }
 
                 using (AcmClient)

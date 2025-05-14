@@ -35,7 +35,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
 {
     public class Inventory : IInventoryJobExtension
     {
-        public string ExtensionName => "AWS-ACM";
+        public string ExtensionName => "AWS-ACM-v3";
 
         internal IAmazonCertificateManager AcmClient;
         internal ILogger Logger;
@@ -54,18 +54,18 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
         {
             Logger.MethodEntry();
             Logger.LogTrace($"Deserializing Cert Store Properties: {jobConfiguration.CertificateStoreDetails.Properties}");
-            CustomFieldParameters customFields = JsonConvert.DeserializeObject<CustomFieldParameters>(jobConfiguration.CertificateStoreDetails.Properties,
+            AuthCustomFieldParameters customFields = JsonConvert.DeserializeObject<AuthCustomFieldParameters>(jobConfiguration.CertificateStoreDetails.Properties,
                     new JsonSerializerSettings { DefaultValueHandling = DefaultValueHandling.Populate });
             Logger.LogTrace($"Populated ACMCustomFields: {JsonConvert.SerializeObject(customFields)}");
 
             Logger.LogTrace("Resolving AWS Credentials object.");
-            Credentials providedCredentials = AuthUtilities.GetCredentials(customFields, jobConfiguration, jobConfiguration.CertificateStoreDetails);
+            AwsExtensionCredential providedCredentials = AuthUtilities.GetCredentials(customFields, jobConfiguration.CertificateStoreDetails);
 
             Logger.LogTrace("AWS Credentials resolved. Performing Inventory.");
             return PerformInventory(providedCredentials, jobConfiguration, submitInventoryUpdate);
         }
 
-        internal JobResult PerformInventory(Credentials awsCredentials, InventoryJobConfiguration config, SubmitInventoryUpdate siu)
+        internal JobResult PerformInventory(AwsExtensionCredential awsCredentials, InventoryJobConfiguration config, SubmitInventoryUpdate siu)
         {
             Logger.MethodEntry();
             bool warningFlag = false;
@@ -98,9 +98,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
                         {
                             // use credentials configured by assuming a role through AWS STS
                             Logger.LogDebug("Using credentials from assuming a Role through AWS STS");
-                            AcmClient = new AmazonCertificateManagerClient(awsCredentials.AccessKeyId,
-                                awsCredentials.SecretAccessKey, region: endpoint,
-                                awsSessionToken: awsCredentials.SessionToken);
+                            AcmClient = new AmazonCertificateManagerClient(awsCredentials.GetAwsCredentialObject(), awsCredentials.Region);
                         }
 
                         var certList = AsyncHelpers.RunSync(() => AcmClient.ListCertificatesAsync());

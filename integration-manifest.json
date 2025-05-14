@@ -16,9 +16,9 @@
       "pam_support": true,
       "store_types": [
         {
-          "Name": "AWS Certificate Manager",
-          "ShortName": "AWS-ACM",
-          "Capability": "AWS-ACM",
+          "Name": "AWS Certificate Manager v3",
+          "ShortName": "AWS-ACM-v3",
+          "Capability": "AWS-ACM-v3",
           "LocalStore": false,
           "SupportedOperations": {
             "Add": true,
@@ -29,14 +29,24 @@
           },
           "Properties": [
             {
-              "Name": "UseEC2AssumeRole",
-              "DisplayName": "Assume new Account / Role in EC2",
+              "Name": "UseDefaultSdkAuth",
+              "DisplayName": "Use Default SDK Auth",
               "Type": "Bool",
               "DependsOn": "",
               "DefaultValue": "false",
               "Required": true,
               "IsPAMEligible": false,
-              "Description": "A switch to enable the store to assume a new Account ID and Role when using EC2 credentials"
+              "Description": "A switch to enable the store to use Default SDK credentials"
+            },
+            {
+              "Name": "DefaultSdkAssumeRole",
+              "DisplayName": "Assume new Role using Default SDK Auth",
+              "Type": "Bool",
+              "DependsOn": "UseDefaultSdkAuth",
+              "DefaultValue": "false",
+              "Required": false,
+              "IsPAMEligible": false,
+              "Description": "A switch to enable the store to assume a new Role when using Default SDK credentials"
             },
             {
               "Name": "UseOAuth",
@@ -47,26 +57,6 @@
               "Required": true,
               "IsPAMEligible": false,
               "Description": "A switch to enable the store to use an OAuth provider workflow to authenticate with AWS ACM"
-            },
-            {
-              "Name": "UseIAM",
-              "DisplayName": "Use IAM User Auth",
-              "Type": "Bool",
-              "DependsOn": "",
-              "DefaultValue": "false",
-              "Required": true,
-              "IsPAMEligible": false,
-              "Description": "A switch to enable the store to use IAM User auth to assume a role when authenticating with AWS ACM"
-            },
-            {
-              "Name": "EC2AssumeRole",
-              "DisplayName": "AWS Role to Assume (EC2)",
-              "Type": "String",
-              "DependsOn": "UseEC2AssumeRole",
-              "DefaultValue": "",
-              "Required": false,
-              "IsPAMEligible": false,
-              "Description": "The AWS Role to assume using the EC2 instance credentials"
             },
             {
               "Name": "OAuthScope",
@@ -99,24 +89,54 @@
               "Description": "An optional parameter sts:ExternalId to pass with Assume Role calls"
             },
             {
-              "Name": "IAMAssumeRole",
-              "DisplayName": "AWS Role to Assume (IAM)",
-              "Type": "String",
-              "DependsOn": "UseIAM",
+              "Name": "OAuthClientId",
+              "DisplayName": "OAuth Client ID",
+              "Type": "Secret",
+              "DependsOn": "",
               "DefaultValue": "",
               "Required": false,
-              "IsPAMEligible": false,
-              "Description": "The AWS Role to assume as the IAM User."
+              "IsPAMEligible": true,
+              "Description": "The Client ID for OAuth."
             },
             {
-              "Name": "OAuthAssumeRole",
-              "DisplayName": "AWS Role to Assume (OAuth)",
-              "Type": "String",
-              "DependsOn": "UseOAuth",
+              "Name": "OAuthClientSecret",
+              "DisplayName": "OAuth Client Secret",
+              "Type": "Secret",
+              "DependsOn": "",
               "DefaultValue": "",
               "Required": false,
+              "IsPAMEligible": true,
+              "Description": "The Client Secret for OAuth."
+            },
+            {
+              "Name": "UseIAM",
+              "DisplayName": "Use IAM User Auth",
+              "Type": "Bool",
+              "DependsOn": "",
+              "DefaultValue": "false",
+              "Required": true,
               "IsPAMEligible": false,
-              "Description": "The AWS Role to assume after getting an OAuth token."
+              "Description": "A switch to enable the store to use IAM User auth to assume a role when authenticating with AWS ACM"
+            },
+            {
+              "Name": "IamUserAccessKey",
+              "DisplayName": "IAM User Access Key",
+              "Type": "Secret",
+              "DependsOn": "",
+              "DefaultValue": "",
+              "Required": false,
+              "IsPAMEligible": true,
+              "Description": "The AWS Access Key for an IAM User"
+            },
+            {
+              "Name": "IamUserAccessSecret",
+              "DisplayName": "IAM User Access Secret",
+              "Type": "Secret",
+              "DependsOn": "",
+              "DefaultValue": "",
+              "Required": false,
+              "IsPAMEligible": true,
+              "Description": "The AWS Access Secret for an IAM User."
             },
             {
               "Name": "ExternalId",
@@ -127,41 +147,9 @@
               "Required": false,
               "IsPAMEligible": false,
               "Description": "An optional parameter sts:ExternalId to pass with Assume Role calls"
-            },
-            {
-              "Name": "ServerUsername",
-              "DisplayName": "Server Username",
-              "Type": "Secret",
-              "DependsOn": "",
-              "DefaultValue": "",
-              "Required": false,
-              "IsPAMEligible": true,
-              "Description": "The AWS Access Key for an IAM User or Client ID for OAuth. Depends on Auth method in use."
-            },
-            {
-              "Name": "ServerPassword",
-              "DisplayName": "Server Password",
-              "Type": "Secret",
-              "DependsOn": "",
-              "DefaultValue": "",
-              "Required": false,
-              "IsPAMEligible": true,
-              "Description": "The AWS Access Secret for an IAM User or Client Secret for OAuth. Depends on Auth method in use."
             }
           ],
           "EntryParameters": [
-            {
-              "Name": "AWS Region",
-              "DisplayName": "AWS Region",
-              "Type": "String",
-              "RequiredWhen": {
-                "HasPrivateKey": false,
-                "OnAdd": true,
-                "OnRemove": false,
-                "OnReenrollment": false
-              },
-              "Description": "When adding, this is the Region that the Certificate will be added to"
-            },
             {
               "Name": "ACM Tags",
               "DisplayName": "ACM Tags",
@@ -181,12 +169,12 @@
             "Style": "Default"
           },
           "PrivateKeyAllowed": "Required",
-          "ServerRequired": true,
+          "ServerRequired": false,
           "PowerShell": false,
           "BlueprintAllowed": true,
           "CustomAliasAllowed": "Optional",
-          "ClientMachineDescription": "This is the AWS Account ID that will be used for access. This will dictate what certificates are usable by the orchestrator. Note: this does not have any effect on EC2 inferred credentials, which are limited to a specific role/account.",
-          "StorePathDescription": "The AWS Region, or a comma-separated list of multiple regions, the store will operate in."
+          "ClientMachineDescription": "This is a full AWS ARN specifying a Role. This is the Role that will be assumed in any Auth scenario performing Assume Role. This will dictate what certificates are usable by the orchestrator. A preceeding [profile] name should be included if a Credential Profile is to be used in Default Sdk Auth.",
+          "StorePathDescription": "A single specified AWS Region the store will operate in. Additional regions should get their own store defined."
         }        
       ]
     }
