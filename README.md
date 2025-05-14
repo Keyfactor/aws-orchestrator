@@ -190,13 +190,14 @@ To use the AWS Certificate Manager (ACM) Universal Orchestrator extension, you *
 
 
 
-    </details>
+
 
 ## Installation
 
 1. **Download the latest AWS Certificate Manager (ACM) Universal Orchestrator extension from GitHub.** 
 
     Navigate to the [AWS Certificate Manager (ACM) Universal Orchestrator extension GitHub version page](https://github.com/Keyfactor/aws-orchestrator/releases/latest). Refer to the compatibility matrix below to determine whether the `net6.0` or `net8.0` asset should be downloaded. Then, click the corresponding asset to download the zip archive.
+
     | Universal Orchestrator Version | Latest .NET version installed on the Universal Orchestrator server | `rollForward` condition in `Orchestrator.runtimeconfig.json` | `aws-orchestrator` .NET version to download |
     | --------- | ----------- | ----------- | ----------- |
     | Older than `11.0.0` | | | `net6.0` |
@@ -233,13 +234,15 @@ To use the AWS Certificate Manager (ACM) Universal Orchestrator extension, you *
     To configure a PAM provider, [reference the Keyfactor Integration Catalog](https://keyfactor.github.io/integrations-catalog/content/pam) to select an extension, and follow the associated instructions to install it on the Universal Orchestrator (remote).
 
 
-> The above installation steps can be supplimented by the [official Command documentation](https://software.keyfactor.com/Core-OnPrem/Current/Content/InstallingAgents/NetCoreOrchestrator/CustomExtensions.htm?Highlight=extensions).
+> The above installation steps can be supplemented by the [official Command documentation](https://software.keyfactor.com/Core-OnPrem/Current/Content/InstallingAgents/NetCoreOrchestrator/CustomExtensions.htm?Highlight=extensions).
 
 
 
 ## Defining Certificate Stores
 
 
+
+### Store Creation
 
 * **Manually with the Command UI**
 
@@ -252,6 +255,7 @@ To use the AWS Certificate Manager (ACM) Universal Orchestrator extension, you *
     2. **Add a Certificate Store.**
 
         Click the Add button to add a new Certificate Store. Use the table below to populate the **Attributes** in the **Add** form.
+
         | Attribute | Description |
         | --------- | ----------- |
         | Category | Select "AWS Certificate Manager" or the customized certificate store name from the previous step. |
@@ -271,26 +275,8 @@ To use the AWS Certificate Manager (ACM) Universal Orchestrator extension, you *
         | ExternalId | An optional parameter sts:ExternalId to pass with Assume Role calls |
         | ServerUsername | The AWS Access Key for an IAM User or Client ID for OAuth. Depends on Auth method in use. |
         | ServerPassword | The AWS Access Secret for an IAM User or Client Secret for OAuth. Depends on Auth method in use. |
-
-
-        
-
-        <details><summary>Attributes eligible for retrieval by a PAM Provider on the Universal Orchestrator</summary>
-
-        If a PAM provider was installed _on the Universal Orchestrator_ in the [Installation](#Installation) section, the following parameters can be configured for retrieval _on the Universal Orchestrator_.
-        | Attribute | Description |
-        | --------- | ----------- |
-        | ServerUsername | The AWS Access Key for an IAM User or Client ID for OAuth. Depends on Auth method in use. |
-        | ServerPassword | The AWS Access Secret for an IAM User or Client Secret for OAuth. Depends on Auth method in use. |
-
-
-        Please refer to the **Universal Orchestrator (remote)** usage section ([PAM providers on the Keyfactor Integration Catalog](https://keyfactor.github.io/integrations-catalog/content/pam)) for your selected PAM provider for instructions on how to load attributes orchestrator-side.
-
-        > Any secret can be rendered by a PAM provider _installed on the Keyfactor Command server_. The above parameters are specific to attributes that can be fetched by an installed PAM provider running on the Universal Orchestrator server itself. 
-        </details>
-        
-
     </details>
+
 
 * **Using kfutil**
     
@@ -304,6 +290,7 @@ To use the AWS Certificate Manager (ACM) Universal Orchestrator extension, you *
     2. **Populate the generated CSV file**
 
         Open the CSV file, and reference the table below to populate parameters for each **Attribute**.
+
         | Attribute | Description |
         | --------- | ----------- |
         | Category | Select "AWS Certificate Manager" or the customized certificate store name from the previous step. |
@@ -323,31 +310,29 @@ To use the AWS Certificate Manager (ACM) Universal Orchestrator extension, you *
         | ExternalId | An optional parameter sts:ExternalId to pass with Assume Role calls |
         | ServerUsername | The AWS Access Key for an IAM User or Client ID for OAuth. Depends on Auth method in use. |
         | ServerPassword | The AWS Access Secret for an IAM User or Client Secret for OAuth. Depends on Auth method in use. |
-
-
-        
-
-        <details><summary>Attributes eligible for retrieval by a PAM Provider on the Universal Orchestrator</summary>
-
-        If a PAM provider was installed _on the Universal Orchestrator_ in the [Installation](#Installation) section, the following parameters can be configured for retrieval _on the Universal Orchestrator_.
-        | Attribute | Description |
-        | --------- | ----------- |
-        | ServerUsername | The AWS Access Key for an IAM User or Client ID for OAuth. Depends on Auth method in use. |
-        | ServerPassword | The AWS Access Secret for an IAM User or Client Secret for OAuth. Depends on Auth method in use. |
-
-
-        > Any secret can be rendered by a PAM provider _installed on the Keyfactor Command server_. The above parameters are specific to attributes that can be fetched by an installed PAM provider running on the Universal Orchestrator server itself. 
-        </details>
-        
-
-    3. **Import the CSV file to create the certificate stores** 
+    3. **Import the CSV file to create the certificate stores**
 
         ```shell
         kfutil stores import csv --store-type-name AWS-ACM --file AWS-ACM.csv
         ```
+
+* **PAM Provider Eligible Fields**
+    <details><summary>Attributes eligible for retrieval by a PAM Provider on the Universal Orchestrator</summary>
+
+    If a PAM provider was installed _on the Universal Orchestrator_ in the [Installation](#Installation) section, the following parameters can be configured for retrieval _on the Universal Orchestrator_.
+
+    | Attribute | Description |
+    | --------- | ----------- |
+    | ServerUsername | The AWS Access Key for an IAM User or Client ID for OAuth. Depends on Auth method in use. |
+    | ServerPassword | The AWS Access Secret for an IAM User or Client Secret for OAuth. Depends on Auth method in use. |
+
+    Please refer to the **Universal Orchestrator (remote)** usage section ([PAM providers on the Keyfactor Integration Catalog](https://keyfactor.github.io/integrations-catalog/content/pam)) for your selected PAM provider for instructions on how to load attributes orchestrator-side.
+
+    > Any secret can be rendered by a PAM provider _installed on the Keyfactor Command server_. The above parameters are specific to attributes that can be fetched by an installed PAM provider running on the Universal Orchestrator server itself.
     </details>
 
-> The content in this section can be supplimented by the [official Command documentation](https://software.keyfactor.com/Core-OnPrem/Current/Content/ReferenceGuide/Certificate%20Stores.htm?Highlight=certificate%20store).
+
+> The content in this section can be supplemented by the [official Command documentation](https://software.keyfactor.com/Core-OnPrem/Current/Content/ReferenceGuide/Certificate%20Stores.htm?Highlight=certificate%20store).
 
 
 
