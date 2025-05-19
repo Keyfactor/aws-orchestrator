@@ -119,7 +119,7 @@
               "Description": "A switch to enable the store to use IAM User auth to assume a role when authenticating with AWS ACM"
             },
             {
-              "Name": "IamUserAccessKey",
+              "Name": "IAMUserAccessKey",
               "DisplayName": "IAM User Access Key",
               "Type": "Secret",
               "DependsOn": "",
@@ -129,7 +129,7 @@
               "Description": "The AWS Access Key for an IAM User"
             },
             {
-              "Name": "IamUserAccessSecret",
+              "Name": "IAMUserAccessSecret",
               "DisplayName": "IAM User Access Secret",
               "Type": "Secret",
               "DependsOn": "",

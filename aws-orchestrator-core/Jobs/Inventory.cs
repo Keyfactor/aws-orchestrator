@@ -56,10 +56,20 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
             Logger.LogTrace($"Deserializing Cert Store Properties: {jobConfiguration.CertificateStoreDetails.Properties}");
             AuthCustomFieldParameters customFields = JsonConvert.DeserializeObject<AuthCustomFieldParameters>(jobConfiguration.CertificateStoreDetails.Properties,
                     new JsonSerializerSettings { DefaultValueHandling = DefaultValueHandling.Populate });
+            //
+            // TODO: Prevent logging of credentials, changes to custom fields in this release means logging this object (AND Properties above) logs credentials!!
+            //
             Logger.LogTrace($"Populated ACMCustomFields: {JsonConvert.SerializeObject(customFields)}");
 
+            AuthenticationParameters authParams = new AuthenticationParameters
+            {
+                RoleARN = jobConfiguration.CertificateStoreDetails.ClientMachine,
+                Region = jobConfiguration.CertificateStoreDetails.StorePath,
+                CustomFields = customFields
+            };
+
             Logger.LogTrace("Resolving AWS Credentials object.");
-            AwsExtensionCredential providedCredentials = AuthUtilities.GetCredentials(customFields, jobConfiguration.CertificateStoreDetails);
+            AwsExtensionCredential providedCredentials = AuthUtilities.GetCredentials(authParams);
 
             Logger.LogTrace("AWS Credentials resolved. Performing Inventory.");
             return PerformInventory(providedCredentials, jobConfiguration, submitInventoryUpdate);
