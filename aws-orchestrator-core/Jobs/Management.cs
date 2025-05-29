@@ -37,7 +37,8 @@ using Keyfactor.Orchestrators.Extensions.Interfaces;
 using static Org.BouncyCastle.Math.EC.ECCurve;
 using System.Drawing;
 using Amazon.IdentityManagement.Model;
-using aws_auth_library;
+using Keyfactor.Extensions.Aws;
+using Keyfactor.Extensions.Aws.Models;
 
 namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
 {

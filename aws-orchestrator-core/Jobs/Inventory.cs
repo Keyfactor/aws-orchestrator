@@ -29,7 +29,8 @@ using Amazon;
 using System.Linq;
 
 using ILogger = Microsoft.Extensions.Logging.ILogger;
-using aws_auth_library;
+using Keyfactor.Extensions.Aws;
+using Keyfactor.Extensions.Aws.Models;
 
 namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
 {

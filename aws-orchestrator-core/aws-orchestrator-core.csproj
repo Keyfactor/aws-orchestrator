@@ -10,11 +10,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="aws-auth-library" Version="0.0.4" />
     <PackageReference Include="AWSSDK.CertificateManager" Version="3.7.101.21" />
     <PackageReference Include="AWSSDK.Core" Version="3.7.102" />
     <PackageReference Include="AWSSDK.IdentityManagement" Version="3.7.100.33" />
     <PackageReference Include="AWSSDK.SecurityToken" Version="3.7.100.32" />
+    <PackageReference Include="Keyfactor.Extensions.Aws.Auth" Version="0.2.0" />
     <PackageReference Include="Keyfactor.Logging" Version="1.1.1" />
     <PackageReference Include="Keyfactor.Orchestrators.IOrchestratorJobExtensions" Version="0.7.0" />
     <PackageReference Include="Keyfactor.Orchestrators.IOrchestratorRegistrationUpdater" Version="1.0.3" />

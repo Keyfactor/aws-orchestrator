@@ -76,7 +76,7 @@
               "DefaultValue": "client_credentials",
               "Required": false,
               "IsPAMEligible": false,
-              "Description": "In OAuth 2.0, the term �grant type� refers to the way an application gets an access token. In Okta this is `client_credentials`"
+              "Description": "In OAuth 2.0, the term 'grant type' refers to the way an application gets an access token. In Okta this is `client_credentials`"
             },
             {
               "Name": "OAuthUrl",
@@ -94,7 +94,7 @@
               "Type": "Secret",
               "DependsOn": "",
               "DefaultValue": "",
-              "Required": false,
+              "Required": true,
               "IsPAMEligible": true,
               "Description": "The Client ID for OAuth."
             },
@@ -104,7 +104,7 @@
               "Type": "Secret",
               "DependsOn": "",
               "DefaultValue": "",
-              "Required": false,
+              "Required": true,
               "IsPAMEligible": true,
               "Description": "The Client Secret for OAuth."
             },
@@ -124,7 +124,7 @@
               "Type": "Secret",
               "DependsOn": "",
               "DefaultValue": "",
-              "Required": false,
+              "Required": true,
               "IsPAMEligible": true,
               "Description": "The AWS Access Key for an IAM User"
             },
@@ -134,7 +134,7 @@
               "Type": "Secret",
               "DependsOn": "",
               "DefaultValue": "",
-              "Required": false,
+              "Required": true,
               "IsPAMEligible": true,
               "Description": "The AWS Access Secret for an IAM User."
             },
