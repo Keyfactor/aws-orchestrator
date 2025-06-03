@@ -107,9 +107,6 @@ To use the AWS Certificate Manager (ACM) Universal Orchestrator extension, you *
 
 
 
-
-
-
 TODO Overview is a required section
 TODO Global Store Type Section is an optional section. If this section doesn't seem necessary on initial glance, please delete it. Refer to the docs on [Confluence](https://keyfactor.atlassian.net/wiki/x/SAAyHg) for more info
 
