@@ -100,15 +100,6 @@ As one option for #3, to set up Role Auth for an EC2 instance, follow the steps 
 
 </details>
 
-### AWS Certificate Manager v3 Requirements
-TODO Global Store Type Section is an optional section. If this section doesn't seem necessary on initial glance, please delete it. Refer to the docs on [Confluence](https://keyfactor.atlassian.net/wiki/x/SAAyHg) for more info
-
-
-TODO Requirements is an optional section. If this section doesn't seem necessary on initial glance, please delete it. Refer to the docs on [Confluence](https://keyfactor.atlassian.net/wiki/x/SAAyHg) for more info
-
-
-
-
 
 ## AWS-ACM-v3 Certificate Store Type
 
@@ -118,6 +109,14 @@ To use the AWS Certificate Manager (ACM) Universal Orchestrator extension, you *
 
 TODO Overview is a required section
 TODO Global Store Type Section is an optional section. If this section doesn't seem necessary on initial glance, please delete it. Refer to the docs on [Confluence](https://keyfactor.atlassian.net/wiki/x/SAAyHg) for more info
+
+
+
+
+
+#### AWS Certificate Manager v3 Requirements
+
+TODO Requirements is an optional section. If this section doesn't seem necessary on initial glance, please delete it. Refer to the docs on [Confluence](https://keyfactor.atlassian.net/wiki/x/SAAyHg) for more info
 
 
 
@@ -382,13 +381,8 @@ Please refer to the **Universal Orchestrator (remote)** usage section ([PAM prov
 </details>
 
 
-
 > The content in this section can be supplemented by the [official Command documentation](https://software.keyfactor.com/Core-OnPrem/Current/Content/ReferenceGuide/Certificate%20Stores.htm?Highlight=certificate%20store).
 
-
-
-
-</details>
 
 ## Discovering Certificate Stores with the Discovery Job
 
