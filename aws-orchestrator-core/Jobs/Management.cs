@@ -62,7 +62,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
         {
             PamSecretResolver = pam;
             Logger = logger;
-            AuthUtilities = new AwsAuthUtility(pam, logger);
+            AuthUtilities = new AwsAuthUtility(pam);
         }
 
         public JobResult ProcessJob(ManagementJobConfiguration jobConfiguration)
@@ -116,41 +116,11 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
             {
                 Logger.MethodEntry();
 
-                string region;
-                if (config.JobProperties.ContainsKey("AWS Region"))
-                {
-                    region = config.JobProperties["AWS Region"].ToString();
-                }
-                else
-                {
-                    var errorMessage = "Required field for Management Job - AWS Region - was not present.";
-                    Logger.LogError(errorMessage);
-                    return new JobResult
-                    {
-                        Result = OrchestratorJobStatusJobResult.Failure,
-                        JobHistoryId = config.JobHistoryId,
-                        FailureMessage = errorMessage
-                    };
-                }
-
                 List<Amazon.CertificateManager.Model.Tag> acmTags = ParseACMTags(config.JobProperties);
 
-                Logger.LogTrace($"Targeting AWS Region - {region}");
-                var endpoint = RegionEndpoint.GetBySystemName(region);
-                Logger.LogTrace($"Got Endpoint From Job Properties JSON: {JsonConvert.SerializeObject(endpoint)}");
-
-                if (awsCredentials == null)
-                {
-                    // use default SDK auth for ACM client
-                    Logger.LogDebug("Using default credential lookup methods through the AWS SDK");
-                    AcmClient = new AmazonCertificateManagerClient(region: endpoint);
-                }
-                else
-                {
-                    // use credentials configured by assuming a role through AWS STS
-                    Logger.LogDebug("Using credentials from assuming a Role through AWS STS");
-                    AcmClient = new AmazonCertificateManagerClient(awsCredentials.GetAwsCredentialObject(), awsCredentials.Region);
-                }
+                Logger.LogDebug($"Certificate Add job will target AWS Region - {awsCredentials.Region.SystemName}");
+                AcmClient = new AmazonCertificateManagerClient(awsCredentials.GetAwsCredentialObject(), awsCredentials.Region);
+                Logger.LogTrace("ACM client created with loaded AWS Credentials and specified Region.");
 
                 using (AcmClient)
                 {
@@ -314,21 +284,15 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
                 }
 
                 Logger.LogTrace($"Certificate Alias - {config.JobCertificate.Alias}");
-                var endpoint = RegionEndpoint.GetBySystemName(config.JobCertificate.Alias.Split(":")[3]); //Get from ARN so user does not have to enter
-                Logger.LogTrace($"Got Endpoint From ARN from Certificate Alias: {JsonConvert.SerializeObject(endpoint)}");
 
-                if (awsCredentials == null)
-                {
-                    // use default SDK auth for ACM client
-                    Logger.LogDebug("Using default credential lookup methods through the AWS SDK");
-                    AcmClient = new AmazonCertificateManagerClient(region: endpoint);
-                }
-                else
-                {
-                    // use credentials configured by assuming a role through AWS STS
-                    Logger.LogDebug("Using credentials from assuming a Role through AWS STS");
-                    AcmClient = new AmazonCertificateManagerClient(awsCredentials.GetAwsCredentialObject(), awsCredentials.Region);
-                }
+                // deprecated method of finding region, it is now specifically known in Certificate Store Path field
+                //var endpoint = RegionEndpoint.GetBySystemName(config.JobCertificate.Alias.Split(":")[3]); //Get from ARN so user does not have to enter
+                //Logger.LogTrace($"Got Endpoint From ARN from Certificate Alias: {JsonConvert.SerializeObject(endpoint)}");
+
+
+                Logger.LogDebug($"Certificate Remove job will target AWS Region - {awsCredentials.Region.SystemName}");
+                AcmClient = new AmazonCertificateManagerClient(awsCredentials.GetAwsCredentialObject(), awsCredentials.Region);
+                Logger.LogTrace("ACM client created with loaded AWS Credentials and specified Region.");
 
                 using (AcmClient)
                 {

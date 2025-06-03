@@ -48,7 +48,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
         {
             PamSecretResolver = pam;
             Logger = logger;
-            AuthUtilities = new AwsAuthUtility(pam, logger);
+            AuthUtilities = new AwsAuthUtility(pam);
         }
 
         public JobResult ProcessJob(InventoryJobConfiguration jobConfiguration, SubmitInventoryUpdate submitInventoryUpdate)
@@ -81,89 +81,67 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
             Logger.MethodEntry();
             bool warningFlag = false;
             int totalCertificates = 0;
-            StringBuilder sb = new StringBuilder();
-            sb.Append("");
             try
             {
-                //Get List of regions from Cert Store Path
-                var regions = config.CertificateStoreDetails.StorePath.Split(',');
-                Logger.LogTrace($"Raw Regions CSV from AWSRegions Custom Field: {regions}");
-
                 List<CurrentInventoryItem> inventoryItems = new List<CurrentInventoryItem>();
 
-                foreach (var region in regions)
+                try
                 {
-                    Logger.LogTrace($"Working on AWS Region - {region}");
-                    try
+                    Logger.LogDebug($"Certificate Inventory job will target AWS Region - {awsCredentials.Region.SystemName}");
+                    AcmClient = new AmazonCertificateManagerClient(awsCredentials.GetAwsCredentialObject(), awsCredentials.Region);
+                    Logger.LogTrace("ACM client created with loaded AWS Credentials and specified Region.");
+
+
+                    var certList = AsyncHelpers.RunSync(() => AcmClient.ListCertificatesAsync());
+                    Logger.LogDebug($"Found {certList.CertificateSummaryList.Count} Certificates");
+                    Logger.LogTrace($"Cert List JSON: \n{JsonConvert.SerializeObject(certList)}");
+
+                    ListCertificatesRequest req = new ListCertificatesRequest();
+
+                    //The Current Workaround For AWS Not Returning Certs Without A SAN
+                    List<String> keyTypes = new List<String> { KeyAlgorithm.RSA_1024, KeyAlgorithm.RSA_2048, KeyAlgorithm.RSA_4096, KeyAlgorithm.EC_prime256v1, KeyAlgorithm.EC_secp384r1, KeyAlgorithm.EC_secp521r1 };
+                    req.Includes = new Filters() { KeyTypes = keyTypes };
+
+                    //Only fetch certificates that have been issued at one point
+                    req.CertificateStatuses = new List<string> { CertificateStatus.ISSUED, CertificateStatus.INACTIVE, CertificateStatus.EXPIRED, CertificateStatus.REVOKED };
+                    req.MaxItems = 100;
+
+                    Logger.LogTrace($"ListCertificatesRequest JSON: {JsonConvert.SerializeObject(req)}");
+
+                    ListCertificatesResponse AllCertificates;
+                    do
                     {
-                        var endpoint = RegionEndpoint.GetBySystemName(region);
-                        Logger.LogTrace($"Mapped AWS Endpoint: {JsonConvert.SerializeObject(endpoint)}");
+                        AllCertificates = AsyncHelpers.RunSync(() => AcmClient.ListCertificatesAsync(req));//Fetch batch of certificates from ACM API
+                        Logger.LogTrace($"AllCertificates JSON: {JsonConvert.SerializeObject(AllCertificates)}");
 
-                        if (awsCredentials == null)
-                        {
-                            // use default SDK auth for ACM client
-                            Logger.LogDebug("Using default credential lookup methods through the AWS SDK");
-                            AcmClient = new AmazonCertificateManagerClient(region: endpoint);
-                        }
-                        else
-                        {
-                            // use credentials configured by assuming a role through AWS STS
-                            Logger.LogDebug("Using credentials from assuming a Role through AWS STS");
-                            AcmClient = new AmazonCertificateManagerClient(awsCredentials.GetAwsCredentialObject(), awsCredentials.Region);
-                        }
+                        totalCertificates += AllCertificates.CertificateSummaryList.Count;
+                        Logger.LogDebug($"Found {AllCertificates.CertificateSummaryList.Count} Certificates In Batch Amazon Certificate Manager Job.");
 
-                        var certList = AsyncHelpers.RunSync(() => AcmClient.ListCertificatesAsync());
-                        Logger.LogTrace($"First Cert List JSON For Region {region}: {JsonConvert.SerializeObject(certList)}");
-                        Console.Write($"Found {certList.CertificateSummaryList.Count} Certificates\n");
-
-                        ListCertificatesRequest req = new ListCertificatesRequest();
-
-                        //The Current Workaround For AWS Not Returning Certs Without A SAN
-                        List<String> keyTypes = new List<String> { KeyAlgorithm.RSA_1024, KeyAlgorithm.RSA_2048, KeyAlgorithm.RSA_4096, KeyAlgorithm.EC_prime256v1, KeyAlgorithm.EC_secp384r1, KeyAlgorithm.EC_secp521r1 };
-                        req.Includes = new Filters() { KeyTypes = keyTypes };
-
-                        //Only fetch certificates that have been issued at one point
-                        req.CertificateStatuses = new List<string> { CertificateStatus.ISSUED, CertificateStatus.INACTIVE, CertificateStatus.EXPIRED, CertificateStatus.REVOKED };
-                        req.MaxItems = 100;
-
-                        Logger.LogTrace($"ListCertificatesRequest JSON: {JsonConvert.SerializeObject(req)}");
-
-                        ListCertificatesResponse AllCertificates;
-                        do
-                        {
-                            AllCertificates = AsyncHelpers.RunSync(() => AcmClient.ListCertificatesAsync(req));//Fetch batch of certificates from ACM API
-                            Logger.LogTrace($"AllCertificates JSON: {JsonConvert.SerializeObject(AllCertificates)}");
-
-                            totalCertificates += AllCertificates.CertificateSummaryList.Count;
-                            Logger.LogDebug($"Found {AllCertificates.CertificateSummaryList.Count} Certificates In Batch Amazon Certificate Manager Job.");
-
-                            inventoryItems.AddRange(AllCertificates.CertificateSummaryList.Select(
-                                c =>
+                        inventoryItems.AddRange(AllCertificates.CertificateSummaryList.Select(
+                            c =>
+                            {
+                                try
                                 {
-                                    try
-                                    {
-                                        return BuildInventoryItem(c.CertificateArn, region);
-                                    }
-                                    catch
-                                    {
-                                        Logger.LogWarning($"Could not fetch the certificate: {c?.DomainName} associated with arn {c?.CertificateArn}.");
-                                        sb.Append($"Could not fetch the certificate: {c?.DomainName} associated with arn {c?.CertificateArn}.{Environment.NewLine}");
-                                        warningFlag = true;
-                                        return new CurrentInventoryItem();
-                                    }
-                                }).Where(acsii => acsii?.Certificates != null).ToList());
+                                    return BuildInventoryItem(c.CertificateArn);
+                                }
+                                catch
+                                {
+                                    Logger.LogWarning($"Could not fetch the certificate: {c?.DomainName} associated with arn {c?.CertificateArn}.");
+                                    warningFlag = true;
+                                    return new CurrentInventoryItem();
+                                }
+                            }).Where(acsii => acsii?.Certificates != null).ToList());
 
-                            req.NextToken = AllCertificates.NextToken;
-                        } while (AllCertificates.NextToken != null);
+                        req.NextToken = AllCertificates.NextToken;
+                    } while (AllCertificates.NextToken != null);
 
-                        Logger.LogDebug($"Found {totalCertificates} Total Certificates In Amazon Certificate Manager Job.");
-                        Logger.LogTrace($"inventoryItems Response JSON: {JsonConvert.SerializeObject(inventoryItems)}");
-                    }
-                    catch (Exception e) //have to loop through all regions specified for each account and some may be invalid
-                    {
-                        warningFlag = true; // not sure if inventory should fail if a region fails to authenticate
-                        Logger.LogError($"Could not authenticate to AWS, invalid account/region combination account: {config.CertificateStoreDetails.StorePath} region: {region} error: {e.Message}");
-                    }
+                    Logger.LogDebug($"Found {totalCertificates} Total Certificates In Amazon Certificate Manager Inventory Job.");
+                    Logger.LogTrace($"inventoryItems Response JSON: {JsonConvert.SerializeObject(inventoryItems)}");
+                }
+                catch (Exception e)
+                {
+                    warningFlag = true;
+                    Logger.LogError(e, "An error occurred while processing the Inventory.");
                 }
 
                 siu.Invoke(inventoryItems);
@@ -201,7 +179,7 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
             }
         }
 
-        protected virtual CurrentInventoryItem BuildInventoryItem(string alias, string region)
+        protected virtual CurrentInventoryItem BuildInventoryItem(string alias)
         {
             try
             {
@@ -212,7 +190,6 @@ namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
                 Logger.LogTrace($"Base64 Certificate: {base64Cert}");
                 var entryParams = new Dictionary<string, object>
                 {
-                    { "AWS Region", region },
                     { "ACM Tags", GetCertificateTagsFromArn(alias) }
                 };
                 CurrentInventoryItem acsi = new CurrentInventoryItem()
