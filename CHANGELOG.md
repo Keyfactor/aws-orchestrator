@@ -2,6 +2,9 @@
 * Remove `AwsCerManO` and `AwsCerManA` types
   * These `DEPRECATED` Store Types are no longer supported
 
+2.2.1
+* Updated or removed package dependencies with a signing vulnerability
+
 2.2.0
 * Add entry parameter for ACM tags
 * Modify to produce .net6/8 dual builds
