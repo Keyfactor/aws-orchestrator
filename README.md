@@ -116,8 +116,6 @@ To use the AWS Certificate Manager (ACM) Universal Orchestrator extension, you *
 
 
 
-<details><summary>Click to expand details</summary>
-
 TODO Overview is a required section
 TODO Global Store Type Section is an optional section. If this section doesn't seem necessary on initial glance, please delete it. Refer to the docs on [Confluence](https://keyfactor.atlassian.net/wiki/x/SAAyHg) for more info
 
@@ -207,13 +205,13 @@ the Keyfactor Command Portal
    | DefaultSdkAssumeRole | Assume new Role using Default SDK Auth | A switch to enable the store to assume a new Role when using Default SDK credentials | Bool | false | 🔲 Unchecked |
    | UseOAuth | Use OAuth 2.0 Provider | A switch to enable the store to use an OAuth provider workflow to authenticate with AWS ACM | Bool | false | ✅ Checked |
    | OAuthScope | OAuth Scope | This is the OAuth Scope needed for Okta OAuth, defined in Okta | String |  | 🔲 Unchecked |
-   | OAuthGrantType | OAuth Grant Type | In OAuth 2.0, the term �grant type� refers to the way an application gets an access token. In Okta this is `client_credentials` | String | client_credentials | 🔲 Unchecked |
+   | OAuthGrantType | OAuth Grant Type | In OAuth 2.0, the term 'grant type' refers to the way an application gets an access token. In Okta this is `client_credentials` | String | client_credentials | 🔲 Unchecked |
    | OAuthUrl | OAuth Url | An optional parameter sts:ExternalId to pass with Assume Role calls | String | https://***/oauth2/default/v1/token | 🔲 Unchecked |
-   | OAuthClientId | OAuth Client ID | The Client ID for OAuth. | Secret |  | 🔲 Unchecked |
-   | OAuthClientSecret | OAuth Client Secret | The Client Secret for OAuth. | Secret |  | 🔲 Unchecked |
+   | OAuthClientId | OAuth Client ID | The Client ID for OAuth. | Secret |  | ✅ Checked |
+   | OAuthClientSecret | OAuth Client Secret | The Client Secret for OAuth. | Secret |  | ✅ Checked |
    | UseIAM | Use IAM User Auth | A switch to enable the store to use IAM User auth to assume a role when authenticating with AWS ACM | Bool | false | ✅ Checked |
-   | IAMUserAccessKey | IAM User Access Key | The AWS Access Key for an IAM User | Secret |  | 🔲 Unchecked |
-   | IAMUserAccessSecret | IAM User Access Secret | The AWS Access Secret for an IAM User. | Secret |  | 🔲 Unchecked |
+   | IAMUserAccessKey | IAM User Access Key | The AWS Access Key for an IAM User | Secret |  | ✅ Checked |
+   | IAMUserAccessSecret | IAM User Access Secret | The AWS Access Secret for an IAM User. | Secret |  | ✅ Checked |
    | ExternalId | sts:ExternalId | An optional parameter sts:ExternalId to pass with Assume Role calls | String |  | 🔲 Unchecked |
 
    The Custom Fields tab should look like this:
@@ -229,8 +227,6 @@ the Keyfactor Command Portal
    The Entry Parameters tab should look like this:
 
    ![AWS-ACM-v3 Entry Parameters Tab](docsource/images/AWS-ACM-v3-entry-parameters-store-type-dialog.png)
-
-
 
    </details>
 
@@ -313,7 +309,7 @@ TODO Certificate Store Configuration is an optional section. If this section doe
    | DefaultSdkAssumeRole | A switch to enable the store to assume a new Role when using Default SDK credentials |
    | UseOAuth | A switch to enable the store to use an OAuth provider workflow to authenticate with AWS ACM |
    | OAuthScope | This is the OAuth Scope needed for Okta OAuth, defined in Okta |
-   | OAuthGrantType | In OAuth 2.0, the term �grant type� refers to the way an application gets an access token. In Okta this is `client_credentials` |
+   | OAuthGrantType | In OAuth 2.0, the term 'grant type' refers to the way an application gets an access token. In Okta this is `client_credentials` |
    | OAuthUrl | An optional parameter sts:ExternalId to pass with Assume Role calls |
    | OAuthClientId | The Client ID for OAuth. |
    | OAuthClientSecret | The Client Secret for OAuth. |
@@ -350,7 +346,7 @@ TODO Certificate Store Configuration is an optional section. If this section doe
    | Properties.DefaultSdkAssumeRole | A switch to enable the store to assume a new Role when using Default SDK credentials |
    | Properties.UseOAuth | A switch to enable the store to use an OAuth provider workflow to authenticate with AWS ACM |
    | Properties.OAuthScope | This is the OAuth Scope needed for Okta OAuth, defined in Okta |
-   | Properties.OAuthGrantType | In OAuth 2.0, the term �grant type� refers to the way an application gets an access token. In Okta this is `client_credentials` |
+   | Properties.OAuthGrantType | In OAuth 2.0, the term 'grant type' refers to the way an application gets an access token. In Okta this is `client_credentials` |
    | Properties.OAuthUrl | An optional parameter sts:ExternalId to pass with Assume Role calls |
    | Properties.OAuthClientId | The Client ID for OAuth. |
    | Properties.OAuthClientSecret | The Client Secret for OAuth. |
@@ -389,6 +385,10 @@ Please refer to the **Universal Orchestrator (remote)** usage section ([PAM prov
 
 > The content in this section can be supplemented by the [official Command documentation](https://software.keyfactor.com/Core-OnPrem/Current/Content/ReferenceGuide/Certificate%20Stores.htm?Highlight=certificate%20store).
 
+
+
+
+</details>
 
 ## Discovering Certificate Stores with the Discovery Job
 
