@@ -1,3 +1,7 @@
+3.0.0
+* Remove `AwsCerManO` and `AwsCerManA` types
+  * These `DEPRECATED` Store Types are no longer supported
+
 2.2.1
 * Updated or removed package dependencies with a signing vulnerability
 

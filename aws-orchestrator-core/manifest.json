@@ -1,29 +1,13 @@
 {
   "extensions": {
     "Keyfactor.Orchestrators.Extensions.IOrchestratorJobExtension": {
-      "CertStores.AwsCerManO.Inventory": {
+      "CertStores.AWS-ACM-v3.Inventory": {
         "assemblypath": "Keyfactor.AnyAgent.AwsCertificateManager.dll",
-        "TypeFullName": "Keyfactor.AnyAgent.AwsCertificateManager.Jobs.Okta.Inventory"
+        "TypeFullName": "Keyfactor.AnyAgent.AwsCertificateManager.Jobs.Inventory"
       },
-      "CertStores.AwsCerManO.Management": {
+      "CertStores.AWS-ACM-v3.Management": {
         "assemblypath": "Keyfactor.AnyAgent.AwsCertificateManager.dll",
-        "TypeFullName": "Keyfactor.AnyAgent.AwsCertificateManager.Jobs.Okta.Management"
-      },
-      "CertStores.AwsCerManA.Inventory": {
-        "assemblypath": "Keyfactor.AnyAgent.AwsCertificateManager.dll",
-        "TypeFullName": "Keyfactor.AnyAgent.AwsCertificateManager.Jobs.IAM.Inventory"
-      },
-      "CertStores.AwsCerManA.Management": {
-        "assemblypath": "Keyfactor.AnyAgent.AwsCertificateManager.dll",
-        "TypeFullName": "Keyfactor.AnyAgent.AwsCertificateManager.Jobs.IAM.Management"
-      },
-      "CertStores.AWS-ACM.Inventory": {
-        "assemblypath": "Keyfactor.AnyAgent.AwsCertificateManager.dll",
-        "TypeFullName": "Keyfactor.AnyAgent.AwsCertificateManager.Jobs.ACM.Inventory"
-      },
-      "CertStores.AWS-ACM.Management": {
-        "assemblypath": "Keyfactor.AnyAgent.AwsCertificateManager.dll",
-        "TypeFullName": "Keyfactor.AnyAgent.AwsCertificateManager.Jobs.ACM.Management"
+        "TypeFullName": "Keyfactor.AnyAgent.AwsCertificateManager.Jobs.Management"
       }
     }
   }
