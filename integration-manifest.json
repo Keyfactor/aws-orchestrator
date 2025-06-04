@@ -94,7 +94,7 @@
               "Type": "Secret",
               "DependsOn": "",
               "DefaultValue": "",
-              "Required": true,
+              "Required": false,
               "IsPAMEligible": true,
               "Description": "The Client ID for OAuth."
             },
@@ -104,7 +104,7 @@
               "Type": "Secret",
               "DependsOn": "",
               "DefaultValue": "",
-              "Required": true,
+              "Required": false,
               "IsPAMEligible": true,
               "Description": "The Client Secret for OAuth."
             },
@@ -124,7 +124,7 @@
               "Type": "Secret",
               "DependsOn": "",
               "DefaultValue": "",
-              "Required": true,
+              "Required": false,
               "IsPAMEligible": true,
               "Description": "The AWS Access Key for an IAM User"
             },
@@ -134,7 +134,7 @@
               "Type": "Secret",
               "DependsOn": "",
               "DefaultValue": "",
-              "Required": true,
+              "Required": false,
               "IsPAMEligible": true,
               "Description": "The AWS Access Secret for an IAM User."
             },

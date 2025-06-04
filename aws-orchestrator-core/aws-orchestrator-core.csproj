@@ -14,7 +14,7 @@
     <PackageReference Include="AWSSDK.Core" Version="4.0.0.6" />
     <PackageReference Include="AWSSDK.IdentityManagement" Version="4.0.1.2" />
     <PackageReference Include="AWSSDK.SecurityToken" Version="4.0.0.4" />
-    <PackageReference Include="Keyfactor.Extensions.Aws.Auth" Version="0.4.0" />
+    <PackageReference Include="Keyfactor.Extensions.Aws.Auth" Version="0.5.0" />
     <PackageReference Include="Keyfactor.Logging" Version="1.1.2" />
     <PackageReference Include="Keyfactor.Orchestrators.IOrchestratorJobExtensions" Version="1.0.0" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
