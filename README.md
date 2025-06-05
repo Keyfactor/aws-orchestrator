@@ -83,12 +83,12 @@ _Currently there is no provided migration utility to perform this programaticall
 
 ### Setting up AWS Authentication (Examples)
 
-The following examples show potential configurations for Roles in AWS with different selected authentication methods.
-Your configuration steps may differ depending on specific requirements of your use case.
-
-> ![NOTE]
+> [!NOTE]
 > Several different options are offered for authenticating with AWS.
 > Documentation for how these options work is now located in the [aws-auth-library](https://github.com/Keyfactor/aws-auth-library) repository.
+
+The following examples show potential configurations for Roles in AWS with different selected authentication methods.
+Your configuration steps may differ depending on specific requirements of your use case.
 
 <details>
 <summary>EC2 instance credentials using Default SDK and Assume Role</summary>
