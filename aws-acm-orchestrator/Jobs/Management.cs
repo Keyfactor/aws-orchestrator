@@ -12,35 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Amazon.CertificateManager.Model;
 using Amazon.CertificateManager;
+using Amazon.CertificateManager.Model;
 using Amazon.Runtime.Internal.Util;
-using Amazon.SecurityToken.Model;
+using Keyfactor.Extensions.Aws;
+using Keyfactor.Extensions.Aws.Models;
 using Keyfactor.Logging;
 using Keyfactor.Orchestrators.Common.Enums;
 using Keyfactor.Orchestrators.Extensions;
+using Keyfactor.Orchestrators.Extensions.Interfaces;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.OpenSsl;
 using Org.BouncyCastle.Pkcs;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
-using System.Collections.Generic;
-using Amazon;
-using Org.BouncyCastle.OpenSsl;
-using System.Linq;
 
 using ILogger = Microsoft.Extensions.Logging.ILogger;
-using Keyfactor.Orchestrators.Extensions.Interfaces;
-using static Org.BouncyCastle.Math.EC.ECCurve;
-using System.Drawing;
-using Amazon.IdentityManagement.Model;
-using Keyfactor.Extensions.Aws;
-using Keyfactor.Extensions.Aws.Models;
 
-namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
+namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs
 {
     public class Management : IManagementJobExtension
     {

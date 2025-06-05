@@ -1,5 +1,6 @@
 3.0.0
-* Remove `AwsCerManO` and `AwsCerManA` types
+* Updated naming scheme of project files, namespaces, and binaries
+* Removed `AwsCerManO` and `AwsCerManA` types
   * These `DEPRECATED` Store Types are no longer supported
 
 2.2.1

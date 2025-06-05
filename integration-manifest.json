@@ -5,8 +5,8 @@
   "status": "production",
   "update_catalog": true,
   "link_github": true,
-  "release_dir":  "aws-orchestrator-core/bin/Release",
-  "release_project": "aws-orchestrator-core/aws-orchestrator-core.csproj",
+  "release_dir":  "aws-acm-orchestrator/bin/Release",
+  "release_project": "aws-acm-orchestrator/aws-acm-orchestrator.csproj",
   "support_level": "kf-supported",
   "description": "The AWS ACM Orchestrator supports Inventory and Management of certificates in the AWS Certificate Manager. It supports three methods of authentication: Environmental Credentials loaded via the AWS SDK e.g. inside an EC2 instance; IAM User Credentials for assuming a Role as a specific user; OAuth-based Credentials to authenticate with an OAuth provider to assume a Role.",
   "about": {

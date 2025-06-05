@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Amazon.CertificateManager.Model;
 using Amazon.CertificateManager;
+using Amazon.CertificateManager.Model;
 using Amazon.Runtime.Internal.Util;
-using Amazon.SecurityToken.Model;
+using Keyfactor.Extensions.Aws;
+using Keyfactor.Extensions.Aws.Models;
 using Keyfactor.Logging;
 using Keyfactor.Orchestrators.Common.Enums;
 using Keyfactor.Orchestrators.Extensions;
@@ -24,15 +25,11 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using Amazon;
 using System.Linq;
 
 using ILogger = Microsoft.Extensions.Logging.ILogger;
-using Keyfactor.Extensions.Aws;
-using Keyfactor.Extensions.Aws.Models;
 
-namespace Keyfactor.AnyAgent.AwsCertificateManager.Jobs
+namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs
 {
     public class Inventory : IInventoryJobExtension
     {
