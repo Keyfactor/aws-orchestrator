@@ -31,14 +31,24 @@
 
 ## Overview
 
-AWS Certificate Manager is a service that lets you easily provision, manage, and deploy public and private Secure Sockets Layer/Transport Layer Security (SSL/TLS) certificates for use with AWS services and your internal connected resources. SSL/TLS certificates are used to secure network communications and establish the identity of websites over the Internet as well as resources on private networks. AWS Certificate Manager removes the time-consuming manual process of purchasing, uploading, and renewing SSL/TLS certificates.  The orchestrator supports Okta OAth authentication, as well as AWS IAM accounts. The Okta Support allows authentication against a 3rd party identity provider in AWS.  From there you can get temporary credentials for a role that you setup in each AWS Account.
+AWS Certificate Manager is a service that lets you easily provision, manage, and deploy public and private Secure Sockets Layer/Transport Layer Security (SSL/TLS)
+certificates for use with AWS services and your internal connected resources.
+SSL/TLS certificates are used to secure network communications and establish the identity of websites over the Internet as well as resources on private networks.
+AWS Certificate Manager removes the time-consuming manual process of purchasing, uploading, and renewing SSL/TLS certificates.
+The orchestrator supports OAuth OIDC authentication, as well as AWS IAM accounts, and various options provided by the AWS SDK such as EC2 instance credentials.
+The OAuth OIDC support allows authentication against a 3rd party identity provider in AWS.
+After initial authentication, temporary credentials are used by using the Assume Role functionality in AWS.
 
-This integration also supports the reading of existing certificate ACM key/value pair tags during inventory and adding these tags when adding new certificates.  Modifying and adding ACM tags during certificate renewal, however, is NOT supported.  This is due to the fact that the AWS API does not allow for ACM tag modification when updating a certificate in one step.  This would need to be done in multiple steps, leading to the possibility of the certificate being left in an error state if any intermediate step were to fail.  However, while the modification/addition of ACM tags is not supported, all existing ACM tags WILL remain in place during renewal.
+This integration also supports the reading of existing certificate ACM key/value pair tags during inventory and adding these tags when adding new certificates.
+Modifying and adding ACM tags during certificate renewal, however, is NOT supported.
+This is due to the fact that the AWS API does not allow for ACM tag modification when updating a certificate in one step.
+This would need to be done in multiple steps, leading to the possibility of the certificate being left in an error state if any intermediate step were to fail.
+However, while the modification/addition of ACM tags is not supported, all existing ACM tags WILL remain in place during renewal.
  
 ### Documentation
 
-- [Cert Manager API](https://docs.aws.amazon.com/acm/latest/userguide/sdk.html)
-- [Aws Region Codes](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.RegionsAndAvailabilityZones.html)
+- [How AWS works in this extension (aws-auth-library)](https://github.com/Keyfactor/aws-auth-library)
+- [AWS Region Codes](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.RegionsAndAvailabilityZones.html)
 
 
 
@@ -56,32 +66,58 @@ The AWS Certificate Manager (ACM) Universal Orchestrator extension If you have a
 Before installing the AWS Certificate Manager (ACM) Universal Orchestrator extension, we recommend that you install [kfutil](https://github.com/Keyfactor/kfutil). Kfutil is a command-line tool that simplifies the process of creating store types, installing extensions, and instantiating certificate stores in Keyfactor Command.
 
 
-### Setting up AWS Authentication
+### Migrate existing ACM stores to the new type (AWS Certificate Manager v3)
 
-Depending on your choice of authentication providers, choose the appropriate section:
+Field usage has changed in v3, notably:
+* `ServerUsername` and `ServerPassword` are no longer used
+  * Specific fields for IAM and OAuth are defined for credentials of those type
+* `Store Path` only allows a __single__ AWS Region to be defined
+  * The Entry Parameter for AWS Region is no longer used
+* `Client Machine` requires the _full_ Role ARN to be used for Assume Role calls
+
+As a result, previous Store Types are no longer supported, and Certificate Stores of those types need to be migrated to the v3 type.
+Inventory jobs will need be to run after creating the new Certificate Stores to begin tracking those certificates again.
+The deprecated Stores and Store Types can be deleted after they are no longer needed.
+
+_Currently there is no provided migration utility to perform this programatically._
+
+### Setting up AWS Authentication (Examples)
+
+> [!NOTE]
+> Several different options are offered for authenticating with AWS.
+> Documentation for how these options work is now located in the [aws-auth-library](https://github.com/Keyfactor/aws-auth-library) repository.
+
+The following examples show potential configurations for Roles in AWS with different selected authentication methods.
+Your configuration steps may differ depending on specific requirements of your use case.
+
 <details>
-<summary>AWS Certificate Manager <code>AWS-ACM</code></summary>
+<summary>EC2 instance credentials using Default SDK and Assume Role</summary>
+
+Select the `Use Default SDK Auth` option to allow the integration to load EC2 instance credentials.
+If the EC2 Role assigned to the instance is intended as the Destination account identity to use with ACM, no additional Role needs to be configured.
+
+If the EC2 Role assigned to the instance is only to be used initially, and a new Role ARN is designated as the Destination account in the `Client Machine` field,
+then the `Assume new Role using Default SDK Auth` should also be selected.
 
 ### AWS Setup
-Options for authenticating:
-1. Okta or other OAuth configuration (refer to `AwsCerManO` below)
-2. IAM User Auth configuration (refer to `AwsCerManA` below)
-3. EC2 Role Auth or other default method supported by the [AWS SDK](https://docs.aws.amazon.com/sdk-for-net/v3/developer-guide/creds-assign.html)
-
-As one option for #3, to set up Role Auth for an EC2 instance, follow the steps below. Note, this applies specifically __when the orchestrator is running `ACM-AWS` inside of an EC2 instance__. When the option to assume an EC2 role is selected, the Account ID and Role will be assumed using the default credentials supplied in the EC2 instance via the AWS SDK.
-1. Assign or note the existing IAM Role assigned to the EC2 instance running
-2. Make sure that role has access to ACM
-3. When configuring the `AWS-ACM` store, do not select either IAM or OAuth methods in the store's settings. This will make it use the AWS SDK to lookup EC2 credentials.
+_Note: In this scenario the AWS-ACM-v3 extension needs to be running inside of an EC2 instance._
+1. Assign or note the existing IAM Role assigned to the EC2 instance running. [Found in EC2 here](docsource/images/ec2-instance-iam-role.gif).
+2. Ensure a [Trust Relationship](https://docs.aws.amazon.com/directoryservice/latest/admin-guide/edit_trust.html) is setup for that role. [Example](docsource/images/ec2-role-arn-trust-relationship.gif).
+3. Verify the permissions match the requirements for accessing ACM.
 
 </details>
 
+
 <details>
-<summary>[Deprecated] AWS Certificate Manager with Okta Auth Configuration <code>AwsCerManO</code></summary>
+<summary>OAuth OIDC Identity Provider (Okta example)</summary>
+
+Select the `Use OAuth` option for a certificate store to use an OAuth Identity Provider.
 
 ### AWS Setup
-1. A 3rd party [identity provider](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_oidc.html) similar to [this](docsource/images/AWSIdentityProvider.gif) needs to be setup in AWS for each account.
-2. An Aws [Role](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-user.html) similar to [this](docsource/images/AWSRole1.gif) needs Added for each AWS account.
-3. Ensure the [trust relationship](https://docs.aws.amazon.com/directoryservice/latest/admin-guide/edit_trust.html) is setup for that role.  Should  look like [this](docsource/images/AWSRole2.gif).
+1. A 3rd party [Identity Provider](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_oidc.html) similar to [this](docsource/images/AWSIdentityProvider.gif) needs to be setup in AWS.
+2. An [AWS Role](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-user.html) needs to be created to be used with your Identity Provider.
+3. Ensure the [Trust Relationship](https://docs.aws.amazon.com/directoryservice/latest/admin-guide/edit_trust.html) is setup for that role with the Identity Provider. [Example](docsource/images/AWSRole2.gif).
+4. Verify the permissions match the requirements for accessing ACM.
 
 ### OKTA Setup
 1. Ensure your Authorization Server Is Setup in OKTA.  Here is a [sample](docsource/images/OktaSampleAuthorizationServer.gif).
@@ -90,23 +126,66 @@ As one option for #3, to set up Role Auth for an EC2 instance, follow the steps 
 
 </details>
 
+
 <details>
-<summary>[Deprecated] AWS Certificate Manager with IAM Auth Configuration <code>AwsCerManA</code></summary>
+<summary>IAM User credentials to Assume Role</summary>
+
+Select the `Use IAM` option for a certificate store to use an IAM User credential.
 
 ### AWS Setup
-1. An Aws [Role](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-user.html) Needs Added for the permissions you want to grant, see [sample](docsource/images/AWSRole1.gif).
-2. A [Trust Relationship](https://docs.aws.amazon.com/directoryservice/latest/admin-guide/edit_trust.html) is setup for that role.  Should look like something like [this](docsource/images/AssumeRoleTrust.gif).
+1. An [AWS Role](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-user.html) to Assume with your IAM User needs to be created.
+2. Ensure a [Trust Relationship](https://docs.aws.amazon.com/directoryservice/latest/admin-guide/edit_trust.html) is setup for that role. [Example](docsource/images/AssumeRoleTrust.gif).
 3. AWS does not support programmatic access for AWS SSO accounts. The account used here must be a [standard AWS IAM User](docsource/images/UserAccount.gif) with an Access Key credential type.
+4. Verify the permissions match the requirements for accessing ACM.
 
 </details>
 
 
-## AWS-ACM Certificate Store Type
+## AWS-ACM-v3 Certificate Store Type
 
-To use the AWS Certificate Manager (ACM) Universal Orchestrator extension, you **must** create the AWS-ACM Certificate Store Type. This only needs to happen _once_ per Keyfactor Command instance.
+To use the AWS Certificate Manager (ACM) Universal Orchestrator extension, you **must** create the AWS-ACM-v3 Certificate Store Type. This only needs to happen _once_ per Keyfactor Command instance.
 
 
 
+The AWS Certificate Manager v3 Store Type provides enhanced authentication options for managing certificates in ACM.
+Each defined Certificate Store of this type targes a specific AWS Region with a specific Destination account in mind.
+Therefore each Certificate Store instance is intended to represent a single Role's certificates in a single AWS Region.
+
+Some authentication configurations do not adhere strictly to this, so when using the various methods offered in the Default SDK auth option,
+a full understanding of how permissions work in AWS is recommended.
+In most scenarios using the Default SDK option, the Assume Role flag should also be set to avoid confusion, and use the Role ARN in the `Client Machine` field as the Destination account.
+The latest version of the Store Type supporting ACM (AWS Certificate Manager) is `AWS-ACM-v3`.
+Previous store types are no longer supported and should be migrated to the new Store Type definition.
+When migrating to the `AWS-ACM-v3` type please note that field usage has changed and does not map over directly.
+
+> [!WARNING]
+> When creating Certificate Stores, all available Secret type fields need to have a value set for them, even if that is "No Value".
+> Failing to set these Secret fields, even when not in use, causes errors that may require database access to fix.
+
+
+
+
+
+#### AWS Certificate Manager v3 Requirements
+
+Configuring authentication with AWS requires understanding how the authentication flow works.
+Depending on the intended authentication method, the required configuration in AWS may require one or more Roles with the correct permissions.
+
+The intended Destination account, usually the Role ARN specified in the `Client Machine` field, which is the final identity used to perform the actual work in AWS ACM, needs the following permissions:
+
+~~~
+Inventory required actions:
+
+    "acm:ListCertificates",
+    "acm:GetCertificate",
+    "acm:ListTagsForCertificate"
+
+ Management required actions:
+
+    "acm:DeleteCertificate",
+    "acm:DescribeCertificate",
+    "acm:ImportCertificate"
+~~~
 
 
 
@@ -125,13 +204,13 @@ To use the AWS Certificate Manager (ACM) Universal Orchestrator extension, you *
 ##### Using kfutil:
 `kfutil` is a custom CLI for the Keyfactor Command API and can be used to created certificate store types.
 For more information on [kfutil](https://github.com/Keyfactor/kfutil) check out the [docs](https://github.com/Keyfactor/kfutil?tab=readme-ov-file#quickstart)
-   <details><summary>Click to expand AWS-ACM kfutil details</summary>
+   <details><summary>Click to expand AWS-ACM-v3 kfutil details</summary>
 
    ##### Using online definition from GitHub:
    This will reach out to GitHub and pull the latest store-type definition
    ```shell
-   # AWS Certificate Manager
-   kfutil store-types create AWS-ACM
+   # AWS Certificate Manager v3
+   kfutil store-types create AWS-ACM-v3
    ```
 
    ##### Offline creation using integration-manifest file:
@@ -145,24 +224,24 @@ For more information on [kfutil](https://github.com/Keyfactor/kfutil) check out 
 
 
 #### Manual Creation
-Below are instructions on how to create the AWS-ACM store type manually in
+Below are instructions on how to create the AWS-ACM-v3 store type manually in
 the Keyfactor Command Portal
-   <details><summary>Click to expand manual AWS-ACM details</summary>
+   <details><summary>Click to expand manual AWS-ACM-v3 details</summary>
 
-   Create a store type called `AWS-ACM` with the attributes in the tables below:
+   Create a store type called `AWS-ACM-v3` with the attributes in the tables below:
 
    ##### Basic Tab
    | Attribute | Value | Description |
    | --------- | ----- | ----- |
-   | Name | AWS Certificate Manager | Display name for the store type (may be customized) |
-   | Short Name | AWS-ACM | Short display name for the store type |
-   | Capability | AWS-ACM | Store type name orchestrator will register with. Check the box to allow entry of value |
+   | Name | AWS Certificate Manager v3 | Display name for the store type (may be customized) |
+   | Short Name | AWS-ACM-v3 | Short display name for the store type |
+   | Capability | AWS-ACM-v3 | Store type name orchestrator will register with. Check the box to allow entry of value |
    | Supports Add | ✅ Checked | Check the box. Indicates that the Store Type supports Management Add |
    | Supports Remove | ✅ Checked | Check the box. Indicates that the Store Type supports Management Remove |
    | Supports Discovery | 🔲 Unchecked |  Indicates that the Store Type supports Discovery |
    | Supports Reenrollment | 🔲 Unchecked |  Indicates that the Store Type supports Reenrollment |
    | Supports Create | 🔲 Unchecked |  Indicates that the Store Type supports store creation |
-   | Needs Server | ✅ Checked | Determines if a target server name is required when creating store |
+   | Needs Server | 🔲 Unchecked | Determines if a target server name is required when creating store |
    | Blueprint Allowed | ✅ Checked | Determines if store type may be included in an Orchestrator blueprint |
    | Uses PowerShell | 🔲 Unchecked | Determines if underlying implementation is PowerShell |
    | Requires Store Password | 🔲 Unchecked | Enables users to optionally specify a store password when defining a Certificate Store. |
@@ -170,7 +249,7 @@ the Keyfactor Command Portal
 
    The Basic tab should look like this:
 
-   ![AWS-ACM Basic Tab](docsource/images/AWS-ACM-basic-store-type-dialog.png)
+   ![AWS-ACM-v3 Basic Tab](docsource/images/AWS-ACM-v3-basic-store-type-dialog.png)
 
    ##### Advanced Tab
    | Attribute | Value | Description |
@@ -181,7 +260,7 @@ the Keyfactor Command Portal
 
    The Advanced tab should look like this:
 
-   ![AWS-ACM Advanced Tab](docsource/images/AWS-ACM-advanced-store-type-dialog.png)
+   ![AWS-ACM-v3 Advanced Tab](docsource/images/AWS-ACM-v3-advanced-store-type-dialog.png)
 
    > For Keyfactor **Command versions 24.4 and later**, a Certificate Format dropdown is available with PFX and PEM options. Ensure that **PFX** is selected, as this determines the format of new and renewed certificates sent to the Orchestrator during a Management job. Currently, all Keyfactor-supported Orchestrator extensions support only PFX.
 
@@ -190,33 +269,32 @@ the Keyfactor Command Portal
 
    | Name | Display Name | Description | Type | Default Value/Options | Required |
    | ---- | ------------ | ---- | --------------------- | -------- | ----------- |
-   | UseEC2AssumeRole | Assume new Account / Role in EC2 | A switch to enable the store to assume a new Account ID and Role when using EC2 credentials | Bool | false | ✅ Checked |
-   | UseOAuth | Use OAuth 2.0 Provider | A switch to enable the store to use an OAuth provider workflow to authenticate with AWS ACM | Bool | false | ✅ Checked |
-   | UseIAM | Use IAM User Auth | A switch to enable the store to use IAM User auth to assume a role when authenticating with AWS ACM | Bool | false | ✅ Checked |
-   | EC2AssumeRole | AWS Role to Assume (EC2) | The AWS Role to assume using the EC2 instance credentials | String |  | 🔲 Unchecked |
+   | UseDefaultSdkAuth | Use Default SDK Auth | A switch to enable the store to use Default SDK credentials | Bool | false | ✅ Checked |
+   | DefaultSdkAssumeRole | Assume new Role using Default SDK Auth | A switch to enable the store to assume a new Role when using Default SDK credentials | Bool | false | 🔲 Unchecked |
+   | UseOAuth | Use OAuth 2.0 Provider | A switch to enable the store to use an OAuth provider workflow to authenticate with AWS | Bool | false | ✅ Checked |
    | OAuthScope | OAuth Scope | This is the OAuth Scope needed for Okta OAuth, defined in Okta | String |  | 🔲 Unchecked |
-   | OAuthGrantType | OAuth Grant Type | In OAuth 2.0, the term �grant type� refers to the way an application gets an access token. In Okta this is `client_credentials` | String | client_credentials | 🔲 Unchecked |
+   | OAuthGrantType | OAuth Grant Type | In OAuth 2.0, the term 'grant type' refers to the way an application gets an access token. In Okta this is `client_credentials` | String | client_credentials | 🔲 Unchecked |
    | OAuthUrl | OAuth Url | An optional parameter sts:ExternalId to pass with Assume Role calls | String | https://***/oauth2/default/v1/token | 🔲 Unchecked |
-   | IAMAssumeRole | AWS Role to Assume (IAM) | The AWS Role to assume as the IAM User. | String |  | 🔲 Unchecked |
-   | OAuthAssumeRole | AWS Role to Assume (OAuth) | The AWS Role to assume after getting an OAuth token. | String |  | 🔲 Unchecked |
+   | OAuthClientId | OAuth Client ID | The Client ID for OAuth. | Secret |  | 🔲 Unchecked |
+   | OAuthClientSecret | OAuth Client Secret | The Client Secret for OAuth. | Secret |  | 🔲 Unchecked |
+   | UseIAM | Use IAM User Auth | A switch to enable the store to use IAM User auth to assume a role when authenticating with AWS | Bool | false | ✅ Checked |
+   | IAMUserAccessKey | IAM User Access Key | The AWS Access Key for an IAM User | Secret |  | 🔲 Unchecked |
+   | IAMUserAccessSecret | IAM User Access Secret | The AWS Access Secret for an IAM User. | Secret |  | 🔲 Unchecked |
    | ExternalId | sts:ExternalId | An optional parameter sts:ExternalId to pass with Assume Role calls | String |  | 🔲 Unchecked |
-   | ServerUsername | Server Username | The AWS Access Key for an IAM User or Client ID for OAuth. Depends on Auth method in use. | Secret |  | 🔲 Unchecked |
-   | ServerPassword | Server Password | The AWS Access Secret for an IAM User or Client Secret for OAuth. Depends on Auth method in use. | Secret |  | 🔲 Unchecked |
 
    The Custom Fields tab should look like this:
 
-   ![AWS-ACM Custom Fields Tab](docsource/images/AWS-ACM-custom-fields-store-type-dialog.png)
+   ![AWS-ACM-v3 Custom Fields Tab](docsource/images/AWS-ACM-v3-custom-fields-store-type-dialog.png)
 
    ##### Entry Parameters Tab
 
    | Name | Display Name | Description | Type | Default Value | Entry has a private key | Adding an entry | Removing an entry | Reenrolling an entry |
    | ---- | ------------ | ---- | ------------- | ----------------------- | ---------------- | ----------------- | ------------------- | ----------- |
-   | AWS Region | AWS Region | When adding, this is the Region that the Certificate will be added to | String |  | 🔲 Unchecked | ✅ Checked | 🔲 Unchecked | 🔲 Unchecked |
    | ACM Tags | ACM Tags | The optional ACM tags that should be assigned to the certificate.  Multiple name/value pairs may be entered in the format of `Name1=Value1,Name2=Value2,...,NameN=ValueN` | String |  | 🔲 Unchecked | 🔲 Unchecked | 🔲 Unchecked | 🔲 Unchecked |
 
    The Entry Parameters tab should look like this:
 
-   ![AWS-ACM Entry Parameters Tab](docsource/images/AWS-ACM-entry-parameters-store-type-dialog.png)
+   ![AWS-ACM-v3 Entry Parameters Tab](docsource/images/AWS-ACM-v3-entry-parameters-store-type-dialog.png)
 
    </details>
 
@@ -269,6 +347,14 @@ the Keyfactor Command Portal
 ## Defining Certificate Stores
 
 
+The latest version of the Store Type supporting ACM (AWS Certificate Manager) is `AWS-ACM-v3`.
+Previous store types are no longer supported and should be migrated to the new Store Type definition.
+When migrating to the `AWS-ACM-v3` type please note that field usage has changed and does not map over directly.
+
+> [!WARNING]
+> When creating Certificate Stores, all available Secret type fields need to have a value set for them, even if that is "No Value".
+> Failing to set these Secret fields, even when not in use, causes errors that may require database access to fix.
+
 
 ### Store Creation
 
@@ -286,23 +372,23 @@ the Keyfactor Command Portal
 
    | Attribute | Description |
    | --------- | ----------- |
-   | Category | Select "AWS Certificate Manager" or the customized certificate store name from the previous step. |
+   | Category | Select "AWS Certificate Manager v3" or the customized certificate store name from the previous step. |
    | Container | Optional container to associate certificate store with. |
-   | Client Machine | This is the AWS Account ID that will be used for access. This will dictate what certificates are usable by the orchestrator. Note: this does not have any effect on EC2 inferred credentials, which are limited to a specific role/account. |
-   | Store Path | The AWS Region, or a comma-separated list of multiple regions, the store will operate in. |
-   | Orchestrator | Select an approved orchestrator capable of managing `AWS-ACM` certificates. Specifically, one with the `AWS-ACM` capability. |
-   | UseEC2AssumeRole | A switch to enable the store to assume a new Account ID and Role when using EC2 credentials |
-   | UseOAuth | A switch to enable the store to use an OAuth provider workflow to authenticate with AWS ACM |
-   | UseIAM | A switch to enable the store to use IAM User auth to assume a role when authenticating with AWS ACM |
-   | EC2AssumeRole | The AWS Role to assume using the EC2 instance credentials |
+   | Client Machine | This is a full AWS ARN specifying a Role. This is the Role that will be assumed in any Auth scenario performing Assume Role. This will dictate what certificates are usable by the orchestrator. A preceeding [profile] name should be included if a Credential Profile is to be used in Default Sdk Auth. |
+   | Store Path | A single specified AWS Region the store will operate in. Additional regions should get their own store defined. |
+   | Orchestrator | Select an approved orchestrator capable of managing `AWS-ACM-v3` certificates. Specifically, one with the `AWS-ACM-v3` capability. |
+   | UseDefaultSdkAuth | A switch to enable the store to use Default SDK credentials |
+   | DefaultSdkAssumeRole | A switch to enable the store to assume a new Role when using Default SDK credentials |
+   | UseOAuth | A switch to enable the store to use an OAuth provider workflow to authenticate with AWS |
    | OAuthScope | This is the OAuth Scope needed for Okta OAuth, defined in Okta |
-   | OAuthGrantType | In OAuth 2.0, the term �grant type� refers to the way an application gets an access token. In Okta this is `client_credentials` |
+   | OAuthGrantType | In OAuth 2.0, the term 'grant type' refers to the way an application gets an access token. In Okta this is `client_credentials` |
    | OAuthUrl | An optional parameter sts:ExternalId to pass with Assume Role calls |
-   | IAMAssumeRole | The AWS Role to assume as the IAM User. |
-   | OAuthAssumeRole | The AWS Role to assume after getting an OAuth token. |
+   | OAuthClientId | The Client ID for OAuth. |
+   | OAuthClientSecret | The Client Secret for OAuth. |
+   | UseIAM | A switch to enable the store to use IAM User auth to assume a role when authenticating with AWS |
+   | IAMUserAccessKey | The AWS Access Key for an IAM User |
+   | IAMUserAccessSecret | The AWS Access Secret for an IAM User. |
    | ExternalId | An optional parameter sts:ExternalId to pass with Assume Role calls |
-   | ServerUsername | The AWS Access Key for an IAM User or Client ID for OAuth. Depends on Auth method in use. |
-   | ServerPassword | The AWS Access Secret for an IAM User or Client Secret for OAuth. Depends on Auth method in use. |
 
 </details>
 
@@ -312,10 +398,10 @@ the Keyfactor Command Portal
 
 <details><summary>Click to expand details</summary>
 
-1. **Generate a CSV template for the AWS-ACM certificate store**
+1. **Generate a CSV template for the AWS-ACM-v3 certificate store**
 
     ```shell
-    kfutil stores import generate-template --store-type-name AWS-ACM --outpath AWS-ACM.csv
+    kfutil stores import generate-template --store-type-name AWS-ACM-v3 --outpath AWS-ACM-v3.csv
     ```
 2. **Populate the generated CSV file**
 
@@ -323,28 +409,28 @@ the Keyfactor Command Portal
 
    | Attribute | Description |
    | --------- | ----------- |
-   | Category | Select "AWS Certificate Manager" or the customized certificate store name from the previous step. |
+   | Category | Select "AWS Certificate Manager v3" or the customized certificate store name from the previous step. |
    | Container | Optional container to associate certificate store with. |
-   | Client Machine | This is the AWS Account ID that will be used for access. This will dictate what certificates are usable by the orchestrator. Note: this does not have any effect on EC2 inferred credentials, which are limited to a specific role/account. |
-   | Store Path | The AWS Region, or a comma-separated list of multiple regions, the store will operate in. |
-   | Orchestrator | Select an approved orchestrator capable of managing `AWS-ACM` certificates. Specifically, one with the `AWS-ACM` capability. |
-   | Properties.UseEC2AssumeRole | A switch to enable the store to assume a new Account ID and Role when using EC2 credentials |
-   | Properties.UseOAuth | A switch to enable the store to use an OAuth provider workflow to authenticate with AWS ACM |
-   | Properties.UseIAM | A switch to enable the store to use IAM User auth to assume a role when authenticating with AWS ACM |
-   | Properties.EC2AssumeRole | The AWS Role to assume using the EC2 instance credentials |
+   | Client Machine | This is a full AWS ARN specifying a Role. This is the Role that will be assumed in any Auth scenario performing Assume Role. This will dictate what certificates are usable by the orchestrator. A preceeding [profile] name should be included if a Credential Profile is to be used in Default Sdk Auth. |
+   | Store Path | A single specified AWS Region the store will operate in. Additional regions should get their own store defined. |
+   | Orchestrator | Select an approved orchestrator capable of managing `AWS-ACM-v3` certificates. Specifically, one with the `AWS-ACM-v3` capability. |
+   | Properties.UseDefaultSdkAuth | A switch to enable the store to use Default SDK credentials |
+   | Properties.DefaultSdkAssumeRole | A switch to enable the store to assume a new Role when using Default SDK credentials |
+   | Properties.UseOAuth | A switch to enable the store to use an OAuth provider workflow to authenticate with AWS |
    | Properties.OAuthScope | This is the OAuth Scope needed for Okta OAuth, defined in Okta |
-   | Properties.OAuthGrantType | In OAuth 2.0, the term �grant type� refers to the way an application gets an access token. In Okta this is `client_credentials` |
+   | Properties.OAuthGrantType | In OAuth 2.0, the term 'grant type' refers to the way an application gets an access token. In Okta this is `client_credentials` |
    | Properties.OAuthUrl | An optional parameter sts:ExternalId to pass with Assume Role calls |
-   | Properties.IAMAssumeRole | The AWS Role to assume as the IAM User. |
-   | Properties.OAuthAssumeRole | The AWS Role to assume after getting an OAuth token. |
+   | Properties.OAuthClientId | The Client ID for OAuth. |
+   | Properties.OAuthClientSecret | The Client Secret for OAuth. |
+   | Properties.UseIAM | A switch to enable the store to use IAM User auth to assume a role when authenticating with AWS |
+   | Properties.IAMUserAccessKey | The AWS Access Key for an IAM User |
+   | Properties.IAMUserAccessSecret | The AWS Access Secret for an IAM User. |
    | Properties.ExternalId | An optional parameter sts:ExternalId to pass with Assume Role calls |
-   | Properties.ServerUsername | The AWS Access Key for an IAM User or Client ID for OAuth. Depends on Auth method in use. |
-   | Properties.ServerPassword | The AWS Access Secret for an IAM User or Client Secret for OAuth. Depends on Auth method in use. |
 
 3. **Import the CSV file to create the certificate stores**
 
     ```shell
-    kfutil stores import csv --store-type-name AWS-ACM --file AWS-ACM.csv
+    kfutil stores import csv --store-type-name AWS-ACM-v3 --file AWS-ACM-v3.csv
     ```
 
 </details>
@@ -357,8 +443,10 @@ If a PAM provider was installed _on the Universal Orchestrator_ in the [Installa
 
    | Attribute | Description |
    | --------- | ----------- |
-   | ServerUsername | The AWS Access Key for an IAM User or Client ID for OAuth. Depends on Auth method in use. |
-   | ServerPassword | The AWS Access Secret for an IAM User or Client Secret for OAuth. Depends on Auth method in use. |
+   | OAuthClientId | The Client ID for OAuth. |
+   | OAuthClientSecret | The Client Secret for OAuth. |
+   | IAMUserAccessKey | The AWS Access Key for an IAM User |
+   | IAMUserAccessSecret | The AWS Access Secret for an IAM User. |
 
 Please refer to the **Universal Orchestrator (remote)** usage section ([PAM providers on the Keyfactor Integration Catalog](https://keyfactor.github.io/integrations-catalog/content/pam)) for your selected PAM provider for instructions on how to load attributes orchestrator-side.
 > Any secret can be rendered by a PAM provider _installed on the Keyfactor Command server_. The above parameters are specific to attributes that can be fetched by an installed PAM provider running on the Universal Orchestrator server itself.
@@ -366,13 +454,8 @@ Please refer to the **Universal Orchestrator (remote)** usage section ([PAM prov
 </details>
 
 
-
 > The content in this section can be supplemented by the [official Command documentation](https://software.keyfactor.com/Core-OnPrem/Current/Content/ReferenceGuide/Certificate%20Stores.htm?Highlight=certificate%20store).
 
-
-
-
-</details>
 
 
 
