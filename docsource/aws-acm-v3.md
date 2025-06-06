@@ -1,8 +1,8 @@
 ## Overview
 
 The AWS Certificate Manager v3 Store Type provides enhanced authentication options for managing certificates in ACM.
-Each defined Certificate Store of this type targes a specific AWS Region with a specific Destination account in mind.
-Therefore each Certificate Store instance is intended to represent a single Role's certificates in a single AWS Region.
+Each defined Certificate Store of this type targets a specific AWS Region with a specific Destination account in mind.
+Therefore, each Certificate Store instance is intended to represent a single Role's certificates in a single AWS Region.
 
 Some authentication configurations do not adhere strictly to this, so when using the various methods offered in the Default SDK auth option,
 a full understanding of how permissions work in AWS is recommended.
