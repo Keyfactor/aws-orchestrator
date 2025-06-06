@@ -173,7 +173,7 @@
           "PowerShell": false,
           "BlueprintAllowed": true,
           "CustomAliasAllowed": "Optional",
-          "ClientMachineDescription": "This is a full AWS ARN specifying a Role. This is the Role that will be assumed in any Auth scenario performing Assume Role. This will dictate what certificates are usable by the orchestrator. A preceeding [profile] name should be included if a Credential Profile is to be used in Default Sdk Auth.",
+          "ClientMachineDescription": "This is a full AWS ARN specifying a Role. This is the Role that will be assumed in any Auth scenario performing Assume Role. This will dictate what certificates are usable by the orchestrator. A preceding [profile] name should be included if a Credential Profile is to be used in Default Sdk Auth.",
           "StorePathDescription": "A single specified AWS Region the store will operate in. Additional regions should get their own store defined."
         }        
       ]
