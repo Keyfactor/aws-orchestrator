@@ -94,64 +94,56 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs
             {
                 List<CurrentInventoryItem> inventoryItems = new List<CurrentInventoryItem>();
 
-                try
+                Logger.LogDebug($"Certificate Inventory job will target AWS Region - {awsCredentials.Region.SystemName}");
+                AcmClient = new AmazonCertificateManagerClient(awsCredentials.GetAwsCredentialObject(), awsCredentials.Region);
+                Logger.LogTrace("ACM client created with loaded AWS Credentials and specified Region.");
+
+
+                var certList = AsyncHelpers.RunSync(() => AcmClient.ListCertificatesAsync());
+                Logger.LogDebug($"Found {certList.CertificateSummaryList.Count} Certificates");
+                Logger.LogTrace($"Cert List JSON: \n{JsonConvert.SerializeObject(certList)}");
+
+                ListCertificatesRequest req = new ListCertificatesRequest();
+
+                //The Current Workaround For AWS Not Returning Certs Without A SAN
+                List<String> keyTypes = new List<String> { KeyAlgorithm.RSA_1024, KeyAlgorithm.RSA_2048, KeyAlgorithm.RSA_4096, KeyAlgorithm.EC_prime256v1, KeyAlgorithm.EC_secp384r1, KeyAlgorithm.EC_secp521r1 };
+                req.Includes = new Filters() { KeyTypes = keyTypes };
+
+                //Only fetch certificates that have been issued at one point
+                req.CertificateStatuses = new List<string> { CertificateStatus.ISSUED, CertificateStatus.INACTIVE, CertificateStatus.EXPIRED, CertificateStatus.REVOKED };
+                req.MaxItems = 100;
+
+                Logger.LogTrace($"ListCertificatesRequest JSON: {JsonConvert.SerializeObject(req)}");
+
+                ListCertificatesResponse AllCertificates;
+                do
                 {
-                    Logger.LogDebug($"Certificate Inventory job will target AWS Region - {awsCredentials.Region.SystemName}");
-                    AcmClient = new AmazonCertificateManagerClient(awsCredentials.GetAwsCredentialObject(), awsCredentials.Region);
-                    Logger.LogTrace("ACM client created with loaded AWS Credentials and specified Region.");
+                    AllCertificates = AsyncHelpers.RunSync(() => AcmClient.ListCertificatesAsync(req));//Fetch batch of certificates from ACM API
+                    Logger.LogTrace($"AllCertificates JSON: {JsonConvert.SerializeObject(AllCertificates)}");
 
+                    totalCertificates += AllCertificates.CertificateSummaryList.Count;
+                    Logger.LogDebug($"Found {AllCertificates.CertificateSummaryList.Count} Certificates In Batch Amazon Certificate Manager Job.");
 
-                    var certList = AsyncHelpers.RunSync(() => AcmClient.ListCertificatesAsync());
-                    Logger.LogDebug($"Found {certList.CertificateSummaryList.Count} Certificates");
-                    Logger.LogTrace($"Cert List JSON: \n{JsonConvert.SerializeObject(certList)}");
-
-                    ListCertificatesRequest req = new ListCertificatesRequest();
-
-                    //The Current Workaround For AWS Not Returning Certs Without A SAN
-                    List<String> keyTypes = new List<String> { KeyAlgorithm.RSA_1024, KeyAlgorithm.RSA_2048, KeyAlgorithm.RSA_4096, KeyAlgorithm.EC_prime256v1, KeyAlgorithm.EC_secp384r1, KeyAlgorithm.EC_secp521r1 };
-                    req.Includes = new Filters() { KeyTypes = keyTypes };
-
-                    //Only fetch certificates that have been issued at one point
-                    req.CertificateStatuses = new List<string> { CertificateStatus.ISSUED, CertificateStatus.INACTIVE, CertificateStatus.EXPIRED, CertificateStatus.REVOKED };
-                    req.MaxItems = 100;
-
-                    Logger.LogTrace($"ListCertificatesRequest JSON: {JsonConvert.SerializeObject(req)}");
-
-                    ListCertificatesResponse AllCertificates;
-                    do
-                    {
-                        AllCertificates = AsyncHelpers.RunSync(() => AcmClient.ListCertificatesAsync(req));//Fetch batch of certificates from ACM API
-                        Logger.LogTrace($"AllCertificates JSON: {JsonConvert.SerializeObject(AllCertificates)}");
-
-                        totalCertificates += AllCertificates.CertificateSummaryList.Count;
-                        Logger.LogDebug($"Found {AllCertificates.CertificateSummaryList.Count} Certificates In Batch Amazon Certificate Manager Job.");
-
-                        inventoryItems.AddRange(AllCertificates.CertificateSummaryList.Select(
-                            c =>
+                    inventoryItems.AddRange(AllCertificates.CertificateSummaryList.Select(
+                        c =>
+                        {
+                            try
                             {
-                                try
-                                {
-                                    return BuildInventoryItem(c.CertificateArn);
-                                }
-                                catch
-                                {
-                                    Logger.LogWarning($"Could not fetch the certificate: {c?.DomainName} associated with arn {c?.CertificateArn}.");
-                                    warningFlag = true;
-                                    return new CurrentInventoryItem();
-                                }
-                            }).Where(acsii => acsii?.Certificates != null).ToList());
+                                return BuildInventoryItem(c.CertificateArn);
+                            }
+                            catch
+                            {
+                                Logger.LogWarning($"Could not fetch the certificate: {c?.DomainName} associated with arn {c?.CertificateArn}.");
+                                warningFlag = true;
+                                return new CurrentInventoryItem();
+                            }
+                        }).Where(acsii => acsii?.Certificates != null).ToList());
 
-                        req.NextToken = AllCertificates.NextToken;
-                    } while (AllCertificates.NextToken != null);
+                    req.NextToken = AllCertificates.NextToken;
+                } while (AllCertificates.NextToken != null);
 
-                    Logger.LogDebug($"Found {totalCertificates} Total Certificates In Amazon Certificate Manager Inventory Job.");
-                    Logger.LogTrace($"inventoryItems Response JSON: {JsonConvert.SerializeObject(inventoryItems)}");
-                }
-                catch (Exception e)
-                {
-                    warningFlag = true;
-                    Logger.LogError(e, "An error occurred while processing the Inventory.");
-                }
+                Logger.LogDebug($"Found {totalCertificates} Total Certificates In Amazon Certificate Manager Inventory Job.");
+                Logger.LogTrace($"inventoryItems Response JSON: {JsonConvert.SerializeObject(inventoryItems)}");
 
                 siu.Invoke(inventoryItems);
 
