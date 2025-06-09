@@ -1,3 +1,16 @@
+3.0.0
+* Upgrade to AWS SDK v4
+  * All interactions with AWS now target the Region specified in `Store Path` with no "default" Region considered
+* Support for full Role ARN as a Destination account identity. This enables usage in environments with non-standard ARNs
+* Support for credential profiles when using Default SDK auth using `[profilename]` prefix with the Role ARN in `Client Machine` field
+* Updated documentation for new store type `AWS-ACM-v3`
+  * Documentation on AWS authentication specifics moved to [aws-auth-library](https://github.com/Keyfactor/aws-auth-library)
+* Updated naming scheme of project files, namespaces, and binaries
+* Removed `AWS-ACM` store type
+  * Major feature changes in 3.0 require a new store type definition
+* Removed `AwsCerManO` and `AwsCerManA` types
+  * These `DEPRECATED` Store Types are no longer supported
+
 2.2.1
 * Updated or removed package dependencies with a signing vulnerability
 
