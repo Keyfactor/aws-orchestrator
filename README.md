@@ -202,7 +202,7 @@ Inventory required actions:
 #### Store Type Creation
 
 ##### Using kfutil:
-`kfutil` is a custom CLI for the Keyfactor Command API and can be used to created certificate store types.
+`kfutil` is a custom CLI for the Keyfactor Command API and can be used to create certificate store types.
 For more information on [kfutil](https://github.com/Keyfactor/kfutil) check out the [docs](https://github.com/Keyfactor/kfutil?tab=readme-ov-file#quickstart)
    <details><summary>Click to expand AWS-ACM-v3 kfutil details</summary>
 
