@@ -51,13 +51,11 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs
         public JobResult ProcessJob(InventoryJobConfiguration jobConfiguration, SubmitInventoryUpdate submitInventoryUpdate)
         {
             Logger.MethodEntry();
-            Logger.LogTrace($"Deserializing Cert Store Properties: {jobConfiguration.CertificateStoreDetails.Properties}");
+
+            Logger.LogTrace("Deserializing Store Properties to AuthCustomFieldParameters object.");
             AuthCustomFieldParameters customFields = JsonConvert.DeserializeObject<AuthCustomFieldParameters>(jobConfiguration.CertificateStoreDetails.Properties,
                     new JsonSerializerSettings { DefaultValueHandling = DefaultValueHandling.Populate });
-            //
-            // TODO: Prevent logging of credentials, changes to custom fields in this release means logging this object (AND Properties above) logs credentials!!
-            //
-            Logger.LogTrace($"Populated ACMCustomFields: {JsonConvert.SerializeObject(customFields)}");
+            Logger.LogTrace("Deserialized Store Properties.");
 
             AuthenticationParameters authParams = new AuthenticationParameters
             {
@@ -67,9 +65,23 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs
             };
 
             Logger.LogTrace("Resolving AWS Credentials object.");
-            AwsExtensionCredential providedCredentials = AuthUtilities.GetCredentials(authParams);
-
+            AwsExtensionCredential providedCredentials;
+            try
+            {
+                providedCredentials = AuthUtilities.GetCredentials(authParams);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("An error occurred while trying to get AWS Credentials.");
+                return new JobResult
+                {
+                    Result = OrchestratorJobStatusJobResult.Failure,
+                    JobHistoryId = jobConfiguration.JobHistoryId,
+                    FailureMessage = ex.Message
+                };
+            }
             Logger.LogTrace("AWS Credentials resolved. Performing Inventory.");
+
             return PerformInventory(providedCredentials, jobConfiguration, submitInventoryUpdate);
         }
 
