@@ -1,0 +1,14 @@
+{
+  "extensions": {
+    "Keyfactor.Orchestrators.Extensions.IOrchestratorJobExtension": {
+      "CertStores.AWS-ACM-v3.Inventory": {
+        "assemblypath": "Keyfactor.Extensions.Orchestrator.Aws.Acm.dll",
+        "TypeFullName": "Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs.Inventory"
+      },
+      "CertStores.AWS-ACM-v3.Management": {
+        "assemblypath": "Keyfactor.Extensions.Orchestrator.Aws.Acm.dll",
+        "TypeFullName": "Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs.Management"
+      }
+    }
+  }
+}
