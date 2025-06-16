@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30717.126
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "aws-acm-orchestrator", "aws-acm-orchestrator\aws-acm-orchestrator.csproj", "{9BEDC094-06DC-40C6-B5DF-88B4960D4DCF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{515E06CB-9355-43EA-AF70-27F066A5C3AF}"
+	ProjectSection(SolutionItems) = preProject
+		integration-manifest.json = integration-manifest.json
+		readme_source.md = readme_source.md
+		sample-manifest.json = sample-manifest.json
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Images", "Images", "{7F05A217-0F85-48CA-933D-0621962E7E6D}"
+	ProjectSection(SolutionItems) = preProject
+		Images\AssumeRoleTrust.gif = Images\AssumeRoleTrust.gif
+		Images\AWSIdentityProvider.gif = Images\AWSIdentityProvider.gif
+		Images\AWSRole1.gif = Images\AWSRole1.gif
+		Images\AWSRole2.gif = Images\AWSRole2.gif
+		Images\CertStore-1.gif = Images\CertStore-1.gif
+		Images\CertStore-IAM.gif = Images\CertStore-IAM.gif
+		Images\CertStore2.gif = Images\CertStore2.gif
+		Images\CertStoreCredentials.gif = Images\CertStoreCredentials.gif
+		Images\CertStoreType-Advanced.gif = Images\CertStoreType-Advanced.gif
+		Images\CertStoreType-Basic-IAM.gif = Images\CertStoreType-Basic-IAM.gif
+		Images\CertStoreType-Basic-Okta.gif = Images\CertStoreType-Basic-Okta.gif
+		Images\CertStoreType-CustomFields-IAM.gif = Images\CertStoreType-CustomFields-IAM.gif
+		Images\CertStoreType-CustomFields-Okta.gif = Images\CertStoreType-CustomFields-Okta.gif
+		Images\CertStoreType-EntryParams.gif = Images\CertStoreType-EntryParams.gif
+		Images\OktaApp1.gif = Images\OktaApp1.gif
+		Images\OktaApp2.gif = Images\OktaApp2.gif
+		Images\OktaSampleAuthorizationServer-scopes.gif = Images\OktaSampleAuthorizationServer-scopes.gif
+		Images\OktaSampleAuthorizationServer.gif = Images\OktaSampleAuthorizationServer.gif
+		Images\UserAccount.gif = Images\UserAccount.gif
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9BEDC094-06DC-40C6-B5DF-88B4960D4DCF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BEDC094-06DC-40C6-B5DF-88B4960D4DCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BEDC094-06DC-40C6-B5DF-88B4960D4DCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BEDC094-06DC-40C6-B5DF-88B4960D4DCF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BB69DDA3-CEFA-427A-AA0A-D600D129B80B}
+	EndGlobalSection
+EndGlobal
