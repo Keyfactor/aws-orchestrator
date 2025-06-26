@@ -1,3 +1,7 @@
+3.0.1
+* Fixed a bug where memory streams closed early before submitting certificates to ACM in Management Add jobs
+* Fixed a bug where ACM tags would be "set" even if none where entered, preventing a certificate from being added without tags
+
 3.0.0
 * Upgrade to AWS SDK v4
   * All interactions with AWS now target the Region specified in `Store Path` with no "default" Region considered
