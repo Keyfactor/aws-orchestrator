@@ -199,6 +199,7 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs
                         Logger.LogTrace($"Got certPem {certPem}");
                         //Create Memory Stream For Server Cert
                         ImportCertificateRequest icr;
+                        ImportCertificateResponse IcrResponse;
                         using (MemoryStream serverCertStream = CertStringToStream(certPem))
                         {
                             using (MemoryStream privateStream = CertStringToStream(privateKeyString))
@@ -211,17 +212,24 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs
                                         PrivateKey = privateStream,
                                         CertificateChain = chainStream
                                     };
+                                
+                                    icr.CertificateArn = config.JobCertificate.Alias?.Length >= 20 ? config.JobCertificate.Alias.Trim() : null; //If an arn is provided, use it, this will perform a renewal/replace
+                                    Logger.LogTrace($"Certificate arn {icr.CertificateArn}");
+                                    
+                                    if (acmTags != null && acmTags.Count > 0)
+                                    {
+                                        Logger.LogDebug($"Number of ACM tags added to certificate: {acmTags.Count}");
+                                        icr.Tags = acmTags;
+                                    }
+                                    else
+                                    {
+                                        Logger.LogDebug("No ACM tags were added to the certificate");
+                                    }
+                        
+                                    IcrResponse = AsyncHelpers.RunSync(() => AcmClient.ImportCertificateAsync(icr));
                                 }
                             }
                         }
-                        icr.CertificateArn = config.JobCertificate.Alias?.Length >= 20 ? config.JobCertificate.Alias.Trim() : null; //If an arn is provided, use it, this will perform a renewal/replace
-                        if (icr.CertificateArn == null )
-                        {
-                            icr.Tags = acmTags;
-                        }
-                        Logger.LogTrace($"Certificate arn {icr.CertificateArn}");
-                        
-                        ImportCertificateResponse IcrResponse = AsyncHelpers.RunSync(() => AcmClient.ImportCertificateAsync(icr));
                         Logger.LogTrace($"IcrResponse JSON: {JsonConvert.SerializeObject(IcrResponse)}");
                         // Ensure 200 Response
                         if (IcrResponse.HttpStatusCode == HttpStatusCode.OK)
