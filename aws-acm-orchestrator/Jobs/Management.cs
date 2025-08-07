@@ -216,7 +216,7 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs
                                     icr.CertificateArn = config.JobCertificate.Alias?.Length >= 20 ? config.JobCertificate.Alias.Trim() : null; //If an arn is provided, use it, this will perform a renewal/replace
                                     Logger.LogTrace($"Certificate arn {icr.CertificateArn}");
                                     
-                                    if (acmTags != null && acmTags.Count > 0)
+                                    if (icr.CertificateArn == null && acmTags != null && acmTags.Count > 0)
                                     {
                                         Logger.LogDebug($"Number of ACM tags added to certificate: {acmTags.Count}");
                                         icr.Tags = acmTags;
