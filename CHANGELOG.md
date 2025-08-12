@@ -1,3 +1,6 @@
+3.0.2
+* Bug Fix - On Management jobs, do not send ACM tags if the certificate is being renewed/replaced
+
 3.0.1
 * Fixed a bug where memory streams closed early before submitting certificates to ACM in Management Add jobs
 * Fixed a bug where ACM tags would be "set" even if none where entered, preventing a certificate from being added without tags
