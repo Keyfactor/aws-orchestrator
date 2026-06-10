@@ -1,3 +1,6 @@
+3.0.3
+* Bug Fix - On Management Add/renewal jobs, the leaf certificate is no longer included in the `CertificateChain` sent to ACM. BouncyCastle's `GetCertificateChain` returns the leaf as the first element, and it was already sent separately as the certificate body, causing the leaf to appear twice within the published certificate's chain. When the certificate has no intermediates, the chain is now omitted entirely rather than sent empty.
+
 3.0.2
 * Bug Fix - On Management jobs, do not send ACM tags if the certificate is being renewed/replaced
 
