@@ -286,6 +286,105 @@ the Keyfactor Command Portal
 
    ![AWS-ACM-v3 Custom Fields Tab](docsource/images/AWS-ACM-v3-custom-fields-store-type-dialog.png)
 
+
+   ###### Use Default SDK Auth
+   A switch to enable the store to use Default SDK credentials
+
+   ![AWS-ACM-v3 Custom Field - UseDefaultSdkAuth](docsource/images/AWS-ACM-v3-custom-field-UseDefaultSdkAuth-dialog.png)
+   ![AWS-ACM-v3 Custom Field - UseDefaultSdkAuth](docsource/images/AWS-ACM-v3-custom-field-UseDefaultSdkAuth-validation-options-dialog.png)
+
+
+
+   ###### Assume new Role using Default SDK Auth
+   A switch to enable the store to assume a new Role when using Default SDK credentials
+
+   ![AWS-ACM-v3 Custom Field - DefaultSdkAssumeRole](docsource/images/AWS-ACM-v3-custom-field-DefaultSdkAssumeRole-dialog.png)
+   ![AWS-ACM-v3 Custom Field - DefaultSdkAssumeRole](docsource/images/AWS-ACM-v3-custom-field-DefaultSdkAssumeRole-validation-options-dialog.png)
+
+
+
+   ###### Use OAuth 2.0 Provider
+   A switch to enable the store to use an OAuth provider workflow to authenticate with AWS
+
+   ![AWS-ACM-v3 Custom Field - UseOAuth](docsource/images/AWS-ACM-v3-custom-field-UseOAuth-dialog.png)
+   ![AWS-ACM-v3 Custom Field - UseOAuth](docsource/images/AWS-ACM-v3-custom-field-UseOAuth-validation-options-dialog.png)
+
+
+
+   ###### OAuth Scope
+   This is the OAuth Scope needed for Okta OAuth, defined in Okta
+
+   ![AWS-ACM-v3 Custom Field - OAuthScope](docsource/images/AWS-ACM-v3-custom-field-OAuthScope-dialog.png)
+   ![AWS-ACM-v3 Custom Field - OAuthScope](docsource/images/AWS-ACM-v3-custom-field-OAuthScope-validation-options-dialog.png)
+
+
+
+   ###### OAuth Grant Type
+   In OAuth 2.0, the term 'grant type' refers to the way an application gets an access token. In Okta this is `client_credentials`
+
+   ![AWS-ACM-v3 Custom Field - OAuthGrantType](docsource/images/AWS-ACM-v3-custom-field-OAuthGrantType-dialog.png)
+   ![AWS-ACM-v3 Custom Field - OAuthGrantType](docsource/images/AWS-ACM-v3-custom-field-OAuthGrantType-validation-options-dialog.png)
+
+
+
+   ###### OAuth Url
+   An optional parameter sts:ExternalId to pass with Assume Role calls
+
+   ![AWS-ACM-v3 Custom Field - OAuthUrl](docsource/images/AWS-ACM-v3-custom-field-OAuthUrl-dialog.png)
+   ![AWS-ACM-v3 Custom Field - OAuthUrl](docsource/images/AWS-ACM-v3-custom-field-OAuthUrl-validation-options-dialog.png)
+
+
+
+   ###### OAuth Client ID
+   The Client ID for OAuth.
+
+   ![AWS-ACM-v3 Custom Field - OAuthClientId](docsource/images/AWS-ACM-v3-custom-field-OAuthClientId-dialog.png)
+   ![AWS-ACM-v3 Custom Field - OAuthClientId](docsource/images/AWS-ACM-v3-custom-field-OAuthClientId-validation-options-dialog.png)
+
+
+
+   ###### OAuth Client Secret
+   The Client Secret for OAuth.
+
+   ![AWS-ACM-v3 Custom Field - OAuthClientSecret](docsource/images/AWS-ACM-v3-custom-field-OAuthClientSecret-dialog.png)
+   ![AWS-ACM-v3 Custom Field - OAuthClientSecret](docsource/images/AWS-ACM-v3-custom-field-OAuthClientSecret-validation-options-dialog.png)
+
+
+
+   ###### Use IAM User Auth
+   A switch to enable the store to use IAM User auth to assume a role when authenticating with AWS
+
+   ![AWS-ACM-v3 Custom Field - UseIAM](docsource/images/AWS-ACM-v3-custom-field-UseIAM-dialog.png)
+   ![AWS-ACM-v3 Custom Field - UseIAM](docsource/images/AWS-ACM-v3-custom-field-UseIAM-validation-options-dialog.png)
+
+
+
+   ###### IAM User Access Key
+   The AWS Access Key for an IAM User
+
+   ![AWS-ACM-v3 Custom Field - IAMUserAccessKey](docsource/images/AWS-ACM-v3-custom-field-IAMUserAccessKey-dialog.png)
+   ![AWS-ACM-v3 Custom Field - IAMUserAccessKey](docsource/images/AWS-ACM-v3-custom-field-IAMUserAccessKey-validation-options-dialog.png)
+
+
+
+   ###### IAM User Access Secret
+   The AWS Access Secret for an IAM User.
+
+   ![AWS-ACM-v3 Custom Field - IAMUserAccessSecret](docsource/images/AWS-ACM-v3-custom-field-IAMUserAccessSecret-dialog.png)
+   ![AWS-ACM-v3 Custom Field - IAMUserAccessSecret](docsource/images/AWS-ACM-v3-custom-field-IAMUserAccessSecret-validation-options-dialog.png)
+
+
+
+   ###### sts:ExternalId
+   An optional parameter sts:ExternalId to pass with Assume Role calls
+
+   ![AWS-ACM-v3 Custom Field - ExternalId](docsource/images/AWS-ACM-v3-custom-field-ExternalId-dialog.png)
+   ![AWS-ACM-v3 Custom Field - ExternalId](docsource/images/AWS-ACM-v3-custom-field-ExternalId-validation-options-dialog.png)
+
+
+
+
+
    ##### Entry Parameters Tab
 
    | Name | Display Name | Description | Type | Default Value | Entry has a private key | Adding an entry | Removing an entry | Reenrolling an entry |
@@ -296,21 +395,29 @@ the Keyfactor Command Portal
 
    ![AWS-ACM-v3 Entry Parameters Tab](docsource/images/AWS-ACM-v3-entry-parameters-store-type-dialog.png)
 
+
+   ##### ACM Tags
+   The optional ACM tags that should be assigned to the certificate.  Multiple name/value pairs may be entered in the format of `Name1=Value1,Name2=Value2,...,NameN=ValueN`
+
+   ![AWS-ACM-v3 Entry Parameter - ACM Tags](docsource/images/AWS-ACM-v3-entry-parameters-store-type-dialog-ACM Tags.png)
+   ![AWS-ACM-v3 Entry Parameter - ACM Tags](docsource/images/AWS-ACM-v3-entry-parameters-store-type-dialog-ACM Tags-validation-options.png)
+
+
+
    </details>
 
 ## Installation
 
 1. **Download the latest AWS Certificate Manager (ACM) Universal Orchestrator extension from GitHub.**
 
-    Navigate to the [AWS Certificate Manager (ACM) Universal Orchestrator extension GitHub version page](https://github.com/Keyfactor/aws-orchestrator/releases/latest). Refer to the compatibility matrix below to determine whether the `net6.0` or `net8.0` asset should be downloaded. Then, click the corresponding asset to download the zip archive.
+    Navigate to the [AWS Certificate Manager (ACM) Universal Orchestrator extension GitHub version page](https://github.com/Keyfactor/aws-orchestrator/releases/latest). Refer to the compatibility matrix below to determine the asset should be downloaded. Then, click the corresponding asset to download the zip archive.
 
    | Universal Orchestrator Version | Latest .NET version installed on the Universal Orchestrator server | `rollForward` condition in `Orchestrator.runtimeconfig.json` | `aws-orchestrator` .NET version to download |
    | --------- | ----------- | ----------- | ----------- |
    | Older than `11.0.0` | | | `net6.0` |
    | Between `11.0.0` and `11.5.1` (inclusive) | `net6.0` | | `net6.0` |
-   | Between `11.0.0` and `11.5.1` (inclusive) | `net8.0` | `Disable` | `net6.0` |
-   | Between `11.0.0` and `11.5.1` (inclusive) | `net8.0` | `LatestMajor` | `net8.0` |
-   | `11.6` _and_ newer | `net8.0` | | `net8.0` |
+   | Between `11.0.0` and `11.5.1` (inclusive) | `net8.0` | `Disable` | `net6.0` || Between `11.0.0` and `11.5.1` (inclusive) | `net8.0` | `LatestMajor` | `net8.0` |
+   | `11.6` _and_ newer | `net8.0` | | `net8.0` | 
 
     Unzip the archive containing extension assemblies to a known location.
 
