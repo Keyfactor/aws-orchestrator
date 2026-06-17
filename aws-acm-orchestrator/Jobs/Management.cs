@@ -1,16 +1,10 @@
-﻿// Copyright 2025 Keyfactor
-// 
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-// 
-//     http://www.apache.org/licenses/LICENSE-2.0
-// 
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+﻿
+//  Copyright 2026 Keyfactor
+//  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+//  Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
+//  and limitations under the License.
 
 using Amazon.CertificateManager;
 using Amazon.CertificateManager.Model;
@@ -134,10 +128,10 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs
                     if (!string.IsNullOrWhiteSpace(config.JobCertificate.PrivateKeyPassword)) // This is a PFX Entry
                     {
                         Logger.LogTrace($"Found Private Key password.");
-                        if (!string.IsNullOrWhiteSpace(config.JobCertificate.Alias))
+                        if (IsAcmCertificateArn(config.JobCertificate.Alias))
                         {
-                            // Alias is specified, this is a replace / renewal
-                            Logger.LogDebug($"Alias specified, validating existing cert can be renewed / replaced: {config.JobCertificate.Alias}");
+                            // Alias is an ACM certificate ARN, so this is a replace / renewal of an existing cert
+                            Logger.LogDebug($"ACM ARN supplied as alias, validating existing cert can be renewed / replaced: {config.JobCertificate.Alias}");
                             // ARN Provided, Verify It is Not A PCA/Amazon Issued Cert
                             DescribeCertificateResponse DescribeCertificateResponse = AsyncHelpers.RunSync(() => AcmClient.DescribeCertificateAsync(config.JobCertificate.Alias));
                             Logger.LogTrace($"DescribeCertificateResponse JSON: {JsonConvert.SerializeObject(DescribeCertificateResponse)}");
@@ -213,7 +207,7 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs
                                         CertificateChain = chainStream
                                     };
                                 
-                                    icr.CertificateArn = config.JobCertificate.Alias?.Length >= 20 ? config.JobCertificate.Alias.Trim() : null; //If an arn is provided, use it, this will perform a renewal/replace
+                                    icr.CertificateArn = IsAcmCertificateArn(config.JobCertificate.Alias) ? config.JobCertificate.Alias.Trim() : null; //If an ACM certificate ARN is provided, reimport in place (renewal/replace); otherwise import as a new certificate
                                     Logger.LogTrace($"Certificate arn {icr.CertificateArn}");
                                     
                                     if (icr.CertificateArn == null && acmTags != null && acmTags.Count > 0)
@@ -352,13 +346,25 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs
             }
         }
 
-        private static MemoryStream GetChain(Pkcs12Store store, string alias)
+        internal static MemoryStream GetChain(Pkcs12Store store, string alias)
         {
             string ccs = "";
 
             X509CertificateEntry[] chain = store.GetCertificateChain(alias);
 
-            foreach (X509CertificateEntry chainEntry in chain)
+            // BouncyCastle returns the chain with the leaf/end-entity certificate as element [0],
+            // followed by any intermediates (and root). The leaf is already sent separately as the
+            // Certificate body of the ImportCertificateRequest, so it must NOT be repeated here;
+            // ACM's CertificateChain is expected to contain only the intermediate (and root) certs.
+            // Including the leaf caused it to appear twice within the published certificate's chain.
+            if (chain == null || chain.Length <= 1)
+            {
+                // Only the leaf is present (no intermediates) - omit the chain entirely rather than
+                // sending an empty value, which ACM may reject as an unparseable certificate chain.
+                return null;
+            }
+
+            foreach (X509CertificateEntry chainEntry in chain.Skip(1))
             {
                 ccs += certStart + _pemify(Convert.ToBase64String(chainEntry.Certificate.GetEncoded())) + certEnd + "\n";
             }
@@ -372,6 +378,22 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs
             // Builds a MemoryStream from the Base64 Encoded String Representation of a cert
             byte[] certBytes = Encoding.ASCII.GetBytes(certString);
             return new MemoryStream(certBytes);
+        }
+
+        /// <summary>
+        /// Determines whether the supplied alias is an AWS Certificate Manager certificate ARN
+        /// (e.g. arn:aws:acm:&lt;region&gt;:&lt;account&gt;:certificate/&lt;id&gt;). When it is, the certificate
+        /// already exists in ACM and an Add job should reimport in place (renewal/replace);
+        /// otherwise the certificate is imported as a new one and ACM assigns a fresh ARN.
+        /// Replaces an earlier alias-length heuristic that could misclassify a long friendly alias.
+        /// </summary>
+        internal static bool IsAcmCertificateArn(string alias)
+        {
+            if (string.IsNullOrWhiteSpace(alias)) return false;
+
+            string trimmed = alias.Trim();
+            return trimmed.StartsWith("arn:aws:acm:", StringComparison.OrdinalIgnoreCase)
+                && trimmed.Contains(":certificate/");
         }
 
         private List<Amazon.CertificateManager.Model.Tag> ParseACMTags(Dictionary<string, object> jobProperties)
