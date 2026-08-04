@@ -1,5 +1,13 @@
 ## Overview
 
+> [!WARNING]
+>
+> **The `AWS-ACM-v3` store type identifies each certificate store by a single AWS `Region` in the `Store Path` field, with the full Role ARN in `Client Machine`.**
+>
+> **New with cross-account Discovery:** `Store Path` now also accepts a **self-contained** value of the form **`<roleArn>|<region>`** — for example `arn:aws:iam::123456789012:role/KeyfactorACMDiscoveryRole|us-east-1` — which carries **both** the Role ARN to assume **and** the Region in a single field. Certificate stores created by cross-account Discovery use this combined format, and for those stores the `Client Machine` field is informational only. Legacy region-only `Store Path` values (with the Role ARN in `Client Machine`) continue to work.
+>
+> **Migrating from `AWS-ACM`, `AwsCerManO`, or `AwsCerManA`:** those older store types are **not** compatible and must be recreated as `AWS-ACM-v3`.
+
 AWS Certificate Manager is a service that lets you easily provision, manage, and deploy public and private Secure Sockets Layer/Transport Layer Security (SSL/TLS)
 certificates for use with AWS services and your internal connected resources.
 SSL/TLS certificates are used to secure network communications and establish the identity of websites over the Internet as well as resources on private networks.

@@ -31,6 +31,14 @@
 
 ## Overview
 
+> [!WARNING]
+>
+> **The `AWS-ACM-v3` store type identifies each certificate store by a single AWS `Region` in the `Store Path` field, with the full Role ARN in `Client Machine`.**
+>
+> **New with cross-account Discovery:** `Store Path` now also accepts a **self-contained** value of the form **`<roleArn>|<region>`** — for example `arn:aws:iam::123456789012:role/KeyfactorACMDiscoveryRole|us-east-1` — which carries **both** the Role ARN to assume **and** the Region in a single field. Certificate stores created by cross-account Discovery use this combined format, and for those stores the `Client Machine` field is informational only. Legacy region-only `Store Path` values (with the Role ARN in `Client Machine`) continue to work.
+>
+> **Migrating from `AWS-ACM`, `AwsCerManO`, or `AwsCerManA`:** those older store types are **not** compatible and must be recreated as `AWS-ACM-v3`.
+
 AWS Certificate Manager is a service that lets you easily provision, manage, and deploy public and private Secure Sockets Layer/Transport Layer Security (SSL/TLS)
 certificates for use with AWS services and your internal connected resources.
 SSL/TLS certificates are used to secure network communications and establish the identity of websites over the Internet as well as resources on private networks.
@@ -50,13 +58,12 @@ However, while the modification/addition of ACM tags is not supported, all exist
 - [How AWS works in this extension (aws-auth-library)](https://github.com/Keyfactor/aws-auth-library)
 - [AWS Region Codes](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.RegionsAndAvailabilityZones.html)
 
-
-
 ## Compatibility
 
 This integration is compatible with Keyfactor Universal Orchestrator version 10.1 and later.
 
 ## Support
+
 The AWS Certificate Manager (ACM) Universal Orchestrator extension is supported by Keyfactor. If you require support for any issues or have feature request, please open a support ticket by either contacting your Keyfactor representative or via the Keyfactor Support Portal at https://support.keyfactor.com.
 
 > If you want to contribute bug fixes or additional enhancements, use the **[Pull requests](../../pulls)** tab.
@@ -64,7 +71,6 @@ The AWS Certificate Manager (ACM) Universal Orchestrator extension is supported 
 ## Requirements & Prerequisites
 
 Before installing the AWS Certificate Manager (ACM) Universal Orchestrator extension, we recommend that you install [kfutil](https://github.com/Keyfactor/kfutil). Kfutil is a command-line tool that simplifies the process of creating store types, installing extensions, and instantiating certificate stores in Keyfactor Command.
-
 
 ### Migrate existing ACM stores to the new type (AWS Certificate Manager v3)
 
@@ -140,12 +146,9 @@ Select the `Use IAM` option for a certificate store to use an IAM User credentia
 
 </details>
 
-
 ## AWS-ACM-v3 Certificate Store Type
 
 To use the AWS Certificate Manager (ACM) Universal Orchestrator extension, you **must** create the AWS-ACM-v3 Certificate Store Type. This only needs to happen _once_ per Keyfactor Command instance.
-
-
 
 The AWS Certificate Manager v3 Store Type provides enhanced authentication options for managing certificates in ACM.
 Each defined Certificate Store of this type targets a specific AWS Region with a specific Destination account in mind.
@@ -154,6 +157,7 @@ Therefore, each Certificate Store instance is intended to represent a single Rol
 Some authentication configurations do not adhere strictly to this, so when using the various methods offered in the Default SDK auth option,
 a full understanding of how permissions work in AWS is recommended.
 In most scenarios using the Default SDK option, the Assume Role flag should also be set to avoid confusion, and use the Role ARN in the `Client Machine` field as the Destination account.
+
 The latest version of the Store Type supporting ACM (AWS Certificate Manager) is `AWS-ACM-v3`.
 Previous store types are no longer supported and should be migrated to the new Store Type definition.
 When migrating to the `AWS-ACM-v3` type please note that field usage has changed and does not map over directly.
@@ -161,10 +165,6 @@ When migrating to the `AWS-ACM-v3` type please note that field usage has changed
 > [!WARNING]
 > When creating Certificate Stores, all available Secret type fields need to have a value set for them, even if that is "No Value".
 > Failing to set these Secret fields, even when not in use, causes errors that may require database access to fix.
-
-
-
-
 
 #### AWS Certificate Manager v3 Requirements
 
@@ -187,23 +187,22 @@ Inventory required actions:
     "acm:ImportCertificate"
 ~~~
 
-
-
 #### Supported Operations
 
-| Operation    | Is Supported                                                                                                           |
-|--------------|------------------------------------------------------------------------------------------------------------------------|
-| Add          | ✅ Checked        |
-| Remove       | ✅ Checked     |
-| Discovery    | 🔲 Unchecked  |
+| Operation    | Is Supported |
+|--------------|--------------|
+| Add          | ✅ Checked |
+| Remove       | ✅ Checked |
+| Discovery    | ✅ Checked |
 | Reenrollment | 🔲 Unchecked |
-| Create       | 🔲 Unchecked     |
+| Create       | 🔲 Unchecked |
 
 #### Store Type Creation
 
 ##### Using kfutil:
 `kfutil` is a custom CLI for the Keyfactor Command API and can be used to create certificate store types.
 For more information on [kfutil](https://github.com/Keyfactor/kfutil) check out the [docs](https://github.com/Keyfactor/kfutil?tab=readme-ov-file#quickstart)
+
    <details><summary>Click to expand AWS-ACM-v3 kfutil details</summary>
 
    ##### Using online definition from GitHub:
@@ -222,10 +221,10 @@ For more information on [kfutil](https://github.com/Keyfactor/kfutil) check out 
    ```
    </details>
 
-
 #### Manual Creation
 Below are instructions on how to create the AWS-ACM-v3 store type manually in
 the Keyfactor Command Portal
+
    <details><summary>Click to expand manual AWS-ACM-v3 details</summary>
 
    Create a store type called `AWS-ACM-v3` with the attributes in the tables below:
@@ -236,11 +235,11 @@ the Keyfactor Command Portal
    | Name | AWS Certificate Manager v3 | Display name for the store type (may be customized) |
    | Short Name | AWS-ACM-v3 | Short display name for the store type |
    | Capability | AWS-ACM-v3 | Store type name orchestrator will register with. Check the box to allow entry of value |
-   | Supports Add | ✅ Checked | Check the box. Indicates that the Store Type supports Management Add |
-   | Supports Remove | ✅ Checked | Check the box. Indicates that the Store Type supports Management Remove |
-   | Supports Discovery | 🔲 Unchecked |  Indicates that the Store Type supports Discovery |
-   | Supports Reenrollment | 🔲 Unchecked |  Indicates that the Store Type supports Reenrollment |
-   | Supports Create | 🔲 Unchecked |  Indicates that the Store Type supports store creation |
+   | Supports Add | ✅ Checked | Indicates that the Store Type supports Management Add |
+   | Supports Remove | ✅ Checked | Indicates that the Store Type supports Management Remove |
+   | Supports Discovery | ✅ Checked | Indicates that the Store Type supports Discovery |
+   | Supports Reenrollment | 🔲 Unchecked | Indicates that the Store Type supports Reenrollment |
+   | Supports Create | 🔲 Unchecked | Indicates that the Store Type supports store creation |
    | Needs Server | 🔲 Unchecked | Determines if a target server name is required when creating store |
    | Blueprint Allowed | ✅ Checked | Determines if store type may be included in an Orchestrator blueprint |
    | Uses PowerShell | 🔲 Unchecked | Determines if underlying implementation is PowerShell |
@@ -249,18 +248,18 @@ the Keyfactor Command Portal
 
    The Basic tab should look like this:
 
-   ![AWS-ACM-v3 Basic Tab](docsource/images/AWS-ACM-v3-basic-store-type-dialog.png)
+   ![AWS-ACM-v3 Basic Tab](docsource/images/AWS-ACM-v3-basic-store-type-dialog.svg)
 
    ##### Advanced Tab
    | Attribute | Value | Description |
    | --------- | ----- | ----- |
    | Supports Custom Alias | Optional | Determines if an individual entry within a store can have a custom Alias. |
-   | Private Key Handling | Required | This determines if Keyfactor can send the private key associated with a certificate to the store. Required because IIS certificates without private keys would be invalid. |
+   | Private Key Handling | Required | This determines if Keyfactor can send the private key associated with a certificate to the store. |
    | PFX Password Style | Default | 'Default' - PFX password is randomly generated, 'Custom' - PFX password may be specified when the enrollment job is created (Requires the Allow Custom Password application setting to be enabled.) |
 
    The Advanced tab should look like this:
 
-   ![AWS-ACM-v3 Advanced Tab](docsource/images/AWS-ACM-v3-advanced-store-type-dialog.png)
+   ![AWS-ACM-v3 Advanced Tab](docsource/images/AWS-ACM-v3-advanced-store-type-dialog.svg)
 
    > For Keyfactor **Command versions 24.4 and later**, a Certificate Format dropdown is available with PFX and PEM options. Ensure that **PFX** is selected, as this determines the format of new and renewed certificates sent to the Orchestrator during a Management job. Currently, all Keyfactor-supported Orchestrator extensions support only PFX.
 
@@ -281,108 +280,88 @@ the Keyfactor Command Portal
    | IAMUserAccessKey | IAM User Access Key | The AWS Access Key for an IAM User | Secret |  | 🔲 Unchecked |
    | IAMUserAccessSecret | IAM User Access Secret | The AWS Access Secret for an IAM User. | Secret |  | 🔲 Unchecked |
    | ExternalId | sts:ExternalId | An optional parameter sts:ExternalId to pass with Assume Role calls | String |  | 🔲 Unchecked |
+   | DiscoveryRoleName | Discovery Role Name | The IAM role name that exists in each target account. Used during cross-account Discovery to construct the Role ARN for cross-account access (arn:aws:iam::<account-id>:role/<this-value>). During a Discovery job this is supplied via the 'File name patterns to match' dialog field; this store property documents and defaults the value. | String | KeyfactorACMDiscoveryRole | 🔲 Unchecked |
 
    The Custom Fields tab should look like this:
 
-   ![AWS-ACM-v3 Custom Fields Tab](docsource/images/AWS-ACM-v3-custom-fields-store-type-dialog.png)
-
+   ![AWS-ACM-v3 Custom Fields Tab](docsource/images/AWS-ACM-v3-custom-fields-store-type-dialog.svg)
 
    ###### Use Default SDK Auth
    A switch to enable the store to use Default SDK credentials
 
-   ![AWS-ACM-v3 Custom Field - UseDefaultSdkAuth](docsource/images/AWS-ACM-v3-custom-field-UseDefaultSdkAuth-dialog.png)
-   ![AWS-ACM-v3 Custom Field - UseDefaultSdkAuth](docsource/images/AWS-ACM-v3-custom-field-UseDefaultSdkAuth-validation-options-dialog.png)
-
+   ![AWS-ACM-v3 Custom Field - UseDefaultSdkAuth](docsource/images/AWS-ACM-v3-custom-field-UseDefaultSdkAuth-dialog.svg)
 
 
    ###### Assume new Role using Default SDK Auth
    A switch to enable the store to assume a new Role when using Default SDK credentials
 
-   ![AWS-ACM-v3 Custom Field - DefaultSdkAssumeRole](docsource/images/AWS-ACM-v3-custom-field-DefaultSdkAssumeRole-dialog.png)
-   ![AWS-ACM-v3 Custom Field - DefaultSdkAssumeRole](docsource/images/AWS-ACM-v3-custom-field-DefaultSdkAssumeRole-validation-options-dialog.png)
-
+   ![AWS-ACM-v3 Custom Field - DefaultSdkAssumeRole](docsource/images/AWS-ACM-v3-custom-field-DefaultSdkAssumeRole-dialog.svg)
 
 
    ###### Use OAuth 2.0 Provider
    A switch to enable the store to use an OAuth provider workflow to authenticate with AWS
 
-   ![AWS-ACM-v3 Custom Field - UseOAuth](docsource/images/AWS-ACM-v3-custom-field-UseOAuth-dialog.png)
-   ![AWS-ACM-v3 Custom Field - UseOAuth](docsource/images/AWS-ACM-v3-custom-field-UseOAuth-validation-options-dialog.png)
-
+   ![AWS-ACM-v3 Custom Field - UseOAuth](docsource/images/AWS-ACM-v3-custom-field-UseOAuth-dialog.svg)
 
 
    ###### OAuth Scope
    This is the OAuth Scope needed for Okta OAuth, defined in Okta
 
-   ![AWS-ACM-v3 Custom Field - OAuthScope](docsource/images/AWS-ACM-v3-custom-field-OAuthScope-dialog.png)
-   ![AWS-ACM-v3 Custom Field - OAuthScope](docsource/images/AWS-ACM-v3-custom-field-OAuthScope-validation-options-dialog.png)
-
+   ![AWS-ACM-v3 Custom Field - OAuthScope](docsource/images/AWS-ACM-v3-custom-field-OAuthScope-dialog.svg)
 
 
    ###### OAuth Grant Type
    In OAuth 2.0, the term 'grant type' refers to the way an application gets an access token. In Okta this is `client_credentials`
 
-   ![AWS-ACM-v3 Custom Field - OAuthGrantType](docsource/images/AWS-ACM-v3-custom-field-OAuthGrantType-dialog.png)
-   ![AWS-ACM-v3 Custom Field - OAuthGrantType](docsource/images/AWS-ACM-v3-custom-field-OAuthGrantType-validation-options-dialog.png)
-
+   ![AWS-ACM-v3 Custom Field - OAuthGrantType](docsource/images/AWS-ACM-v3-custom-field-OAuthGrantType-dialog.svg)
 
 
    ###### OAuth Url
    An optional parameter sts:ExternalId to pass with Assume Role calls
 
-   ![AWS-ACM-v3 Custom Field - OAuthUrl](docsource/images/AWS-ACM-v3-custom-field-OAuthUrl-dialog.png)
-   ![AWS-ACM-v3 Custom Field - OAuthUrl](docsource/images/AWS-ACM-v3-custom-field-OAuthUrl-validation-options-dialog.png)
-
+   ![AWS-ACM-v3 Custom Field - OAuthUrl](docsource/images/AWS-ACM-v3-custom-field-OAuthUrl-dialog.svg)
 
 
    ###### OAuth Client ID
    The Client ID for OAuth.
 
-   ![AWS-ACM-v3 Custom Field - OAuthClientId](docsource/images/AWS-ACM-v3-custom-field-OAuthClientId-dialog.png)
-   ![AWS-ACM-v3 Custom Field - OAuthClientId](docsource/images/AWS-ACM-v3-custom-field-OAuthClientId-validation-options-dialog.png)
-
+   ![AWS-ACM-v3 Custom Field - OAuthClientId](docsource/images/AWS-ACM-v3-custom-field-OAuthClientId-dialog.svg)
 
 
    ###### OAuth Client Secret
    The Client Secret for OAuth.
 
-   ![AWS-ACM-v3 Custom Field - OAuthClientSecret](docsource/images/AWS-ACM-v3-custom-field-OAuthClientSecret-dialog.png)
-   ![AWS-ACM-v3 Custom Field - OAuthClientSecret](docsource/images/AWS-ACM-v3-custom-field-OAuthClientSecret-validation-options-dialog.png)
-
+   ![AWS-ACM-v3 Custom Field - OAuthClientSecret](docsource/images/AWS-ACM-v3-custom-field-OAuthClientSecret-dialog.svg)
 
 
    ###### Use IAM User Auth
    A switch to enable the store to use IAM User auth to assume a role when authenticating with AWS
 
-   ![AWS-ACM-v3 Custom Field - UseIAM](docsource/images/AWS-ACM-v3-custom-field-UseIAM-dialog.png)
-   ![AWS-ACM-v3 Custom Field - UseIAM](docsource/images/AWS-ACM-v3-custom-field-UseIAM-validation-options-dialog.png)
-
+   ![AWS-ACM-v3 Custom Field - UseIAM](docsource/images/AWS-ACM-v3-custom-field-UseIAM-dialog.svg)
 
 
    ###### IAM User Access Key
    The AWS Access Key for an IAM User
 
-   ![AWS-ACM-v3 Custom Field - IAMUserAccessKey](docsource/images/AWS-ACM-v3-custom-field-IAMUserAccessKey-dialog.png)
-   ![AWS-ACM-v3 Custom Field - IAMUserAccessKey](docsource/images/AWS-ACM-v3-custom-field-IAMUserAccessKey-validation-options-dialog.png)
-
+   ![AWS-ACM-v3 Custom Field - IAMUserAccessKey](docsource/images/AWS-ACM-v3-custom-field-IAMUserAccessKey-dialog.svg)
 
 
    ###### IAM User Access Secret
    The AWS Access Secret for an IAM User.
 
-   ![AWS-ACM-v3 Custom Field - IAMUserAccessSecret](docsource/images/AWS-ACM-v3-custom-field-IAMUserAccessSecret-dialog.png)
-   ![AWS-ACM-v3 Custom Field - IAMUserAccessSecret](docsource/images/AWS-ACM-v3-custom-field-IAMUserAccessSecret-validation-options-dialog.png)
-
+   ![AWS-ACM-v3 Custom Field - IAMUserAccessSecret](docsource/images/AWS-ACM-v3-custom-field-IAMUserAccessSecret-dialog.svg)
 
 
    ###### sts:ExternalId
    An optional parameter sts:ExternalId to pass with Assume Role calls
 
-   ![AWS-ACM-v3 Custom Field - ExternalId](docsource/images/AWS-ACM-v3-custom-field-ExternalId-dialog.png)
-   ![AWS-ACM-v3 Custom Field - ExternalId](docsource/images/AWS-ACM-v3-custom-field-ExternalId-validation-options-dialog.png)
+   ![AWS-ACM-v3 Custom Field - ExternalId](docsource/images/AWS-ACM-v3-custom-field-ExternalId-dialog.svg)
 
 
+   ###### Discovery Role Name
+   The IAM role name that exists in each target account. Used during cross-account Discovery to construct the Role ARN for cross-account access (arn:aws:iam::<account-id>:role/<this-value>). During a Discovery job this is supplied via the 'File name patterns to match' dialog field; this store property documents and defaults the value.
 
+   ![AWS-ACM-v3 Custom Field - DiscoveryRoleName](docsource/images/AWS-ACM-v3-custom-field-DiscoveryRoleName-dialog.svg)
 
 
    ##### Entry Parameters Tab
@@ -393,15 +372,11 @@ the Keyfactor Command Portal
 
    The Entry Parameters tab should look like this:
 
-   ![AWS-ACM-v3 Entry Parameters Tab](docsource/images/AWS-ACM-v3-entry-parameters-store-type-dialog.png)
-
-
+   ![AWS-ACM-v3 Entry Parameters Tab](docsource/images/AWS-ACM-v3-entry-parameters-store-type-dialog.svg)
    ##### ACM Tags
    The optional ACM tags that should be assigned to the certificate.  Multiple name/value pairs may be entered in the format of `Name1=Value1,Name2=Value2,...,NameN=ValueN`
 
-   ![AWS-ACM-v3 Entry Parameter - ACM Tags](docsource/images/AWS-ACM-v3-entry-parameters-store-type-dialog-ACM Tags.png)
-   ![AWS-ACM-v3 Entry Parameter - ACM Tags](docsource/images/AWS-ACM-v3-entry-parameters-store-type-dialog-ACM Tags-validation-options.png)
-
+   ![AWS-ACM-v3 Entry Parameter - ACM Tags](docsource/images/AWS-ACM-v3-entry-parameters-store-type-dialog-ACM Tags.svg)
 
 
    </details>
@@ -410,18 +385,19 @@ the Keyfactor Command Portal
 
 1. **Download the latest AWS Certificate Manager (ACM) Universal Orchestrator extension from GitHub.**
 
-    Navigate to the [AWS Certificate Manager (ACM) Universal Orchestrator extension GitHub version page](https://github.com/Keyfactor/aws-orchestrator/releases/latest). Refer to the compatibility matrix below to determine the asset should be downloaded. Then, click the corresponding asset to download the zip archive.
+    Navigate to the [AWS Certificate Manager (ACM) Universal Orchestrator extension GitHub version page](https://github.com/Keyfactor/aws-orchestrator/releases/latest). Refer to the compatibility matrix below to determine which asset should be downloaded. Then, click the corresponding asset to download the zip archive.
 
    | Universal Orchestrator Version | Latest .NET version installed on the Universal Orchestrator server | `rollForward` condition in `Orchestrator.runtimeconfig.json` | `aws-orchestrator` .NET version to download |
    | --------- | ----------- | ----------- | ----------- |
    | Older than `11.0.0` | | | `net6.0` |
    | Between `11.0.0` and `11.5.1` (inclusive) | `net6.0` | | `net6.0` |
-   | Between `11.0.0` and `11.5.1` (inclusive) | `net8.0` | `Disable` | `net6.0` || Between `11.0.0` and `11.5.1` (inclusive) | `net8.0` | `LatestMajor` | `net8.0` |
-   | `11.6` _and_ newer | `net8.0` | | `net8.0` | 
+   | Between `11.0.0` and `11.5.1` (inclusive) | `net8.0` | `Disable` | `net6.0` |
+   | Between `11.0.0` and `11.5.1` (inclusive) | `net8.0` | `LatestMajor` | `net8.0` |
+   | `11.6` _and_ newer | `net8.0` | | `net8.0` |
 
     Unzip the archive containing extension assemblies to a known location.
 
-    > **Note** If you don't see an asset with a corresponding .NET version, you should always assume that it was compiled for `net6.0`.
+    > **Note** If you don't see an asset with a corresponding .NET version, you should always assume that it was compiled for `net8.0`.
 
 2. **Locate the Universal Orchestrator extensions directory.**
 
@@ -439,20 +415,15 @@ the Keyfactor Command Portal
 
     Refer to [Starting/Restarting the Universal Orchestrator service](https://software.keyfactor.com/Core-OnPrem/Current/Content/InstallingAgents/NetCoreOrchestrator/StarttheService.htm).
 
-
 6. **(optional) PAM Integration**
 
     The AWS Certificate Manager (ACM) Universal Orchestrator extension is compatible with all supported Keyfactor PAM extensions to resolve PAM-eligible secrets. PAM extensions running on Universal Orchestrators enable secure retrieval of secrets from a connected PAM provider.
 
     To configure a PAM provider, [reference the Keyfactor Integration Catalog](https://keyfactor.github.io/integrations-catalog/content/pam) to select an extension and follow the associated instructions to install it on the Universal Orchestrator (remote).
 
-
 > The above installation steps can be supplemented by the [official Command documentation](https://software.keyfactor.com/Core-OnPrem/Current/Content/InstallingAgents/NetCoreOrchestrator/CustomExtensions.htm?Highlight=extensions).
 
-
-
 ## Defining Certificate Stores
-
 
 The latest version of the Store Type supporting ACM (AWS Certificate Manager) is `AWS-ACM-v3`.
 Previous store types are no longer supported and should be migrated to the new Store Type definition.
@@ -461,7 +432,6 @@ When migrating to the `AWS-ACM-v3` type please note that field usage has changed
 > [!WARNING]
 > When creating Certificate Stores, all available Secret type fields need to have a value set for them, even if that is "No Value".
 > Failing to set these Secret fields, even when not in use, causes errors that may require database access to fix.
-
 
 ### Store Creation
 
@@ -477,12 +447,12 @@ When migrating to the `AWS-ACM-v3` type please note that field usage has changed
 
     Click the Add button to add a new Certificate Store. Use the table below to populate the **Attributes** in the **Add** form.
 
-   | Attribute | Description                                             |
-   | --------- |---------------------------------------------------------|
+   | Attribute | Description |
+   | --------- | ----------- |
    | Category | Select "AWS Certificate Manager v3" or the customized certificate store name from the previous step. |
    | Container | Optional container to associate certificate store with. |
    | Client Machine | This is a full AWS ARN specifying a Role. This is the Role that will be assumed in any Auth scenario performing Assume Role. This will dictate what certificates are usable by the orchestrator. A preceding [profile] name should be included if a Credential Profile is to be used in Default Sdk Auth. |
-   | Store Path | A single specified AWS Region the store will operate in. Additional regions should get their own store defined. |
+   | Store Path | The AWS Region the store operates in (e.g. us-east-1). Stores created by cross-account Discovery instead use a self-contained path of the form '<roleArn>|<region>' (e.g. 'arn:aws:iam::123456789012:role/KeyfactorACMDiscoveryRole|us-east-1') which carries both the Role ARN to assume and the Region; for those stores the Client Machine field is informational only. Additional regions should get their own store defined. |
    | Orchestrator | Select an approved orchestrator capable of managing `AWS-ACM-v3` certificates. Specifically, one with the `AWS-ACM-v3` capability. |
    | UseDefaultSdkAuth | A switch to enable the store to use Default SDK credentials |
    | DefaultSdkAssumeRole | A switch to enable the store to assume a new Role when using Default SDK credentials |
@@ -496,10 +466,9 @@ When migrating to the `AWS-ACM-v3` type please note that field usage has changed
    | IAMUserAccessKey | The AWS Access Key for an IAM User |
    | IAMUserAccessSecret | The AWS Access Secret for an IAM User. |
    | ExternalId | An optional parameter sts:ExternalId to pass with Assume Role calls |
+   | DiscoveryRoleName | The IAM role name that exists in each target account. Used during cross-account Discovery to construct the Role ARN for cross-account access (arn:aws:iam::<account-id>:role/<this-value>). During a Discovery job this is supplied via the 'File name patterns to match' dialog field; this store property documents and defaults the value. |
 
 </details>
-
-
 
 #### Using kfutil CLI
 
@@ -519,7 +488,7 @@ When migrating to the `AWS-ACM-v3` type please note that field usage has changed
    | Category | Select "AWS Certificate Manager v3" or the customized certificate store name from the previous step. |
    | Container | Optional container to associate certificate store with. |
    | Client Machine | This is a full AWS ARN specifying a Role. This is the Role that will be assumed in any Auth scenario performing Assume Role. This will dictate what certificates are usable by the orchestrator. A preceding [profile] name should be included if a Credential Profile is to be used in Default Sdk Auth. |
-   | Store Path | A single specified AWS Region the store will operate in. Additional regions should get their own store defined. |
+   | Store Path | The AWS Region the store operates in (e.g. us-east-1). Stores created by cross-account Discovery instead use a self-contained path of the form '<roleArn>|<region>' (e.g. 'arn:aws:iam::123456789012:role/KeyfactorACMDiscoveryRole|us-east-1') which carries both the Role ARN to assume and the Region; for those stores the Client Machine field is informational only. Additional regions should get their own store defined. |
    | Orchestrator | Select an approved orchestrator capable of managing `AWS-ACM-v3` certificates. Specifically, one with the `AWS-ACM-v3` capability. |
    | Properties.UseDefaultSdkAuth | A switch to enable the store to use Default SDK credentials |
    | Properties.DefaultSdkAssumeRole | A switch to enable the store to assume a new Role when using Default SDK credentials |
@@ -533,6 +502,7 @@ When migrating to the `AWS-ACM-v3` type please note that field usage has changed
    | Properties.IAMUserAccessKey | The AWS Access Key for an IAM User |
    | Properties.IAMUserAccessSecret | The AWS Access Secret for an IAM User. |
    | Properties.ExternalId | An optional parameter sts:ExternalId to pass with Assume Role calls |
+   | Properties.DiscoveryRoleName | The IAM role name that exists in each target account. Used during cross-account Discovery to construct the Role ARN for cross-account access (arn:aws:iam::<account-id>:role/<this-value>). During a Discovery job this is supplied via the 'File name patterns to match' dialog field; this store property documents and defaults the value. |
 
 3. **Import the CSV file to create the certificate stores**
 
@@ -541,7 +511,6 @@ When migrating to the `AWS-ACM-v3` type please note that field usage has changed
     ```
 
 </details>
-
 
 #### PAM Provider Eligible Fields
 <details><summary>Attributes eligible for retrieval by a PAM Provider on the Universal Orchestrator</summary>
@@ -560,11 +529,7 @@ Please refer to the **Universal Orchestrator (remote)** usage section ([PAM prov
 
 </details>
 
-
 > The content in this section can be supplemented by the [official Command documentation](https://software.keyfactor.com/Core-OnPrem/Current/Content/ReferenceGuide/Certificate%20Stores.htm?Highlight=certificate%20store).
-
-
-
 
 
 ## License

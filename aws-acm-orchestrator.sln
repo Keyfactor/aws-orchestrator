@@ -1,14 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30717.126
+# Visual Studio Version 18
+VisualStudioVersion = 18.8.12023.21 stable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "aws-acm-orchestrator", "aws-acm-orchestrator\aws-acm-orchestrator.csproj", "{9BEDC094-06DC-40C6-B5DF-88B4960D4DCF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "aws-acm-orchestrator.Tests", "aws-acm-orchestrator.Tests\aws-acm-orchestrator.Tests.csproj", "{A1B2C3D4-E5F6-47A8-9B0C-1D2E3F4A5B6C}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{515E06CB-9355-43EA-AF70-27F066A5C3AF}"
 	ProjectSection(SolutionItems) = preProject
+		docsource\aws-acm-v3.md = docsource\aws-acm-v3.md
+		docsource\content.md = docsource\content.md
 		integration-manifest.json = integration-manifest.json
 		readme_source.md = readme_source.md
 		sample-manifest.json = sample-manifest.json
@@ -47,10 +47,6 @@ Global
 		{9BEDC094-06DC-40C6-B5DF-88B4960D4DCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9BEDC094-06DC-40C6-B5DF-88B4960D4DCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9BEDC094-06DC-40C6-B5DF-88B4960D4DCF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A1B2C3D4-E5F6-47A8-9B0C-1D2E3F4A5B6C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A1B2C3D4-E5F6-47A8-9B0C-1D2E3F4A5B6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A1B2C3D4-E5F6-47A8-9B0C-1D2E3F4A5B6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A1B2C3D4-E5F6-47A8-9B0C-1D2E3F4A5B6C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

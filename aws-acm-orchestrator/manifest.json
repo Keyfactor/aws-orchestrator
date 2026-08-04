@@ -8,6 +8,10 @@
       "CertStores.AWS-ACM-v3.Management": {
         "assemblypath": "Keyfactor.Extensions.Orchestrator.Aws.Acm.dll",
         "TypeFullName": "Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs.Management"
+      },
+      "CertStores.AWS-ACM-v3.Discovery": {
+        "assemblypath": "Keyfactor.Extensions.Orchestrator.Aws.Acm.dll",
+        "TypeFullName": "Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs.Discovery"
       }
     }
   }

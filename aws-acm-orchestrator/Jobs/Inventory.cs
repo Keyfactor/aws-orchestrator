@@ -1,10 +1,16 @@
-﻿
-//  Copyright 2026 Keyfactor
-//  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-//  Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS,
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
-//  and limitations under the License.
+﻿// Copyright 2025 Keyfactor
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+//     http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 using Amazon.CertificateManager;
 using Amazon.CertificateManager.Model;
@@ -51,10 +57,19 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs
                     new JsonSerializerSettings { DefaultValueHandling = DefaultValueHandling.Populate });
             Logger.LogTrace("Deserialized Store Properties.");
 
+            // StorePath may be a legacy region ("us-east-1") with the Role ARN in ClientMachine, or
+            // a self-contained "<roleArn>|<region>" emitted by cross-account Discovery. Parse handles both.
+            var (roleArn, region) = StorePathParser.Parse(
+                jobConfiguration.CertificateStoreDetails.StorePath,
+                jobConfiguration.CertificateStoreDetails.ClientMachine);
+
+            string storeRef = StoreRef(jobConfiguration.CertificateStoreDetails.ClientMachine,
+                jobConfiguration.CertificateStoreDetails.StorePath);
+
             AuthenticationParameters authParams = new AuthenticationParameters
             {
-                RoleARN = jobConfiguration.CertificateStoreDetails.ClientMachine,
-                Region = jobConfiguration.CertificateStoreDetails.StorePath,
+                RoleARN = roleArn,
+                Region = region,
                 CustomFields = customFields
             };
 
@@ -66,14 +81,16 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs
             }
             catch (Exception ex)
             {
-                Logger.LogError("An error occurred while trying to get AWS Credentials.");
+                Logger.LogError($"An error occurred while trying to get AWS Credentials for {storeRef}.");
                 return new JobResult
                 {
                     Result = OrchestratorJobStatusJobResult.Failure,
                     JobHistoryId = jobConfiguration.JobHistoryId,
-                    FailureMessage = ex.Message
+                    FailureMessage = $"Failed to resolve AWS credentials for {storeRef}: {ex.Message}"
                 };
             }
+            string authMethod = AuthDescription.DescribeMethod(customFields, roleArn);
+            Logger.LogInformation($"AWS credential method resolved: [{authMethod}] for {storeRef}.");
             Logger.LogTrace("AWS Credentials resolved. Performing Inventory.");
 
             return PerformInventory(providedCredentials, jobConfiguration, submitInventoryUpdate);
@@ -84,6 +101,8 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs
             Logger.MethodEntry();
             bool warningFlag = false;
             int totalCertificates = 0;
+            string storeRef = StoreRef(config.CertificateStoreDetails.ClientMachine,
+                config.CertificateStoreDetails.StorePath);
             try
             {
                 List<CurrentInventoryItem> inventoryItems = new List<CurrentInventoryItem>();
@@ -136,42 +155,60 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs
                     req.NextToken = AllCertificates.NextToken;
                 } while (AllCertificates.NextToken != null);
 
-                Logger.LogDebug($"Found {totalCertificates} Total Certificates In Amazon Certificate Manager Inventory Job.");
+                int skipped = totalCertificates - inventoryItems.Count;
+                string region = awsCredentials.Region.SystemName;
                 Logger.LogTrace($"inventoryItems Response JSON: {JsonConvert.SerializeObject(inventoryItems)}");
 
                 siu.Invoke(inventoryItems);
 
                 if (warningFlag)
                 {
-                    Logger.LogWarning("Found Warning(s) during inventory.");
+                    string warnSummary = $"Inventory of ACM region {region} for {storeRef} completed with warnings: found {totalCertificates} certificate(s), " +
+                        $"reported {inventoryItems.Count} to Keyfactor Command, and skipped {skipped} that could not be retrieved from ACM " +
+                        "(the certificate ARN and error for each skipped item are logged individually above).";
+                    Logger.LogWarning(warnSummary);
                     return new JobResult
                     {
                         Result = OrchestratorJobStatusJobResult.Warning,
                         JobHistoryId = config.JobHistoryId,
-                        FailureMessage = "Check the orchestrator logs for warnings or errors that ocurred during the inventory."
+                        FailureMessage = warnSummary
                     };
                 }
                 else
                 {
-                    Logger.LogTrace("No warnings found during Inventory. Reporting success.");
+                    // JobResult exposes only FailureMessage; Command renders it as the job's message
+                    // regardless of status, so populating it on success surfaces the outcome in Command
+                    // (the Success result is what marks the job green — the text is informational only).
+                    string successSummary = $"Inventory of ACM region {region} for {storeRef} succeeded: found {totalCertificates} " +
+                        $"certificate(s) in ACM and reported all {inventoryItems.Count} to Keyfactor Command.";
+                    Logger.LogInformation(successSummary);
                     return new JobResult
                     {
                         Result = OrchestratorJobStatusJobResult.Success,
                         JobHistoryId = config.JobHistoryId,
-                        FailureMessage = ""
+                        FailureMessage = successSummary
                     };
                 }
             }
             catch (Exception e)
             {
-                Logger.LogError($"Error ocurred in Perform Inventory: {e.Message}");
+                Logger.LogError($"Error ocurred in Perform Inventory for {storeRef}: {e.Message}");
                 return new JobResult
                 {
                     Result = OrchestratorJobStatusJobResult.Failure,
                     JobHistoryId = config.JobHistoryId,
-                    FailureMessage = $"Error occurred in Perform Inventory: {e.Message}"
+                    FailureMessage = $"Error occurred during inventory of {storeRef}: {e.Message}"
                 };
             }
+        }
+
+        // A human-readable identifier for the certificate store this job is acting on, so success,
+        // warning, and failure messages surfaced in Keyfactor Command name the exact store. A store's
+        // identity is its ClientMachine (the Role ARN, for legacy stores) plus its StorePath (the region,
+        // or the self-contained "<roleArn>|<region>" emitted by cross-account Discovery).
+        internal static string StoreRef(string clientMachine, string storePath)
+        {
+            return $"store [ClientMachine='{clientMachine}', StorePath='{storePath}']";
         }
 
         protected virtual CurrentInventoryItem BuildInventoryItem(string alias)
