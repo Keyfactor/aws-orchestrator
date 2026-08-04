@@ -3,7 +3,7 @@
   * Discovery enumerates AWS Organizations accounts via `organizations:ListAccounts`, assumes a per-account IAM role (configurable via the new `DiscoveryRoleName` property; default `KeyfactorACMDiscoveryRole`), and scans each account's enabled regions for ACM certificates
   * Discovered certificate stores use a self-contained `Store Path` of the form `<roleArn>|<region>` that carries both the Role ARN to assume and the AWS Region in a single field; legacy region-only `Store Path` values (with the Role ARN in `Client Machine`) continue to work
   * Added the `DiscoveryRoleName` store type property
-* Discovery, Inventory, and Management jobs now return descriptive success, warning, and failure messages to Keyfactor Command that identify the exact store (and, for Discovery, the accounts and regions scanned) instead of directing the user to the logs
+* Discovery, Inventory, and Management jobs now return descriptive success, warning, and failure messages to Keyfactor Command that identify the exact store (and, for Discovery, the accounts and regions scanned) instead of directing the user to the logs .
 
 3.0.2
 * Bug Fix - On Management jobs, do not send ACM tags if the certificate is being renewed/replaced
