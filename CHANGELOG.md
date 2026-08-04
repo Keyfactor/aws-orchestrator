@@ -1,5 +1,9 @@
-3.0.3
-* Bug Fix - On Management Add/renewal jobs, the leaf certificate is no longer included in the `CertificateChain` sent to ACM. BouncyCastle's `GetCertificateChain` returns the leaf as the first element, and it was already sent separately as the certificate body, causing the leaf to appear twice within the published certificate's chain. When the certificate has no intermediates, the chain is now omitted entirely rather than sent empty.
+3.1.0
+* Added support for cross-account **Discovery**
+  * Discovery enumerates AWS Organizations accounts via `organizations:ListAccounts`, assumes a per-account IAM role (configurable via the new `DiscoveryRoleName` property; default `KeyfactorACMDiscoveryRole`), and scans each account's enabled regions for ACM certificates
+  * Discovered certificate stores use a self-contained `Store Path` of the form `<roleArn>|<region>` that carries both the Role ARN to assume and the AWS Region in a single field; legacy region-only `Store Path` values (with the Role ARN in `Client Machine`) continue to work
+  * Added the `DiscoveryRoleName` store type property
+* Discovery, Inventory, and Management jobs now return descriptive success, warning, and failure messages to Keyfactor Command that identify the exact store (and, for Discovery, the accounts and regions scanned) instead of directing the user to the logs .
 
 3.0.2
 * Bug Fix - On Management jobs, do not send ACM tags if the certificate is being renewed/replaced

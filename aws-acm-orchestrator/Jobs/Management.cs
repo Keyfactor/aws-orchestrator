@@ -1,10 +1,16 @@
-﻿
-//  Copyright 2026 Keyfactor
-//  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-//  Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS,
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
-//  and limitations under the License.
+﻿// Copyright 2025 Keyfactor
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+//     http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and 
+// limitations under the License.
 
 using Amazon.CertificateManager;
 using Amazon.CertificateManager.Model;
@@ -63,10 +69,19 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs
                     new JsonSerializerSettings { DefaultValueHandling = DefaultValueHandling.Populate });
             Logger.LogTrace("Deserialized Store Properties.");
 
+            // StorePath may be a legacy region ("us-east-1") with the Role ARN in ClientMachine, or
+            // a self-contained "<roleArn>|<region>" emitted by cross-account Discovery. Parse handles both.
+            var (roleArn, region) = StorePathParser.Parse(
+                jobConfiguration.CertificateStoreDetails.StorePath,
+                jobConfiguration.CertificateStoreDetails.ClientMachine);
+
+            string storeRef = Inventory.StoreRef(jobConfiguration.CertificateStoreDetails.ClientMachine,
+                jobConfiguration.CertificateStoreDetails.StorePath);
+
             AuthenticationParameters authParams = new AuthenticationParameters
             {
-                RoleARN = jobConfiguration.CertificateStoreDetails.ClientMachine,
-                Region = jobConfiguration.CertificateStoreDetails.StorePath,
+                RoleARN = roleArn,
+                Region = region,
                 CustomFields = customFields
             };
 
@@ -78,14 +93,16 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs
             }
             catch (Exception ex)
             {
-                Logger.LogError("An error occurred while trying to get AWS Credentials.");
+                Logger.LogError($"An error occurred while trying to get AWS Credentials for {storeRef}.");
                 return new JobResult
                 {
                     Result = OrchestratorJobStatusJobResult.Failure,
                     JobHistoryId = jobConfiguration.JobHistoryId,
-                    FailureMessage = ex.Message
+                    FailureMessage = $"Failed to resolve AWS credentials for {storeRef}: {ex.Message}"
                 };
             }
+            string authMethod = AuthDescription.DescribeMethod(customFields, roleArn);
+            Logger.LogInformation($"AWS credential method resolved: [{authMethod}] for {storeRef}.");
             Logger.LogTrace("AWS Credentials resolved.");
 
             // perform add or remove
@@ -101,18 +118,20 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs
             }
             else
             {
-                Logger.LogError($"Unrecognized Management Operation Type: {jobConfiguration.OperationType}");
+                Logger.LogError($"Unrecognized Management Operation Type: {jobConfiguration.OperationType} for {storeRef}");
                 return new JobResult
                 {
                     Result = OrchestratorJobStatusJobResult.Failure,
                     JobHistoryId = jobConfiguration.JobHistoryId,
-                    FailureMessage = "Invalid Management Operation"
+                    FailureMessage = $"Invalid Management operation '{jobConfiguration.OperationType}' for {storeRef}."
                 };
             }
         }
 
         internal JobResult PerformAddition(AwsExtensionCredential awsCredentials, ManagementJobConfiguration config)
         {
+            string storeRef = Inventory.StoreRef(config.CertificateStoreDetails.ClientMachine,
+                config.CertificateStoreDetails.StorePath);
             try
             {
                 Logger.MethodEntry();
@@ -138,13 +157,14 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs
 
                             if (DescribeCertificateResponse.Certificate.Type != CertificateType.IMPORTED)
                             {
-                                Logger.LogError($"Non User Imported Certificate Type Found");
+                                Logger.LogError($"Non User Imported Certificate Type Found for {storeRef}, alias {config.JobCertificate.Alias}");
                                 return new JobResult
                                 {
                                     Result = OrchestratorJobStatusJobResult.Failure,
                                     JobHistoryId = config.JobHistoryId,
                                     FailureMessage =
-                                        "Amazon Web Services Certificate Manager only supports overwriting user-imported certificates.\"), \"Management/Add"
+                                        $"AWS Certificate Manager only supports overwriting user-imported certificates. The certificate " +
+                                        $"'{config.JobCertificate.Alias}' in {storeRef} is Amazon-issued or Private CA-issued and cannot be replaced."
                                 };
                             }
                         }
@@ -228,67 +248,72 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs
                         // Ensure 200 Response
                         if (IcrResponse.HttpStatusCode == HttpStatusCode.OK)
                         {
-                            Logger.LogTrace($"Certificate Import reported success.");
+                            // FailureMessage is JobResult's only message field; Command shows it on success
+                            // too, so populate it to surface the outcome (Success status keeps the job green).
+                            string successMsg = $"Certificate {(icr.CertificateArn != null ? "renewed/replaced" : "imported")} into ACM " +
+                                $"region {awsCredentials.Region.SystemName} for {storeRef}: ARN={IcrResponse.CertificateArn}.";
+                            Logger.LogInformation(successMsg);
                             return new JobResult
                             {
                                 Result = OrchestratorJobStatusJobResult.Success,
                                 JobHistoryId = config.JobHistoryId,
-                                FailureMessage = ""
+                                FailureMessage = successMsg
                             };
                         }
                         else
                         {
-                            Logger.LogError($"Certificate Import reported failure.");
-                            Logger.LogError($"Failure HTTP status code: {IcrResponse.HttpStatusCode}");
+                            Logger.LogError($"Certificate import into {storeRef} reported failure. HTTP status code: {IcrResponse.HttpStatusCode}");
                             return new JobResult
                             {
                                 Result = OrchestratorJobStatusJobResult.Failure,
                                 JobHistoryId = config.JobHistoryId,
                                 FailureMessage =
-                                    "Management/Add"
+                                    $"ACM ImportCertificate for {storeRef} returned HTTP {IcrResponse.HttpStatusCode} instead of OK."
                             };
                         }
                     }
                     else  // Non-PFX
                     {
-                        Logger.LogError($"Certificate did not have private key password. Only PFX certificates may be added.");
+                        Logger.LogError($"Certificate for {storeRef} did not have a private key password. Only PFX certificates may be added.");
                         return new JobResult
                         {
                             Result = OrchestratorJobStatusJobResult.Failure,
                             JobHistoryId = config.JobHistoryId,
                             FailureMessage =
-                                "Certificate Must be a PFX"
+                                $"Certificate must be a PFX (with a private key) to import into {storeRef}."
                         };
                     }
                 }
             }
             catch (Exception e)
             {
-                Logger.LogError($"Error in Performing Addition: {e.Message}");
+                Logger.LogError($"Error performing certificate addition to {storeRef}: {e.Message}");
                 return new JobResult
                 {
                     Result = OrchestratorJobStatusJobResult.Failure,
                     JobHistoryId = config.JobHistoryId,
                     FailureMessage =
-                        $"Management/Add {e.Message}"
+                        $"Error adding certificate to {storeRef}: {e.Message}"
                 };
             }
         }
 
         internal JobResult PerformRemoval(AwsExtensionCredential awsCredentials, ManagementJobConfiguration config)
         {
+            string storeRef = Inventory.StoreRef(config.CertificateStoreDetails.ClientMachine,
+                config.CertificateStoreDetails.StorePath);
             try
             {
                 Logger.MethodEntry();
 
                 if (string.IsNullOrEmpty(config.JobCertificate.Alias))
                 {
-                    Logger.LogError("A certificate Alias containing the ARN is required in order to remove a certificate.");
+                    Logger.LogError($"A certificate Alias containing the ARN is required in order to remove a certificate from {storeRef}.");
                     return new JobResult
                     {
                         Result = OrchestratorJobStatusJobResult.Failure,
                         JobHistoryId = config.JobHistoryId,
-                        FailureMessage = "Alias is required but not present."
+                        FailureMessage = $"A certificate Alias (the ACM ARN) is required to remove a certificate from {storeRef}, but none was provided."
                     };
                 }
 
@@ -311,42 +336,42 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs
                     Logger.LogTrace($"DeleteResponse JSON: {JsonConvert.SerializeObject(DeleteResponse)}");
                     if (DeleteResponse.HttpStatusCode == HttpStatusCode.OK)
                     {
-                        Logger.LogTrace($"Certificate Removal reported success.");
+                        string successMsg = $"Certificate removed from ACM region {awsCredentials.Region.SystemName} for {storeRef}: ARN={config.JobCertificate.Alias}.";
+                        Logger.LogInformation(successMsg);
                         return new JobResult
                         {
                             Result = OrchestratorJobStatusJobResult.Success,
                             JobHistoryId = config.JobHistoryId,
-                            FailureMessage = ""
+                            FailureMessage = successMsg
                         };
                     }
                     else
                     {
-                        Logger.LogError($"Certificate Removal reported failure.");
-                        Logger.LogError($"Failure HTTP status code - {DeleteResponse.HttpStatusCode}");
+                        Logger.LogError($"Certificate removal from {storeRef} (ARN={config.JobCertificate.Alias}) reported failure. HTTP status code: {DeleteResponse.HttpStatusCode}");
                         return new JobResult
                         {
                             Result = OrchestratorJobStatusJobResult.Failure,
                             JobHistoryId = config.JobHistoryId,
                             FailureMessage =
-                                "Management/Remove"
+                                $"ACM DeleteCertificate for {storeRef} (ARN={config.JobCertificate.Alias}) returned HTTP {DeleteResponse.HttpStatusCode} instead of OK."
                         };
                     }
                 }
             }
             catch (Exception e)
             {
-                Logger.LogError($"Error in Perform Removal: {e.Message}");
+                Logger.LogError($"Error performing certificate removal from {storeRef}: {e.Message}");
                 return new JobResult
                 {
                     Result = OrchestratorJobStatusJobResult.Failure,
                     JobHistoryId = config.JobHistoryId,
                     FailureMessage =
-                        $"Management/Remove: {e.Message}"
+                        $"Error removing certificate from {storeRef}: {e.Message}"
                 };
             }
         }
 
-        internal static MemoryStream GetChain(Pkcs12Store store, string alias)
+        private static MemoryStream GetChain(Pkcs12Store store, string alias)
         {
             string ccs = "";
 
