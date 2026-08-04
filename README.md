@@ -5,9 +5,9 @@
 <p align="center">
   <!-- Badges -->
 <img src="https://img.shields.io/badge/integration_status-production-3D1973?style=flat-square" alt="Integration Status: production" />
-<a href="https://github.com/Keyfactor/aws-orchestrator/releases"><img src="https://img.shields.io/github/v/release/Keyfactor/aws-orchestrator?style=flat-square" alt="Release" /></a>
-<img src="https://img.shields.io/github/issues/Keyfactor/aws-orchestrator?style=flat-square" alt="Issues" />
-<img src="https://img.shields.io/github/downloads/Keyfactor/aws-orchestrator/total?style=flat-square&label=downloads&color=28B905" alt="GitHub Downloads (all assets, all releases)" />
+<a href="https://github.com/Keyfactor/aws-acm-orchestrator-dev/releases"><img src="https://img.shields.io/github/v/release/Keyfactor/aws-acm-orchestrator-dev?style=flat-square" alt="Release" /></a>
+<img src="https://img.shields.io/github/issues/Keyfactor/aws-acm-orchestrator-dev?style=flat-square" alt="Issues" />
+<img src="https://img.shields.io/github/downloads/Keyfactor/aws-acm-orchestrator-dev/total?style=flat-square&label=downloads&color=28B905" alt="GitHub Downloads (all assets, all releases)" />
 </p>
 
 <p align="center">
@@ -30,6 +30,14 @@
 </p>
 
 ## Overview
+
+> [!WARNING]
+>
+> **The `AWS-ACM-v3` store type identifies each certificate store by a single AWS `Region` in the `Store Path` field, with the full Role ARN in `Client Machine`.**
+>
+> **New with cross-account Discovery:** `Store Path` now also accepts a **self-contained** value of the form **`<roleArn>|<region>`** — for example `arn:aws:iam::123456789012:role/KeyfactorACMDiscoveryRole|us-east-1` — which carries **both** the Role ARN to assume **and** the Region in a single field. Certificate stores created by cross-account Discovery use this combined format, and for those stores the `Client Machine` field is informational only. Legacy region-only `Store Path` values (with the Role ARN in `Client Machine`) continue to work.
+>
+> **Migrating from `AWS-ACM`, `AwsCerManO`, or `AwsCerManA`:** those older store types are **not** compatible and must be recreated as `AWS-ACM-v3`.
 
 AWS Certificate Manager is a service that lets you easily provision, manage, and deploy public and private Secure Sockets Layer/Transport Layer Security (SSL/TLS)
 certificates for use with AWS services and your internal connected resources.
@@ -195,7 +203,7 @@ Inventory required actions:
 |--------------|------------------------------------------------------------------------------------------------------------------------|
 | Add          | ✅ Checked        |
 | Remove       | ✅ Checked     |
-| Discovery    | 🔲 Unchecked  |
+| Discovery    | ✅ Checked  |
 | Reenrollment | 🔲 Unchecked |
 | Create       | 🔲 Unchecked     |
 
@@ -238,7 +246,7 @@ the Keyfactor Command Portal
    | Capability | AWS-ACM-v3 | Store type name orchestrator will register with. Check the box to allow entry of value |
    | Supports Add | ✅ Checked | Check the box. Indicates that the Store Type supports Management Add |
    | Supports Remove | ✅ Checked | Check the box. Indicates that the Store Type supports Management Remove |
-   | Supports Discovery | 🔲 Unchecked |  Indicates that the Store Type supports Discovery |
+   | Supports Discovery | ✅ Checked | Check the box. Indicates that the Store Type supports Discovery |
    | Supports Reenrollment | 🔲 Unchecked |  Indicates that the Store Type supports Reenrollment |
    | Supports Create | 🔲 Unchecked |  Indicates that the Store Type supports store creation |
    | Needs Server | 🔲 Unchecked | Determines if a target server name is required when creating store |
@@ -281,6 +289,7 @@ the Keyfactor Command Portal
    | IAMUserAccessKey | IAM User Access Key | The AWS Access Key for an IAM User | Secret |  | 🔲 Unchecked |
    | IAMUserAccessSecret | IAM User Access Secret | The AWS Access Secret for an IAM User. | Secret |  | 🔲 Unchecked |
    | ExternalId | sts:ExternalId | An optional parameter sts:ExternalId to pass with Assume Role calls | String |  | 🔲 Unchecked |
+   | DiscoveryRoleName | Discovery Role Name | The IAM role name that exists in each target account. Used during cross-account Discovery to construct the Role ARN for cross-account access (arn:aws:iam::<account-id>:role/<this-value>). During a Discovery job this is supplied via the 'File name patterns to match' dialog field; this store property documents and defaults the value. | String | KeyfactorACMDiscoveryRole | 🔲 Unchecked |
 
    The Custom Fields tab should look like this:
 
@@ -383,6 +392,14 @@ the Keyfactor Command Portal
 
 
 
+   ###### Discovery Role Name
+   The IAM role name that exists in each target account. Used during cross-account Discovery to construct the Role ARN for cross-account access (arn:aws:iam::<account-id>:role/<this-value>). During a Discovery job this is supplied via the 'File name patterns to match' dialog field; this store property documents and defaults the value.
+
+   ![AWS-ACM-v3 Custom Field - DiscoveryRoleName](docsource/images/AWS-ACM-v3-custom-field-DiscoveryRoleName-dialog.png)
+   ![AWS-ACM-v3 Custom Field - DiscoveryRoleName](docsource/images/AWS-ACM-v3-custom-field-DiscoveryRoleName-validation-options-dialog.png)
+
+
+
 
 
    ##### Entry Parameters Tab
@@ -410,18 +427,16 @@ the Keyfactor Command Portal
 
 1. **Download the latest AWS Certificate Manager (ACM) Universal Orchestrator extension from GitHub.**
 
-    Navigate to the [AWS Certificate Manager (ACM) Universal Orchestrator extension GitHub version page](https://github.com/Keyfactor/aws-orchestrator/releases/latest). Refer to the compatibility matrix below to determine the asset should be downloaded. Then, click the corresponding asset to download the zip archive.
+    Navigate to the [AWS Certificate Manager (ACM) Universal Orchestrator extension GitHub version page](https://github.com/Keyfactor/aws-acm-orchestrator-dev/releases/latest). Refer to the compatibility matrix below to determine the asset should be downloaded. Then, click the corresponding asset to download the zip archive.
 
-   | Universal Orchestrator Version | Latest .NET version installed on the Universal Orchestrator server | `rollForward` condition in `Orchestrator.runtimeconfig.json` | `aws-orchestrator` .NET version to download |
+   | Universal Orchestrator Version | Latest .NET version installed on the Universal Orchestrator server | `rollForward` condition in `Orchestrator.runtimeconfig.json` | `aws-acm-orchestrator-dev` .NET version to download |
    | --------- | ----------- | ----------- | ----------- |
-   | Older than `11.0.0` | | | `net6.0` |
-   | Between `11.0.0` and `11.5.1` (inclusive) | `net6.0` | | `net6.0` |
-   | Between `11.0.0` and `11.5.1` (inclusive) | `net8.0` | `Disable` | `net6.0` || Between `11.0.0` and `11.5.1` (inclusive) | `net8.0` | `LatestMajor` | `net8.0` |
+   | Between `11.0.0` and `11.5.1` (inclusive) | `net8.0` | `LatestMajor` | `net8.0` |
    | `11.6` _and_ newer | `net8.0` | | `net8.0` | 
 
     Unzip the archive containing extension assemblies to a known location.
 
-    > **Note** If you don't see an asset with a corresponding .NET version, you should always assume that it was compiled for `net6.0`.
+    > **Note** If you don't see an asset with a corresponding .NET version, you should always assume that it was compiled for `net8.0`.
 
 2. **Locate the Universal Orchestrator extensions directory.**
 
@@ -430,10 +445,10 @@ the Keyfactor Command Portal
 
 3. **Create a new directory for the AWS Certificate Manager (ACM) Universal Orchestrator extension inside the extensions directory.**
 
-    Create a new directory called `aws-orchestrator`.
+    Create a new directory called `aws-acm-orchestrator-dev`.
     > The directory name does not need to match any names used elsewhere; it just has to be unique within the extensions directory.
 
-4. **Copy the contents of the downloaded and unzipped assemblies from __step 2__ to the `aws-orchestrator` directory.**
+4. **Copy the contents of the downloaded and unzipped assemblies from __step 2__ to the `aws-acm-orchestrator-dev` directory.**
 
 5. **Restart the Universal Orchestrator service.**
 
@@ -482,7 +497,7 @@ When migrating to the `AWS-ACM-v3` type please note that field usage has changed
    | Category | Select "AWS Certificate Manager v3" or the customized certificate store name from the previous step. |
    | Container | Optional container to associate certificate store with. |
    | Client Machine | This is a full AWS ARN specifying a Role. This is the Role that will be assumed in any Auth scenario performing Assume Role. This will dictate what certificates are usable by the orchestrator. A preceding [profile] name should be included if a Credential Profile is to be used in Default Sdk Auth. |
-   | Store Path | A single specified AWS Region the store will operate in. Additional regions should get their own store defined. |
+   | Store Path | The AWS Region the store operates in (e.g. us-east-1). Stores created by cross-account Discovery instead use a self-contained path of the form '<roleArn>|<region>' (e.g. 'arn:aws:iam::123456789012:role/KeyfactorACMDiscoveryRole|us-east-1') which carries both the Role ARN to assume and the Region; for those stores the Client Machine field is informational only. Additional regions should get their own store defined. |
    | Orchestrator | Select an approved orchestrator capable of managing `AWS-ACM-v3` certificates. Specifically, one with the `AWS-ACM-v3` capability. |
    | UseDefaultSdkAuth | A switch to enable the store to use Default SDK credentials |
    | DefaultSdkAssumeRole | A switch to enable the store to assume a new Role when using Default SDK credentials |
@@ -496,6 +511,7 @@ When migrating to the `AWS-ACM-v3` type please note that field usage has changed
    | IAMUserAccessKey | The AWS Access Key for an IAM User |
    | IAMUserAccessSecret | The AWS Access Secret for an IAM User. |
    | ExternalId | An optional parameter sts:ExternalId to pass with Assume Role calls |
+   | DiscoveryRoleName | The IAM role name that exists in each target account. Used during cross-account Discovery to construct the Role ARN for cross-account access (arn:aws:iam::<account-id>:role/<this-value>). During a Discovery job this is supplied via the 'File name patterns to match' dialog field; this store property documents and defaults the value. |
 
 </details>
 
@@ -519,7 +535,7 @@ When migrating to the `AWS-ACM-v3` type please note that field usage has changed
    | Category | Select "AWS Certificate Manager v3" or the customized certificate store name from the previous step. |
    | Container | Optional container to associate certificate store with. |
    | Client Machine | This is a full AWS ARN specifying a Role. This is the Role that will be assumed in any Auth scenario performing Assume Role. This will dictate what certificates are usable by the orchestrator. A preceding [profile] name should be included if a Credential Profile is to be used in Default Sdk Auth. |
-   | Store Path | A single specified AWS Region the store will operate in. Additional regions should get their own store defined. |
+   | Store Path | The AWS Region the store operates in (e.g. us-east-1). Stores created by cross-account Discovery instead use a self-contained path of the form '<roleArn>|<region>' (e.g. 'arn:aws:iam::123456789012:role/KeyfactorACMDiscoveryRole|us-east-1') which carries both the Role ARN to assume and the Region; for those stores the Client Machine field is informational only. Additional regions should get their own store defined. |
    | Orchestrator | Select an approved orchestrator capable of managing `AWS-ACM-v3` certificates. Specifically, one with the `AWS-ACM-v3` capability. |
    | Properties.UseDefaultSdkAuth | A switch to enable the store to use Default SDK credentials |
    | Properties.DefaultSdkAssumeRole | A switch to enable the store to assume a new Role when using Default SDK credentials |
@@ -533,6 +549,7 @@ When migrating to the `AWS-ACM-v3` type please note that field usage has changed
    | Properties.IAMUserAccessKey | The AWS Access Key for an IAM User |
    | Properties.IAMUserAccessSecret | The AWS Access Secret for an IAM User. |
    | Properties.ExternalId | An optional parameter sts:ExternalId to pass with Assume Role calls |
+   | Properties.DiscoveryRoleName | The IAM role name that exists in each target account. Used during cross-account Discovery to construct the Role ARN for cross-account access (arn:aws:iam::<account-id>:role/<this-value>). During a Discovery job this is supplied via the 'File name patterns to match' dialog field; this store property documents and defaults the value. |
 
 3. **Import the CSV file to create the certificate stores**
 

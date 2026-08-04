@@ -23,7 +23,7 @@
           "SupportedOperations": {
             "Add": true,
             "Create": false,
-            "Discovery": false,
+            "Discovery": true,
             "Enrollment": false,
             "Remove": true
           },
@@ -147,6 +147,16 @@
               "Required": false,
               "IsPAMEligible": false,
               "Description": "An optional parameter sts:ExternalId to pass with Assume Role calls"
+            },
+            {
+              "Name": "DiscoveryRoleName",
+              "DisplayName": "Discovery Role Name",
+              "Type": "String",
+              "DependsOn": "",
+              "DefaultValue": "KeyfactorACMDiscoveryRole",
+              "Required": false,
+              "IsPAMEligible": false,
+              "Description": "The IAM role name that exists in each target account. Used during cross-account Discovery to construct the Role ARN for cross-account access (arn:aws:iam::<account-id>:role/<this-value>). During a Discovery job this is supplied via the 'File name patterns to match' dialog field; this store property documents and defaults the value."
             }
           ],
           "EntryParameters": [
@@ -174,7 +184,7 @@
           "BlueprintAllowed": true,
           "CustomAliasAllowed": "Optional",
           "ClientMachineDescription": "This is a full AWS ARN specifying a Role. This is the Role that will be assumed in any Auth scenario performing Assume Role. This will dictate what certificates are usable by the orchestrator. A preceding [profile] name should be included if a Credential Profile is to be used in Default Sdk Auth.",
-          "StorePathDescription": "A single specified AWS Region the store will operate in. Additional regions should get their own store defined."
+          "StorePathDescription": "The AWS Region the store operates in (e.g. us-east-1). Stores created by cross-account Discovery instead use a self-contained path of the form '<roleArn>|<region>' (e.g. 'arn:aws:iam::123456789012:role/KeyfactorACMDiscoveryRole|us-east-1') which carries both the Role ARN to assume and the Region; for those stores the Client Machine field is informational only. Additional regions should get their own store defined."
         }        
       ]
     }

@@ -80,7 +80,7 @@ create_store_type "AWS-ACM-v3" '{
   "SupportedOperations": {
     "Add": true,
     "Create": false,
-    "Discovery": false,
+    "Discovery": true,
     "Enrollment": false,
     "Remove": true
   },
@@ -192,6 +192,15 @@ create_store_type "AWS-ACM-v3" '{
       "DefaultValue": "",
       "Required": false,
       "IsPAMEligible": false
+    },
+    {
+      "Name": "DiscoveryRoleName",
+      "DisplayName": "Discovery Role Name",
+      "Type": "String",
+      "DependsOn": "",
+      "DefaultValue": "KeyfactorACMDiscoveryRole",
+      "Required": false,
+      "IsPAMEligible": false
     }
   ],
   "EntryParameters": [
@@ -218,7 +227,7 @@ create_store_type "AWS-ACM-v3" '{
   "PowerShell": false,
   "BlueprintAllowed": true,
   "CustomAliasAllowed": "Optional",
-  "StorePathDescription": "A single specified AWS Region the store will operate in. Additional regions should get their own store defined."
+  "StorePathDescription": "The AWS Region the store operates in (e.g. us-east-1). Stores created by cross-account Discovery instead use a self-contained path of the form '<roleArn>|<region>' (e.g. 'arn:aws:iam::123456789012:role/KeyfactorACMDiscoveryRole|us-east-1') which carries both the Role ARN to assume and the Region; for those stores the Client Machine field is informational only. Additional regions should get their own store defined."
 }'
 
 
