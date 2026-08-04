@@ -290,78 +290,91 @@ the Keyfactor Command Portal
    A switch to enable the store to use Default SDK credentials
 
    ![AWS-ACM-v3 Custom Field - UseDefaultSdkAuth](docsource/images/AWS-ACM-v3-custom-field-UseDefaultSdkAuth-dialog.svg)
+   ![AWS-ACM-v3 Custom Field - UseDefaultSdkAuth](docsource/images/AWS-ACM-v3-custom-field-UseDefaultSdkAuth-validation-options-dialog.svg)
 
 
    ###### Assume new Role using Default SDK Auth
    A switch to enable the store to assume a new Role when using Default SDK credentials
 
    ![AWS-ACM-v3 Custom Field - DefaultSdkAssumeRole](docsource/images/AWS-ACM-v3-custom-field-DefaultSdkAssumeRole-dialog.svg)
+   ![AWS-ACM-v3 Custom Field - DefaultSdkAssumeRole](docsource/images/AWS-ACM-v3-custom-field-DefaultSdkAssumeRole-validation-options-dialog.svg)
 
 
    ###### Use OAuth 2.0 Provider
    A switch to enable the store to use an OAuth provider workflow to authenticate with AWS
 
    ![AWS-ACM-v3 Custom Field - UseOAuth](docsource/images/AWS-ACM-v3-custom-field-UseOAuth-dialog.svg)
+   ![AWS-ACM-v3 Custom Field - UseOAuth](docsource/images/AWS-ACM-v3-custom-field-UseOAuth-validation-options-dialog.svg)
 
 
    ###### OAuth Scope
    This is the OAuth Scope needed for Okta OAuth, defined in Okta
 
    ![AWS-ACM-v3 Custom Field - OAuthScope](docsource/images/AWS-ACM-v3-custom-field-OAuthScope-dialog.svg)
+   ![AWS-ACM-v3 Custom Field - OAuthScope](docsource/images/AWS-ACM-v3-custom-field-OAuthScope-validation-options-dialog.svg)
 
 
    ###### OAuth Grant Type
    In OAuth 2.0, the term 'grant type' refers to the way an application gets an access token. In Okta this is `client_credentials`
 
    ![AWS-ACM-v3 Custom Field - OAuthGrantType](docsource/images/AWS-ACM-v3-custom-field-OAuthGrantType-dialog.svg)
+   ![AWS-ACM-v3 Custom Field - OAuthGrantType](docsource/images/AWS-ACM-v3-custom-field-OAuthGrantType-validation-options-dialog.svg)
 
 
    ###### OAuth Url
    An optional parameter sts:ExternalId to pass with Assume Role calls
 
    ![AWS-ACM-v3 Custom Field - OAuthUrl](docsource/images/AWS-ACM-v3-custom-field-OAuthUrl-dialog.svg)
+   ![AWS-ACM-v3 Custom Field - OAuthUrl](docsource/images/AWS-ACM-v3-custom-field-OAuthUrl-validation-options-dialog.svg)
 
 
    ###### OAuth Client ID
    The Client ID for OAuth.
 
    ![AWS-ACM-v3 Custom Field - OAuthClientId](docsource/images/AWS-ACM-v3-custom-field-OAuthClientId-dialog.svg)
+   ![AWS-ACM-v3 Custom Field - OAuthClientId](docsource/images/AWS-ACM-v3-custom-field-OAuthClientId-validation-options-dialog.svg)
 
 
    ###### OAuth Client Secret
    The Client Secret for OAuth.
 
    ![AWS-ACM-v3 Custom Field - OAuthClientSecret](docsource/images/AWS-ACM-v3-custom-field-OAuthClientSecret-dialog.svg)
+   ![AWS-ACM-v3 Custom Field - OAuthClientSecret](docsource/images/AWS-ACM-v3-custom-field-OAuthClientSecret-validation-options-dialog.svg)
 
 
    ###### Use IAM User Auth
    A switch to enable the store to use IAM User auth to assume a role when authenticating with AWS
 
    ![AWS-ACM-v3 Custom Field - UseIAM](docsource/images/AWS-ACM-v3-custom-field-UseIAM-dialog.svg)
+   ![AWS-ACM-v3 Custom Field - UseIAM](docsource/images/AWS-ACM-v3-custom-field-UseIAM-validation-options-dialog.svg)
 
 
    ###### IAM User Access Key
    The AWS Access Key for an IAM User
 
    ![AWS-ACM-v3 Custom Field - IAMUserAccessKey](docsource/images/AWS-ACM-v3-custom-field-IAMUserAccessKey-dialog.svg)
+   ![AWS-ACM-v3 Custom Field - IAMUserAccessKey](docsource/images/AWS-ACM-v3-custom-field-IAMUserAccessKey-validation-options-dialog.svg)
 
 
    ###### IAM User Access Secret
    The AWS Access Secret for an IAM User.
 
    ![AWS-ACM-v3 Custom Field - IAMUserAccessSecret](docsource/images/AWS-ACM-v3-custom-field-IAMUserAccessSecret-dialog.svg)
+   ![AWS-ACM-v3 Custom Field - IAMUserAccessSecret](docsource/images/AWS-ACM-v3-custom-field-IAMUserAccessSecret-validation-options-dialog.svg)
 
 
    ###### sts:ExternalId
    An optional parameter sts:ExternalId to pass with Assume Role calls
 
    ![AWS-ACM-v3 Custom Field - ExternalId](docsource/images/AWS-ACM-v3-custom-field-ExternalId-dialog.svg)
+   ![AWS-ACM-v3 Custom Field - ExternalId](docsource/images/AWS-ACM-v3-custom-field-ExternalId-validation-options-dialog.svg)
 
 
    ###### Discovery Role Name
    The IAM role name that exists in each target account. Used during cross-account Discovery to construct the Role ARN for cross-account access (arn:aws:iam::<account-id>:role/<this-value>). During a Discovery job this is supplied via the 'File name patterns to match' dialog field; this store property documents and defaults the value.
 
    ![AWS-ACM-v3 Custom Field - DiscoveryRoleName](docsource/images/AWS-ACM-v3-custom-field-DiscoveryRoleName-dialog.svg)
+   ![AWS-ACM-v3 Custom Field - DiscoveryRoleName](docsource/images/AWS-ACM-v3-custom-field-DiscoveryRoleName-validation-options-dialog.svg)
 
 
    ##### Entry Parameters Tab
@@ -377,6 +390,7 @@ the Keyfactor Command Portal
    The optional ACM tags that should be assigned to the certificate.  Multiple name/value pairs may be entered in the format of `Name1=Value1,Name2=Value2,...,NameN=ValueN`
 
    ![AWS-ACM-v3 Entry Parameter - ACM Tags](docsource/images/AWS-ACM-v3-entry-parameters-store-type-dialog-ACM Tags.svg)
+   ![AWS-ACM-v3 Entry Parameter - ACM Tags](docsource/images/AWS-ACM-v3-entry-parameters-store-type-dialog-ACM Tags-validation-options.svg)
 
 
    </details>
@@ -389,15 +403,13 @@ the Keyfactor Command Portal
 
    | Universal Orchestrator Version | Latest .NET version installed on the Universal Orchestrator server | `rollForward` condition in `Orchestrator.runtimeconfig.json` | `aws-orchestrator` .NET version to download |
    | --------- | ----------- | ----------- | ----------- |
-   | Older than `11.0.0` | | | `net6.0` |
-   | Between `11.0.0` and `11.5.1` (inclusive) | `net6.0` | | `net6.0` |
-   | Between `11.0.0` and `11.5.1` (inclusive) | `net8.0` | `Disable` | `net6.0` |
    | Between `11.0.0` and `11.5.1` (inclusive) | `net8.0` | `LatestMajor` | `net8.0` |
    | `11.6` _and_ newer | `net8.0` | | `net8.0` |
+   | `25.5` _and_ newer | `net10.0` | | `net10.0` |
 
     Unzip the archive containing extension assemblies to a known location.
 
-    > **Note** If you don't see an asset with a corresponding .NET version, you should always assume that it was compiled for `net8.0`.
+    > **Note** If you don't see an asset with a corresponding .NET version, you should always assume that it was compiled for `net10.0`.
 
 2. **Locate the Universal Orchestrator extensions directory.**
 
