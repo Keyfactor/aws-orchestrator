@@ -348,4 +348,6 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
-/aws-acm-orchestrator.sln.licenseheader
+/.claude/settings.local.json
+/Feature-Spec-Cross-Account-Discovery-1.pdf
+/Ticket.txt
