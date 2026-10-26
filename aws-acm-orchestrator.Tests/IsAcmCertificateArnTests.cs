@@ -6,7 +6,6 @@
 //  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions
 //  and limitations under the License.
 
-using FluentAssertions;
 using Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs;
 using Xunit;
 
@@ -27,7 +26,7 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Tests
         [InlineData("ARN:AWS:ACM:us-east-1:123456789012:certificate/abc")]     // prefix match is case-insensitive
         public void IsAcmCertificateArn_AcmCertificateArns_ReturnTrue(string alias)
         {
-            Management.IsAcmCertificateArn(alias).Should().BeTrue();
+            Assert.True(Management.IsAcmCertificateArn(alias));
         }
 
         [Theory]
@@ -40,7 +39,7 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Tests
         [InlineData("arn:aws:acm:us-east-1:123456789012:certificate-authority/abc")] // ACM PCA-style, not a certificate
         public void IsAcmCertificateArn_NonAcmCertificateAliases_ReturnFalse(string alias)
         {
-            Management.IsAcmCertificateArn(alias).Should().BeFalse();
+            Assert.False(Management.IsAcmCertificateArn(alias));
         }
     }
 }
