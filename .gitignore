@@ -348,6 +348,17 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
-/.claude/settings.local.json
+
+# Claude Code local configuration, hooks, memory, and session artifacts.
+# Note: CLAUDE.md is intentionally NOT ignored - it is shared project guidance.
+.claude/
+CLAUDE.local.md
+.mcp.json
+
+# Local credentials - never commit
+/creds.json
+
 /Feature-Spec-Cross-Account-Discovery-1.pdf
 /Ticket.txt
+/CLAUDE.md
+/TEST-ENVIRONMENT.md

@@ -112,37 +112,58 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs
                 Logger.LogTrace("ACM client created with loaded AWS Credentials and specified Region.");
 
 
-                var certList = AsyncHelpers.RunSync(() => AcmClient.ListCertificatesAsync());
-                Logger.LogDebug($"Found {certList.CertificateSummaryList.Count} Certificates");
-                Logger.LogTrace($"Cert List JSON: \n{JsonConvert.SerializeObject(certList)}");
-
                 ListCertificatesRequest req = new ListCertificatesRequest();
 
                 //The Current Workaround For AWS Not Returning Certs Without A SAN
-                List<String> keyTypes = new List<String> { KeyAlgorithm.RSA_1024, KeyAlgorithm.RSA_2048, KeyAlgorithm.RSA_4096, KeyAlgorithm.EC_prime256v1, KeyAlgorithm.EC_secp384r1, KeyAlgorithm.EC_secp521r1 };
+                //Includes.KeyTypes is an inclusion filter, so every KeyAlgorithm the SDK defines must be
+                //listed here - any algorithm omitted is silently absent from inventory with no error.
+                List<String> keyTypes = new List<String> { KeyAlgorithm.RSA_1024, KeyAlgorithm.RSA_2048, KeyAlgorithm.RSA_3072, KeyAlgorithm.RSA_4096, KeyAlgorithm.EC_prime256v1, KeyAlgorithm.EC_secp384r1, KeyAlgorithm.EC_secp521r1 };
                 req.Includes = new Filters() { KeyTypes = keyTypes };
+
+                //ACM omits ACME-origin certificates from ListCertificates unless the origins are requested
+                //explicitly, so every origin the SDK defines is listed. CertificateKeyPairOrigin is a
+                //ConstantClass rather than an enum and cannot be enumerated at runtime, so if AWS adds a new
+                //origin it must be added here or those certificates will go missing from inventory.
+                List<string> keyPairOrigins = new List<string> { CertificateKeyPairOrigin.AWS_MANAGED, CertificateKeyPairOrigin.CUSTOMER_PROVIDED, CertificateKeyPairOrigin.ACME };
+                req.CertificateKeyPairOrigins = keyPairOrigins;
 
                 //Only fetch certificates that have been issued at one point
                 req.CertificateStatuses = new List<string> { CertificateStatus.ISSUED, CertificateStatus.INACTIVE, CertificateStatus.EXPIRED, CertificateStatus.REVOKED };
-                req.MaxItems = 100;
+                //1000 is the documented maximum for ListCertificates. A larger page means fewer
+                //round trips; the per-certificate GetCertificate/ListTagsForCertificate calls below
+                //dominate either way.
+                req.MaxItems = 1000;
 
+                Logger.LogDebug($"Requesting ACM certificates with key pair origins [{string.Join(", ", keyPairOrigins)}] and key types [{string.Join(", ", keyTypes)}].");
                 Logger.LogTrace($"ListCertificatesRequest JSON: {JsonConvert.SerializeObject(req)}");
 
                 ListCertificatesResponse AllCertificates;
                 do
                 {
                     AllCertificates = AsyncHelpers.RunSync(() => AcmClient.ListCertificatesAsync(req));//Fetch batch of certificates from ACM API
-                    Logger.LogTrace($"AllCertificates JSON: {JsonConvert.SerializeObject(AllCertificates)}");
+                    //Interpolated arguments are built before LogTrace is called, so an unguarded
+                    //SerializeObject runs even when trace logging is off. These dumps are large (a full
+                    //page of certificate summaries), so the check pays for itself.
+                    if (Logger.IsEnabled(LogLevel.Trace))
+                        Logger.LogTrace($"AllCertificates JSON: {JsonConvert.SerializeObject(AllCertificates)}");
 
                     totalCertificates += AllCertificates.CertificateSummaryList.Count;
                     Logger.LogDebug($"Found {AllCertificates.CertificateSummaryList.Count} Certificates In Batch Amazon Certificate Manager Job.");
+
+                    //Key pair origin is already present on the summary, so logging the breakdown costs no
+                    //extra API calls and makes a future "certificates are missing" report diagnosable.
+                    Logger.LogDebug($"Batch key pair origins: {string.Join(", ", AllCertificates.CertificateSummaryList.GroupBy(c => c.CertificateKeyPairOrigin?.Value ?? "unspecified").Select(g => $"{g.Key}={g.Count()}"))}");
+
+                    //Certificate type decides PrivateKeyEntry below, so log the same breakdown to make a
+                    //"Command will not let me renew this" report diagnosable from the log alone.
+                    Logger.LogDebug($"Batch certificate types: {string.Join(", ", AllCertificates.CertificateSummaryList.GroupBy(c => c.Type?.Value ?? "unspecified").Select(g => $"{g.Key}={g.Count()}"))}");
 
                     inventoryItems.AddRange(AllCertificates.CertificateSummaryList.Select(
                         c =>
                         {
                             try
                             {
-                                return BuildInventoryItem(c.CertificateArn);
+                                return BuildInventoryItem(c.CertificateArn, c.Type);
                             }
                             catch
                             {
@@ -150,14 +171,24 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs
                                 warningFlag = true;
                                 return new CurrentInventoryItem();
                             }
-                        }).Where(acsii => acsii?.Certificates != null).ToList());
+                        }).Where(acsii => acsii?.Certificates != null));
 
                     req.NextToken = AllCertificates.NextToken;
                 } while (AllCertificates.NextToken != null);
 
+                if (totalCertificates == 0)
+                {
+                    //An empty result is indistinguishable from an over-restrictive filter, so record the
+                    //exact filters that were applied rather than leaving the next investigation guessing.
+                    Logger.LogDebug($"ACM returned no certificates for {storeRef} in region {awsCredentials.Region.SystemName}. " +
+                        $"Filters applied - key pair origins [{string.Join(", ", keyPairOrigins)}], key types [{string.Join(", ", keyTypes)}], " +
+                        $"statuses [{string.Join(", ", req.CertificateStatuses)}].");
+                }
+
                 int skipped = totalCertificates - inventoryItems.Count;
                 string region = awsCredentials.Region.SystemName;
-                Logger.LogTrace($"inventoryItems Response JSON: {JsonConvert.SerializeObject(inventoryItems)}");
+                if (Logger.IsEnabled(LogLevel.Trace))
+                    Logger.LogTrace($"inventoryItems Response JSON: {JsonConvert.SerializeObject(inventoryItems)}");
 
                 siu.Invoke(inventoryItems);
 
@@ -211,7 +242,7 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs
             return $"store [ClientMachine='{clientMachine}', StorePath='{storePath}']";
         }
 
-        protected virtual CurrentInventoryItem BuildInventoryItem(string alias)
+        protected virtual CurrentInventoryItem BuildInventoryItem(string alias, CertificateType certificateType)
         {
             try
             {
@@ -224,12 +255,19 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs
                 {
                     { "ACM Tags", GetCertificateTagsFromArn(alias) }
                 };
+                // Only user-imported certificates have a private key ACM accepts a replacement for. ACM holds no
+                // private key for the certificates it issues itself - Amazon-issued, Private CA-issued, and
+                // ACME-issued - so reporting those as private key entries makes Command offer a renewal that
+                // Management is guaranteed to reject. Type is returned by ListCertificates, so this costs no
+                // extra API call. An absent Type is treated as not-imported: suppressing a renewal that would
+                // have worked is recoverable, offering one that always fails is not.
+                bool isUserImported = certificateType == CertificateType.IMPORTED;
                 CurrentInventoryItem acsi = new CurrentInventoryItem()
                 {
                     Alias = alias,
                     Certificates = new[] { base64Cert },
                     ItemStatus = OrchestratorInventoryItemStatus.Unknown,
-                    PrivateKeyEntry = true,
+                    PrivateKeyEntry = isUserImported,
                     UseChainLevel = false,
                     Parameters = entryParams
                 };
@@ -250,9 +288,12 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs
                 Logger.MethodEntry();
                 Logger.LogTrace($"arn: {arn}");
                 GetCertificateRequest GetCertificateRequest = new GetCertificateRequest(arn);
-                Logger.LogTrace($"GetCertificateRequest Serialized Auth Request: {JsonConvert.SerializeObject(GetCertificateRequest)}");
+                //Runs once per certificate, so guard the serialization - see the note in PerformInventory.
+                if (Logger.IsEnabled(LogLevel.Trace))
+                    Logger.LogTrace($"GetCertificateRequest Serialized Auth Request: {JsonConvert.SerializeObject(GetCertificateRequest)}");
                 GetCertificateResponse GetCertificateResponse = AsyncHelpers.RunSync(() => AcmClient.GetCertificateAsync(GetCertificateRequest));
-                Logger.LogTrace($"GetCertificateRequest Serialized Auth Response: {JsonConvert.SerializeObject(GetCertificateResponse)}");
+                if (Logger.IsEnabled(LogLevel.Trace))
+                    Logger.LogTrace($"GetCertificateRequest Serialized Auth Response: {JsonConvert.SerializeObject(GetCertificateResponse)}");
                 return GetCertificateResponse.Certificate;
             }
             catch (Exception e)
@@ -271,13 +312,8 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs
                 ListTagsForCertificateRequest getTagsRequest = new ListTagsForCertificateRequest() { CertificateArn = arn };
                 ListTagsForCertificateResponse getTagsResponse = AsyncHelpers.RunSync(() => AcmClient.ListTagsForCertificateAsync(getTagsRequest));
 
-                string tags = "";
-                foreach (Amazon.CertificateManager.Model.Tag tag in getTagsResponse.Tags)
-                {
-                    tags += $",{tag.Key}={tag.Value}";
-                }
-
-                return tags.Length > 0 ? tags.Substring(1) : tags; 
+                //Management.ParseACMTags reads this back, so the format must stay "Name1=Value1,Name2=Value2".
+                return string.Join(",", getTagsResponse.Tags.Select(t => $"{t.Key}={t.Value}"));
             }
             catch (Exception e)
             {
@@ -296,9 +332,16 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs
             try
             {
                 Logger.MethodEntry();
+                // Match the delimiters themselves and trim the surrounding whitespace separately. An
+                // earlier version folded the newlines into the match ("\n-----END CERTIFICATE-----\n"),
+                // so a PEM whose final newline was absent kept the footer text inside the Base64 body.
+                // ACM always sends that newline, but the dependency was invisible and unnecessary.
+                // Interior line wrapping is left intact - Command tolerates it, and preserving it keeps
+                // the emitted value byte-identical to what previous releases produced.
                 var noAnchors = base64Cert.Replace("\r", "")
-                    .Replace("-----BEGIN CERTIFICATE-----\n", "")
-                    .Replace("\n-----END CERTIFICATE-----\n", "");
+                    .Replace("-----BEGIN CERTIFICATE-----", "")
+                    .Replace("-----END CERTIFICATE-----", "")
+                    .Trim();
                 Logger.LogTrace($"No Anchors: {noAnchors}");
                 return noAnchors;
             }

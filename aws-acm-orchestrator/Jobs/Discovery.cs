@@ -345,7 +345,37 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs
         {
             Logger.LogDebug($"Checking for ACM certificates in region: {region.SystemName}");
             using var acm = new AmazonCertificateManagerClient(credentials, region);
-            var request = new ListCertificatesRequest { MaxItems = 1 };
+
+            // Both of these are inclusion filters: anything not named is silently absent from the result.
+            // This probe decides whether a region gets a certificate store at all, so filtering more
+            // narrowly than Inventory makes a region full of certificates look empty and no store is ever
+            // created for it. Keep both lists in sync with Inventory.PerformInventory - FilterParityTests
+            // fails the build if they drift.
+            //   - Origins: ACM omits ACME-origin certificates unless the origins are requested explicitly.
+            //   - KeyTypes: works around ACM not returning certificates that have no SAN.
+            var request = new ListCertificatesRequest
+            {
+                MaxItems = 1,
+                CertificateKeyPairOrigins = new List<string>
+                {
+                    CertificateKeyPairOrigin.AWS_MANAGED,
+                    CertificateKeyPairOrigin.CUSTOMER_PROVIDED,
+                    CertificateKeyPairOrigin.ACME
+                },
+                Includes = new Filters
+                {
+                    KeyTypes = new List<string>
+                    {
+                        KeyAlgorithm.RSA_1024,
+                        KeyAlgorithm.RSA_2048,
+                        KeyAlgorithm.RSA_3072,
+                        KeyAlgorithm.RSA_4096,
+                        KeyAlgorithm.EC_prime256v1,
+                        KeyAlgorithm.EC_secp384r1,
+                        KeyAlgorithm.EC_secp521r1
+                    }
+                }
+            };
             var response = AsyncHelpers.RunSync(() => acm.ListCertificatesAsync(request));
             return response.CertificateSummaryList.Count > 0;
         }
@@ -406,7 +436,7 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs
         }
 
         // Builds arn:aws:iam::<accountId>:role/<roleName>, partition-aware for GovCloud/China.
-        private static string BuildMemberRoleArn(string partitionName, string accountId, string roleName)
+        internal static string BuildMemberRoleArn(string partitionName, string accountId, string roleName)
         {
             string partition;
             switch (partitionName)
@@ -419,7 +449,7 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs
         }
 
         // AWS Organizations has a single global endpoint per partition.
-        private static RegionEndpoint GetOrganizationsRegion(string partitionName)
+        internal static RegionEndpoint GetOrganizationsRegion(string partitionName)
         {
             switch (partitionName)
             {
@@ -464,7 +494,7 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs
             }
         }
 
-        private List<RegionEndpoint> ParseRegions(string regionsConfig, string partitionName)
+        internal List<RegionEndpoint> ParseRegions(string regionsConfig, string partitionName)
         {
             // Treat blank or "*" (spec's wildcard for "all enabled regions") as "use the full partition list".
             if (string.IsNullOrWhiteSpace(regionsConfig) || regionsConfig.Trim() == "*")
@@ -477,7 +507,7 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs
                 .ToList();
         }
 
-        private static IEnumerable<string> SplitCsv(string value)
+        internal static IEnumerable<string> SplitCsv(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
                 return Enumerable.Empty<string>();
@@ -488,12 +518,12 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs
                 .Where(s => s.Length > 0);
         }
 
-        private static string FirstNonEmpty(string a, string b)
+        internal static string FirstNonEmpty(string a, string b)
         {
             return string.IsNullOrWhiteSpace(a) ? b : a;
         }
 
-        private string GetJobProperty(Dictionary<string, object> jobProperties, string key)
+        internal string GetJobProperty(Dictionary<string, object> jobProperties, string key)
         {
             if (jobProperties != null && jobProperties.TryGetValue(key, out object value) && value != null)
                 return value.ToString();
@@ -503,7 +533,7 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs
         // Case-insensitive lookup across several candidate keys (returns the first non-empty match).
         // Lets a single concept be supplied either via an explicit programmatic property or via the
         // standard Discovery dialog field whose JobProperties key varies by Command version.
-        private string GetJobPropertyMulti(Dictionary<string, object> jobProperties, params string[] keys)
+        internal string GetJobPropertyMulti(Dictionary<string, object> jobProperties, params string[] keys)
         {
             if (jobProperties == null) return null;
             foreach (var key in keys)
