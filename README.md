@@ -5,9 +5,9 @@
 <p align="center">
   <!-- Badges -->
 <img src="https://img.shields.io/badge/integration_status-production-3D1973?style=flat-square" alt="Integration Status: production" />
-<a href="https://github.com/Keyfactor/aws-acm-orchestrator-dev/releases"><img src="https://img.shields.io/github/v/release/Keyfactor/aws-acm-orchestrator-dev?style=flat-square" alt="Release" /></a>
-<img src="https://img.shields.io/github/issues/Keyfactor/aws-acm-orchestrator-dev?style=flat-square" alt="Issues" />
-<img src="https://img.shields.io/github/downloads/Keyfactor/aws-acm-orchestrator-dev/total?style=flat-square&label=downloads&color=28B905" alt="GitHub Downloads (all assets, all releases)" />
+<a href="https://github.com/Keyfactor/aws-orchestrator/releases"><img src="https://img.shields.io/github/v/release/Keyfactor/aws-orchestrator?style=flat-square" alt="Release" /></a>
+<img src="https://img.shields.io/github/issues/Keyfactor/aws-orchestrator?style=flat-square" alt="Issues" />
+<img src="https://img.shields.io/github/downloads/Keyfactor/aws-orchestrator/total?style=flat-square&label=downloads&color=28B905" alt="GitHub Downloads (all assets, all releases)" />
 </p>
 
 <p align="center">
@@ -831,78 +831,91 @@ the Keyfactor Command Portal
    A switch to enable the store to use Default SDK credentials
 
    ![AWS-ACM-v3 Custom Field - UseDefaultSdkAuth](docsource/images/AWS-ACM-v3-custom-field-UseDefaultSdkAuth-dialog.svg)
+   ![AWS-ACM-v3 Custom Field - UseDefaultSdkAuth](docsource/images/AWS-ACM-v3-custom-field-UseDefaultSdkAuth-validation-options-dialog.svg)
 
 
    ###### Assume new Role using Default SDK Auth
    A switch to enable the store to assume a new Role when using Default SDK credentials
 
    ![AWS-ACM-v3 Custom Field - DefaultSdkAssumeRole](docsource/images/AWS-ACM-v3-custom-field-DefaultSdkAssumeRole-dialog.svg)
+   ![AWS-ACM-v3 Custom Field - DefaultSdkAssumeRole](docsource/images/AWS-ACM-v3-custom-field-DefaultSdkAssumeRole-validation-options-dialog.svg)
 
 
    ###### Use OAuth 2.0 Provider
    A switch to enable the store to use an OAuth provider workflow to authenticate with AWS
 
    ![AWS-ACM-v3 Custom Field - UseOAuth](docsource/images/AWS-ACM-v3-custom-field-UseOAuth-dialog.svg)
+   ![AWS-ACM-v3 Custom Field - UseOAuth](docsource/images/AWS-ACM-v3-custom-field-UseOAuth-validation-options-dialog.svg)
 
 
    ###### OAuth Scope
    This is the OAuth Scope needed for Okta OAuth, defined in Okta
 
    ![AWS-ACM-v3 Custom Field - OAuthScope](docsource/images/AWS-ACM-v3-custom-field-OAuthScope-dialog.svg)
+   ![AWS-ACM-v3 Custom Field - OAuthScope](docsource/images/AWS-ACM-v3-custom-field-OAuthScope-validation-options-dialog.svg)
 
 
    ###### OAuth Grant Type
    In OAuth 2.0, the term 'grant type' refers to the way an application gets an access token. In Okta this is `client_credentials`
 
    ![AWS-ACM-v3 Custom Field - OAuthGrantType](docsource/images/AWS-ACM-v3-custom-field-OAuthGrantType-dialog.svg)
+   ![AWS-ACM-v3 Custom Field - OAuthGrantType](docsource/images/AWS-ACM-v3-custom-field-OAuthGrantType-validation-options-dialog.svg)
 
 
    ###### OAuth Url
    The token endpoint URL of the OAuth 2.0 / OIDC identity provider, for example https://your-tenant.okta.com/oauth2/default/v1/token
 
    ![AWS-ACM-v3 Custom Field - OAuthUrl](docsource/images/AWS-ACM-v3-custom-field-OAuthUrl-dialog.svg)
+   ![AWS-ACM-v3 Custom Field - OAuthUrl](docsource/images/AWS-ACM-v3-custom-field-OAuthUrl-validation-options-dialog.svg)
 
 
    ###### OAuth Client ID
    The Client ID for OAuth.
 
    ![AWS-ACM-v3 Custom Field - OAuthClientId](docsource/images/AWS-ACM-v3-custom-field-OAuthClientId-dialog.svg)
+   ![AWS-ACM-v3 Custom Field - OAuthClientId](docsource/images/AWS-ACM-v3-custom-field-OAuthClientId-validation-options-dialog.svg)
 
 
    ###### OAuth Client Secret
    The Client Secret for OAuth.
 
    ![AWS-ACM-v3 Custom Field - OAuthClientSecret](docsource/images/AWS-ACM-v3-custom-field-OAuthClientSecret-dialog.svg)
+   ![AWS-ACM-v3 Custom Field - OAuthClientSecret](docsource/images/AWS-ACM-v3-custom-field-OAuthClientSecret-validation-options-dialog.svg)
 
 
    ###### Use IAM User Auth
    A switch to enable the store to use IAM User auth to assume a role when authenticating with AWS
 
    ![AWS-ACM-v3 Custom Field - UseIAM](docsource/images/AWS-ACM-v3-custom-field-UseIAM-dialog.svg)
+   ![AWS-ACM-v3 Custom Field - UseIAM](docsource/images/AWS-ACM-v3-custom-field-UseIAM-validation-options-dialog.svg)
 
 
    ###### IAM User Access Key
    The AWS Access Key for an IAM User
 
    ![AWS-ACM-v3 Custom Field - IAMUserAccessKey](docsource/images/AWS-ACM-v3-custom-field-IAMUserAccessKey-dialog.svg)
+   ![AWS-ACM-v3 Custom Field - IAMUserAccessKey](docsource/images/AWS-ACM-v3-custom-field-IAMUserAccessKey-validation-options-dialog.svg)
 
 
    ###### IAM User Access Secret
    The AWS Access Secret for an IAM User.
 
    ![AWS-ACM-v3 Custom Field - IAMUserAccessSecret](docsource/images/AWS-ACM-v3-custom-field-IAMUserAccessSecret-dialog.svg)
+   ![AWS-ACM-v3 Custom Field - IAMUserAccessSecret](docsource/images/AWS-ACM-v3-custom-field-IAMUserAccessSecret-validation-options-dialog.svg)
 
 
    ###### sts:ExternalId
    An optional parameter sts:ExternalId to pass with Assume Role calls
 
    ![AWS-ACM-v3 Custom Field - ExternalId](docsource/images/AWS-ACM-v3-custom-field-ExternalId-dialog.svg)
+   ![AWS-ACM-v3 Custom Field - ExternalId](docsource/images/AWS-ACM-v3-custom-field-ExternalId-validation-options-dialog.svg)
 
 
    ###### Discovery Role Name
    The IAM role name that exists in each target account. Used during cross-account Discovery to construct the Role ARN for cross-account access (arn:aws:iam::<account-id>:role/<this-value>). During a Discovery job this is supplied via the 'File name patterns to match' dialog field; this store property documents and defaults the value.
 
    ![AWS-ACM-v3 Custom Field - DiscoveryRoleName](docsource/images/AWS-ACM-v3-custom-field-DiscoveryRoleName-dialog.svg)
+   ![AWS-ACM-v3 Custom Field - DiscoveryRoleName](docsource/images/AWS-ACM-v3-custom-field-DiscoveryRoleName-validation-options-dialog.svg)
 
 
    ##### Entry Parameters Tab
@@ -918,6 +931,7 @@ the Keyfactor Command Portal
    The optional ACM tags that should be assigned to the certificate.  Multiple name/value pairs may be entered in the format of `Name1=Value1,Name2=Value2,...,NameN=ValueN`
 
    ![AWS-ACM-v3 Entry Parameter - ACM Tags](docsource/images/AWS-ACM-v3-entry-parameters-store-type-dialog-ACM Tags.svg)
+   ![AWS-ACM-v3 Entry Parameter - ACM Tags](docsource/images/AWS-ACM-v3-entry-parameters-store-type-dialog-ACM Tags-validation-options.svg)
 
 
    </details>
@@ -926,9 +940,9 @@ the Keyfactor Command Portal
 
 1. **Download the latest AWS Certificate Manager (ACM) Universal Orchestrator extension from GitHub.**
 
-    Navigate to the [AWS Certificate Manager (ACM) Universal Orchestrator extension GitHub version page](https://github.com/Keyfactor/aws-acm-orchestrator-dev/releases/latest). Refer to the compatibility matrix below to determine which asset should be downloaded. Then, click the corresponding asset to download the zip archive.
+    Navigate to the [AWS Certificate Manager (ACM) Universal Orchestrator extension GitHub version page](https://github.com/Keyfactor/aws-orchestrator/releases/latest). Refer to the compatibility matrix below to determine which asset should be downloaded. Then, click the corresponding asset to download the zip archive.
 
-   | Universal Orchestrator Version | Latest .NET version installed on the Universal Orchestrator server | `rollForward` condition in `Orchestrator.runtimeconfig.json` | `aws-acm-orchestrator-dev` .NET version to download |
+   | Universal Orchestrator Version | Latest .NET version installed on the Universal Orchestrator server | `rollForward` condition in `Orchestrator.runtimeconfig.json` | `aws-orchestrator` .NET version to download |
    | --------- | ----------- | ----------- | ----------- |
    | Between `11.0.0` and `11.5.1` (inclusive) | `net8.0` | `LatestMajor` | `net8.0` |
    | `11.6` _and_ newer | `net8.0` | | `net8.0` |
@@ -945,10 +959,10 @@ the Keyfactor Command Portal
 
 3. **Create a new directory for the AWS Certificate Manager (ACM) Universal Orchestrator extension inside the extensions directory.**
 
-    Create a new directory called `aws-acm-orchestrator-dev`.
+    Create a new directory called `aws-orchestrator`.
     > The directory name does not need to match any names used elsewhere; it just has to be unique within the extensions directory.
 
-4. **Copy the contents of the downloaded and unzipped assemblies from __step 2__ to the `aws-acm-orchestrator-dev` directory.**
+4. **Copy the contents of the downloaded and unzipped assemblies from __step 2__ to the `aws-orchestrator` directory.**
 
 5. **Restart the Universal Orchestrator service.**
 
