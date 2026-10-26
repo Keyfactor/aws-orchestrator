@@ -1,9 +1,34 @@
+3.1.1
+* Bug Fix - **Inventory** and **Discovery** now return ACME-issued certificates
+  * `ListCertificates` omits certificates with a `CertificateKeyPairOrigin` of `ACME` unless the origins are requested explicitly, so ACME-issued certificates were silently absent from inventory. Both jobs now request all origins the AWS SDK defines (`AWS_MANAGED`, `CUSTOMER_PROVIDED`, `ACME`)
+  * Previously a region containing only ACME-issued certificates appeared empty to Discovery and no certificate store was created for it
+  * ACME-issued certificates are inventoried for visibility only. Like Amazon-issued and Private CA-issued certificates they are not user-imported, so Management renewal/replace still fails by design - the failure message now names the certificate's `Type` and key pair origin instead of only "Amazon-issued or Private CA-issued"
+* Bug Fix - Added `RSA_3072` to the Inventory key type filter. `Includes.KeyTypes` is an inclusion filter, so RSA-3072 certificates were silently absent from inventory
+* Bug Fix - **Inventory** no longer reports every entry as a private key entry
+  * `PrivateKeyEntry` was hard-coded to `true`, so Command offered renewal/replace on certificates ACM holds no private key for - Amazon-issued, Private CA-issued, and ACME-issued - and the Management job then failed at run time by design
+  * `PrivateKeyEntry` is now derived from the certificate's `Type` and is set only for user-imported (`IMPORTED`) certificates. `Type` is returned by `ListCertificates`, so this adds no API calls
+* Bug Fix - **Inventory** no longer depends on the PEM it receives ending in a newline
+  * The PEM footer was only stripped when a newline followed it, so a certificate body returned without a trailing newline would have been sent to Command with literal `-----END CERTIFICATE-----` text inside the Base64 value. ACM always sends the newline, so this never occurred in practice
+* Bug Fix - **Management** alias-to-ARN matching is now case-insensitive throughout
+  * The `arn:aws:acm:` prefix test was case-insensitive but the `:certificate/` resource test was not, so a fully uppercased ARN was not recognised as an existing certificate and would have been imported as a new certificate instead of replaced in place, leaving a duplicate in ACM. ACM returns lowercase ARNs, so this only affected a hand-entered alias
+* Bug Fix - The **Discovery** region probe now applies the same `Includes.KeyTypes` filter as **Inventory**
+  * The probe requested the ACME key pair origins but no key types, and `Includes.KeyTypes` is an inclusion filter, so a region whose certificates all lacked a SAN looked empty to Discovery and no certificate store was created for it - the same defect as the ACME-origin bug above, in the other filter
+* Security - **Management** no longer writes the certificate contents to the log
+  * `JobCertificate.Contents` (the base64 PFX, which carries the private key) was logged at Trace level on every Add job. Only its length is logged now
+* Inventory now requests 1000 certificates per `ListCertificates` page instead of 100 (1000 is the documented maximum), reducing round trips on large stores
+* Inventory no longer serializes ACM responses to JSON for Trace logging when Trace logging is disabled. The per-certificate dumps ran on every certificate regardless of log level
+* Removed a redundant unfiltered `ListCertificates` call in Inventory that fed only a log line
+* Added Debug logging of the filters applied by Inventory, the key pair origins and certificate types found per batch, and the filter set when a region returns no certificates
+* Documentation rewrite - `docsource/content.md` and `docsource/aws-acm-v3.md` now cover the destination-identity model explicitly, give exact field values per authentication method, and include copy/adapt IAM and trust policy examples for inventory-only, inventory + management, and cross-account Discovery
+  * Added sections on cross-account Discovery job configuration (dialog field mapping and region scanning), certificate types and renewal eligibility, ACM tag behaviour on renewal, `ListCertificates` inclusion-filter behaviour, and troubleshooting
+* Bug Fix - Corrected the `OAuthUrl` store type property description in `integration-manifest.json`, which had been copy-pasted from `ExternalId` and described an `sts:ExternalId` parameter instead of the OAuth token endpoint URL
+
 3.1.0
 * Added support for cross-account **Discovery**
   * Discovery enumerates AWS Organizations accounts via `organizations:ListAccounts`, assumes a per-account IAM role (configurable via the new `DiscoveryRoleName` property; default `KeyfactorACMDiscoveryRole`), and scans each account's enabled regions for ACM certificates
   * Discovered certificate stores use a self-contained `Store Path` of the form `<roleArn>|<region>` that carries both the Role ARN to assume and the AWS Region in a single field; legacy region-only `Store Path` values (with the Role ARN in `Client Machine`) continue to work
   * Added the `DiscoveryRoleName` store type property
-* Discovery, Inventory, and Management jobs now return descriptive success, warning, and failure messages to Keyfactor Command that identify the exact store (and, for Discovery, the accounts and regions scanned) instead of directing the user to the logs .
+* Discovery, Inventory, and Management jobs now return descriptive success, warning, and failure messages to Keyfactor Command that identify the exact store (and, for Discovery, the accounts and regions scanned) instead of directing the user to the logs
 
 3.0.2
 * Bug Fix - On Management jobs, do not send ACM tags if the certificate is being renewed/replaced

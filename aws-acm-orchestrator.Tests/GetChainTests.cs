@@ -9,7 +9,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using FluentAssertions;
 using Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs;
 using Org.BouncyCastle.OpenSsl;
 using Org.BouncyCastle.Pkcs;
@@ -40,8 +39,8 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Tests
 
             var subjects = ReadChainSubjects(store, KeyAlias);
 
-            subjects.Should().ContainSingle().Which.Should().Be("CN=Test Root CA");
-            subjects.Should().NotContain("CN=Test Leaf");
+            Assert.Equal("CN=Test Root CA", Assert.Single(subjects));
+            Assert.DoesNotContain("CN=Test Leaf", subjects);
         }
 
         [Fact]
@@ -58,8 +57,8 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Tests
 
             var subjects = ReadChainSubjects(store, KeyAlias);
 
-            subjects.Should().Equal("CN=Test Intermediate CA", "CN=Test Root CA");
-            subjects.Should().NotContain("CN=Test Leaf");
+            Assert.Equal(new[] { "CN=Test Intermediate CA", "CN=Test Root CA" }, subjects);
+            Assert.DoesNotContain("CN=Test Leaf", subjects);
         }
 
         [Fact]
@@ -73,7 +72,8 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Tests
 
             MemoryStream chainStream = Management.GetChain(store, KeyAlias);
 
-            chainStream.Should().BeNull("a leaf-only PFX has no intermediates, so the chain must be omitted rather than sent empty");
+            // Null, not an empty stream: a leaf-only PFX has no intermediates, so the chain must be omitted.
+            Assert.Null(chainStream);
         }
 
         // Invokes the production GetChain and parses the PEM it produces back into subject DNs.
@@ -81,7 +81,8 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Tests
         {
             using (MemoryStream chainStream = Management.GetChain(store, alias))
             {
-                chainStream.Should().NotBeNull("a chain containing intermediates should produce PEM output");
+                // A chain containing intermediates should produce PEM output.
+                Assert.NotNull(chainStream);
 
                 string pem = Encoding.ASCII.GetString(chainStream.ToArray());
 

@@ -1,13 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.8.12023.21 stable
+VisualStudioVersion = 18.8.12023.21
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "aws-acm-orchestrator", "aws-acm-orchestrator\aws-acm-orchestrator.csproj", "{9BEDC094-06DC-40C6-B5DF-88B4960D4DCF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{515E06CB-9355-43EA-AF70-27F066A5C3AF}"
 	ProjectSection(SolutionItems) = preProject
 		docsource\aws-acm-v3.md = docsource\aws-acm-v3.md
+		CHANGELOG.md = CHANGELOG.md
 		docsource\content.md = docsource\content.md
 		integration-manifest.json = integration-manifest.json
 		readme_source.md = readme_source.md
@@ -37,16 +38,42 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Images", "Images", "{7F05A2
 		Images\UserAccount.gif = Images\UserAccount.gif
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aws-acm-orchestrator.tests", "aws-acm-orchestrator.tests\aws-acm-orchestrator.tests.csproj", "{F9AD9F55-B432-4772-931A-0EAE78612BB1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
 		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{9BEDC094-06DC-40C6-B5DF-88B4960D4DCF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9BEDC094-06DC-40C6-B5DF-88B4960D4DCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BEDC094-06DC-40C6-B5DF-88B4960D4DCF}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{9BEDC094-06DC-40C6-B5DF-88B4960D4DCF}.Debug|x64.Build.0 = Debug|Any CPU
+		{9BEDC094-06DC-40C6-B5DF-88B4960D4DCF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{9BEDC094-06DC-40C6-B5DF-88B4960D4DCF}.Debug|x86.Build.0 = Debug|Any CPU
 		{9BEDC094-06DC-40C6-B5DF-88B4960D4DCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9BEDC094-06DC-40C6-B5DF-88B4960D4DCF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BEDC094-06DC-40C6-B5DF-88B4960D4DCF}.Release|x64.ActiveCfg = Release|Any CPU
+		{9BEDC094-06DC-40C6-B5DF-88B4960D4DCF}.Release|x64.Build.0 = Release|Any CPU
+		{9BEDC094-06DC-40C6-B5DF-88B4960D4DCF}.Release|x86.ActiveCfg = Release|Any CPU
+		{9BEDC094-06DC-40C6-B5DF-88B4960D4DCF}.Release|x86.Build.0 = Release|Any CPU
+		{F9AD9F55-B432-4772-931A-0EAE78612BB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9AD9F55-B432-4772-931A-0EAE78612BB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9AD9F55-B432-4772-931A-0EAE78612BB1}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F9AD9F55-B432-4772-931A-0EAE78612BB1}.Debug|x64.Build.0 = Debug|Any CPU
+		{F9AD9F55-B432-4772-931A-0EAE78612BB1}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F9AD9F55-B432-4772-931A-0EAE78612BB1}.Debug|x86.Build.0 = Debug|Any CPU
+		{F9AD9F55-B432-4772-931A-0EAE78612BB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9AD9F55-B432-4772-931A-0EAE78612BB1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9AD9F55-B432-4772-931A-0EAE78612BB1}.Release|x64.ActiveCfg = Release|Any CPU
+		{F9AD9F55-B432-4772-931A-0EAE78612BB1}.Release|x64.Build.0 = Release|Any CPU
+		{F9AD9F55-B432-4772-931A-0EAE78612BB1}.Release|x86.ActiveCfg = Release|Any CPU
+		{F9AD9F55-B432-4772-931A-0EAE78612BB1}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -45,7 +45,7 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs
         private static String certEnd = "\n-----END CERTIFICATE-----";
 
         // ReSharper disable once FieldCanBeMadeReadOnly.Local
-        private static Func<String, String> _pemify = (ss => ss.Length <= 64 ? ss : ss.Substring(0, 64) + "\n" + _pemify(ss.Substring(64)));
+        internal static Func<String, String> _pemify = (ss => ss.Length <= 64 ? ss : ss.Substring(0, 64) + "\n" + _pemify(ss.Substring(64)));
 
         internal IAmazonCertificateManager AcmClient;
         internal ILogger Logger;
@@ -157,20 +157,31 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs
 
                             if (DescribeCertificateResponse.Certificate.Type != CertificateType.IMPORTED)
                             {
-                                Logger.LogError($"Non User Imported Certificate Type Found for {storeRef}, alias {config.JobCertificate.Alias}");
+                                // Report the actual Type and key pair origin. ACME-issued certificates are not
+                                // user-imported and so land here too, and a message naming only "Amazon-issued or
+                                // Private CA-issued" does not tell an operator using ACME why their renewal failed.
+                                string certType = DescribeCertificateResponse.Certificate.Type?.Value ?? "unspecified";
+                                string keyPairOrigin = DescribeCertificateResponse.Certificate.CertificateKeyPairOrigin?.Value ?? "unspecified";
+                                Logger.LogError($"Non User Imported Certificate Type Found for {storeRef}, alias {config.JobCertificate.Alias} " +
+                                    $"(Type={certType}, CertificateKeyPairOrigin={keyPairOrigin})");
                                 return new JobResult
                                 {
                                     Result = OrchestratorJobStatusJobResult.Failure,
                                     JobHistoryId = config.JobHistoryId,
                                     FailureMessage =
                                         $"AWS Certificate Manager only supports overwriting user-imported certificates. The certificate " +
-                                        $"'{config.JobCertificate.Alias}' in {storeRef} is Amazon-issued or Private CA-issued and cannot be replaced."
+                                        $"'{config.JobCertificate.Alias}' in {storeRef} has Type '{certType}' and key pair origin " +
+                                        $"'{keyPairOrigin}' (not '{CertificateType.IMPORTED}'), so ACM cannot replace it. Certificates that " +
+                                        $"ACM issues itself - including Amazon-issued, Private CA-issued, and ACME-issued certificates - " +
+                                        $"are inventoried for visibility but must be renewed through ACM rather than Keyfactor Command."
                                 };
                             }
                         }
 
                         // Load PFX
-                        Logger.LogTrace($"Loading certificate content: {config.JobCertificate.Contents}");
+                        // Never log JobCertificate.Contents - it is the base64 PFX, i.e. the private key
+                        // material. Trace is exactly the level support asks operators to turn on.
+                        Logger.LogTrace($"Loading certificate content ({config.JobCertificate.Contents?.Length ?? 0} base64 characters).");
                         byte[] pfxBytes = Convert.FromBase64String(config.JobCertificate.Contents);
                         Pkcs12Store p;
                         using (var pfxBytesMemoryStream = new MemoryStream(pfxBytes))
@@ -371,7 +382,7 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs
             }
         }
 
-        private static MemoryStream GetChain(Pkcs12Store store, string alias)
+        internal static MemoryStream GetChain(Pkcs12Store store, string alias)
         {
             string ccs = "";
 
@@ -418,10 +429,10 @@ namespace Keyfactor.Extensions.Orchestrator.Aws.Acm.Jobs
 
             string trimmed = alias.Trim();
             return trimmed.StartsWith("arn:aws:acm:", StringComparison.OrdinalIgnoreCase)
-                && trimmed.Contains(":certificate/");
+                && trimmed.Contains(":certificate/", StringComparison.OrdinalIgnoreCase);
         }
 
-        private List<Amazon.CertificateManager.Model.Tag> ParseACMTags(Dictionary<string, object> jobProperties)
+        internal List<Amazon.CertificateManager.Model.Tag> ParseACMTags(Dictionary<string, object> jobProperties)
         {
             List<Amazon.CertificateManager.Model.Tag> acmTags = new List<Amazon.CertificateManager.Model.Tag>();
 

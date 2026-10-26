@@ -85,7 +85,7 @@ curl -s -X POST "https://${KEYFACTOR_HOSTNAME}/${KEYFACTOR_API_PATH}/Certificate
       "DefaultValue": "https://***/oauth2/default/v1/token",
       "Required": false,
       "IsPAMEligible": false,
-      "Description": "An optional parameter sts:ExternalId to pass with Assume Role calls"
+      "Description": "The token endpoint URL of the OAuth 2.0 / OIDC identity provider, for example https://your-tenant.okta.com/oauth2/default/v1/token"
     },
     {
       "Name": "OAuthClientId",
